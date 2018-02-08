@@ -1,0 +1,74 @@
+<!doctype html>
+<html>
+<title>REMUS</title>
+<!-- external css -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0/css/bootstrap.min.css"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css"/>
+
+
+<!-- external js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.20.1/moment.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0/js/bootstrap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-cookie/2.2.0/js.cookie.min.js"></script>
+
+<!-- internal css -->
+<link rel="stylesheet" href="{{ url_for('static', filename='resources/css/tasks_history.css') }}"/>
+<link rel="stylesheet" href="{{ url_for('static', filename='resources/css/arrow_box.css') }}"/>
+
+<!-- internal js-->
+<script type="text/javascript" src="{{ url_for('static', filename='resources/js/menu_selects.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='resources/js/menu_perform.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='resources/js/tasks_history.js') }}"></script>
+
+<script type="text/javascript">
+    var $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+</script>
+
+<body style="background-color: #f9f9f9">
+<div class="container-fluid no-padding">
+    <div class="col-sm-2">
+        <form style="border: 1px solid black; margin-left:auto; margin-right:auto; display:block;" id="operation_form">
+            <label style="width:100%;">
+                <select name="genome" data-placeholder="Select genome"
+                        id="genome_select">
+                    <option>
+                </select>
+            </label>
+            <br/>
+            <br/>
+            <label style="width:100%;">
+                <select name="genes" data-placeholder="Search for genes ..." multiple
+                        id="genes_select">
+                </select>
+            </label>
+            <br/>
+            <br/>
+            <label style="width:100%;">
+                <select name="tissues" data-placeholder="Choose tissues ..." multiple
+                        id="tissues_select">
+                </select>
+            </label>
+            <br/>
+            <br/>
+            <label style="width:100%;">
+                <select name="operation" data-placeholder="Select operation"
+                        id="operation_select">
+                    <option>
+                </select>
+            </label>
+            <br/>
+            <br/>
+            <div style="text-align: center;"><input id="perform" type="submit" value="Perform"></div>
+        </form>
+        <div style="border: 1px solid black; margin-left:auto; margin-right:auto; display:block; overflow-y: auto; height:400px;">
+            <ol id="history_list" class="rectangle-list">
+            </ol>
+        </div>
+    </div>
+    <div id="summary" class="col-sm-4">
+    </div>
+</div>
+</body>
+</html>

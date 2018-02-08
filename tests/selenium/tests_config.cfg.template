@@ -1,0 +1,9 @@
+[web_driver_path]
+# Remove .template
+# Leave empty if no driver or driver is in PATH
+Chrome =
+Firefox =
+Opera =
+Edge =
+Ie =
+Safari =
