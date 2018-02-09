@@ -1,3 +1,4 @@
 flask
 pybedtools
+pysam
 pandas
