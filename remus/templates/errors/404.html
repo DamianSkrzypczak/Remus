@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block head %}
+    {{ super() }}
+    <style>
+        body {
+            background-color: rgba(18, 146, 255, 0.35);
+        }
+    </style>
+{% endblock %}
+{% block content %}
+    <div class="container h-100">
+        <div class="row h-100 justify-content-center align-items-center">
+            <div class="w-70">
+                <img class="img-fluid" src="{{ url_for('static', filename='img/errors/404.png') }}">
+            </div>
+        </div>
+    </div>
+{% endblock %}

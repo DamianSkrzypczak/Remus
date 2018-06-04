@@ -1,8 +1,7 @@
-import logging
 import os
 
 import pandas as pd
-from flask import Flask, g, render_template, jsonify, request
+from flask import Flask, render_template, jsonify, request, redirect, url_for, g
 
 from remus.bio.bed.beds_loading import BedLoader
 from remus.bio.bed.beds_operations import BedsOperation
@@ -24,40 +23,44 @@ def teardown_registries(response):
     return response
 
 
+@app.route('/favicon.ico')
+def hello():
+    return redirect(url_for('static', filename='img/remus.ico'), code=302)
+
+
 @app.route("/")
 def index():
-    return render_template('index.html')
+    return render_template('index.html', title="Remus")
 
 
-@app.route("/genomes")
-def list_genomes():
-    available_genomes = g.genes_registry.available_genomes
-    return jsonify(available_genomes)
-
-
-@app.route("/genes")
-def list_matching_genes():
-    genome_name = request.args.get("genome")
+@app.route("/api/genes")
+def genes():
+    genome_name = request.args.get("genome").lower()
     pattern = request.args.get("pattern")
     genes_names = []
     if pattern and (genome_name in g.genes_registry.available_genomes):
-        limit = request.args.get("limit", default=100, type=int)
+        limit = request.args.get("limit", default=10, type=int)
         genes_names = g.genes_registry.get_matching_genes(genome_name, pattern, limit)
     return jsonify(genes_names)
 
 
-@app.route("/tissues")
-def list_tissues():
+@app.route("/api/tissues")
+def tissues():
     return jsonify(g.tissues_registry.available_tissues)
 
 
-@app.route("/operations")
-def list_available_operations():
+@app.route("/api/operations")
+def operations():
     return jsonify(list(BedsOperation.operations.keys()))
 
 
-@app.route("/perform", methods=["GET", "POST"])
-def perform_operation():
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template('errors/404.html'), 404
+
+
+@app.route("/api/perform", methods=["GET", "POST"])
+def perform():
     params = get_operation_params()
     if all(params.values()):
         genes_beds = [get_genes_bed(params["genome"], gene) for gene in params["genes"] if gene]
@@ -66,7 +69,6 @@ def perform_operation():
         try:
             processor = BedsOperation(all_beds, operation=params["operation"])
         except Exception as e:
-            logging.exception("")
             return "Problem occured: " + str(e)
         data = {
             "Time elapsed (s)": processor.time_elapsed,
@@ -74,7 +76,7 @@ def perform_operation():
             "Coverage (bps)": processor.result.total_coverage()
         }
         summary = pd.DataFrame(data, index=[0])
-        return summary.to_html()
+        return summary.to_html(classes=["table-bordered", "table-striped", "table-hover"])
 
 
 def get_tissue_bed(tissue_name):

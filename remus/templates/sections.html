@@ -1,0 +1,249 @@
+{% extends "structure.html" %}
+
+{% block general_controls %}
+    {{ super() }}
+    <div class="col">
+        <div class="float-right">
+            <button class="switch close " id="genome-switch-button">
+                <input id="genome-switch" class="switch" type="checkbox">
+                <label for="genome-switch" id="genome-switch-label" class="">Genome</label>
+            </button>
+        </div>
+    </div>
+{% endblock %}
+
+{% block genes_section %}
+    <a class="collapsed card-header bg-info card-link text-white" data-toggle="collapse"
+       href="#collapse-genes">
+        Genes
+    </a>
+    <div id="collapse-genes" class="form-group collapse show">
+        <div class="row">
+            <div class="card-body align-self-center col-md-6">
+                <div class="form-group">
+                    <h5><label for="select-genes">Select genes:</label></h5>
+                    <div>
+                        <select class="form-control" name="genes" id="select-genes" required></select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block tissues_section %}
+    <a class="collapsed card-header bg-info card-link text-white" data-toggle="collapse"
+       href="#collapse-tissues">
+        Tissues
+    </a>
+    <div id="collapse-tissues" class="form-group collapse show">
+        <div class="row">
+            <div class="card-body align-self-center col-md-6">
+                <h5><label for="select-tissues">Select tissues:</label></h5>
+                <div>
+                    <select class="form-control" name="tissues" id="select-tissues" required></select>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block transcription_start_sites %}
+    <a class="collapsed card-header bg-info card-link text-white" data-toggle="collapse"
+       href="#collapse-transcription-start-sites">
+        Transcription start sites
+    </a>
+    <div id="collapse-transcription-start-sites" class="collapse show">
+        <div class="row">
+            <div class="card-body col-md-6">
+                <div class="form-group">
+                    <label for="transcription-start-sites-fantom5-checkbox">
+                        <input id="transcription-start-sites-fantom5-checkbox"
+                               name="transcription-fantom5"
+                               type="checkbox" value="on">
+                        FANTOM5
+                    </label>
+                    <div id="transcription-start-sites-fantom5-controls"
+                         class="collapse hiden-controls">
+                        <div class="col-md-12">
+                            <div class="form-check">
+                                <input class="form-check-input"
+                                       name="transcription-fantom5-range" type="radio"
+                                       id="transcription-fantom5-all" value="all" checked disabled>
+                                <label class="form-check-label" for="transcription-fantom5-all">
+                                    In all selected tissues</label>
+                            </div>
+
+                            <div class="form-check">
+                                <input class="form-check-input"
+                                       name="transcription-fantom5-range" type="radio"
+                                       id="transcription-fantom5-any" value="any" disabled>
+                                <label class="form-check-label" for="transcription-fantom5-any">
+                                    In any selected tissues</label>
+                            </div>
+                            <label for="transcription-fantom5-kbs" class="col-form-label">
+                                Kb upstream
+                                <input name="transcription-fantom5-kbs" class="form-control" type="number"
+                                       value="500" id="transcription-fantom5-kbs" disabled>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block enhancers %}
+    <a class="collapsed card-header bg-info card-link text-white" data-toggle="collapse"
+       href="#collapse-enhancers">
+        Enhancers
+    </a>
+    <div id="collapse-enhancers" class="collapse show">
+        <div class="row">
+            <div class="card-body col-md-6">
+                <div class="form-group">
+                    <label for="enhancers-fantom5-checkbox">
+                        <input id="enhancers-fantom5-checkbox"
+                               name="enhancers-fantom5"
+                               type="checkbox" value="on">
+                        FANTOM5
+                    </label>
+                    <div id="enhancers-fantom5-controls"
+                         class="collapse hiden-controls">
+                        <div class="col-md-12">
+                            <div class="form-check">
+                                <input class="form-check-input"
+                                       name="enhancers-fantom5-range" type="radio"
+                                       id="enhancers-fantom5-all" value="all" checked disabled>
+                                <label class="form-check-label" for="enhancers-fantom5-all">
+                                    In all selected tissues</label>
+                            </div>
+
+                            <div class="form-check">
+                                <input class="form-check-input"
+                                       name="enhancers-fantom5-range" type="radio"
+                                       id="enhancers-fantom5-any" value="any" disabled>
+                                <label class="form-check-label" for="enhancers-fantom5-any">
+                                    In any selected tissues</label>
+                            </div>
+                            <label for="enhancers-fantom5-kbs" class="col-form-label">
+                                Kb upstream
+                                <input name="enhancers-fantom5-kbs" class="form-control" type="number"
+                                       value="500" id="enhancers-fantom5-kbs" disabled>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body col-md-6">
+                <div class="form-group">
+                    <label for="enhancers-encode-checkbox">
+                        <input id="enhancers-encode-checkbox"
+                               name="enhancers-encode"
+                               type="checkbox" value="on">
+                        ENCODE
+                    </label>
+                    <div id="enhancers-encode-controls"
+                         class="collapse hiden-controls">
+                        <div class="col-md-12">
+                            <div class="form-check">
+                                <input class="form-check-input"
+                                       name="enhancers-encode-range" type="radio"
+                                       id="enhancers-encode-all" value="all" checked disabled>
+                                <label class="form-check-label" for="enhancers-encode-all">
+                                    In all selected tissues</label>
+                            </div>
+
+                            <div class="form-check">
+                                <input class="form-check-input"
+                                       name="enhancers-encode-range" type="radio"
+                                       id="enhancers-encode-any" value="any" disabled>
+                                <label class="form-check-label" for="enhancers-encode-any">
+                                    In any selected tissues</label>
+                            </div>
+                            <label for="enhancers-encode-kbs" class="col-form-label">
+                                Kb upstream
+                                <input name="enhancers-encode-kbs" class="form-control" type="number"
+                                       value="500" id="enhancers-encode-kbs" disabled>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block accessible_chromatin %}
+    <a class="collapsed card-header bg-info card-link text-white" data-toggle="collapse"
+       href="#collapse-accessible-chromatin">
+        Accessible chromatin
+    </a>
+    <div id="collapse-accessible-chromatin" class="collapse show">
+        <div class="row">
+            <div class="card-body col-md-6">
+                <div class="form-group">
+                    <label for="accessible-chromatin-encode-checkbox">
+                        <input id="accessible-chromatin-encode-checkbox"
+                               name="accessible-chromatin-encode"
+                               type="checkbox" value="on">
+                        ENCODE
+                    </label>
+                    <div id="accessible-chromatin-encode-controls"
+                         class="collapse hiden-controls">
+                        <div class="col-md-12">
+                            <div class="form-check">
+                                <input class="form-check-input"
+                                       name="accessible-chromatin-encode-range" type="radio"
+                                       id="accessible-chromatin-encode-all" value="all" checked disabled>
+                                <label class="form-check-label" for="accessible-chromatin-encode-all">
+                                    In all selected tissues</label>
+                            </div>
+
+                            <div class="form-check">
+                                <input class="form-check-input"
+                                       name="accessible-chromatin-encode-range" type="radio"
+                                       id="accessible-chromatin-encode-any" value="any" disabled>
+                                <label class="form-check-label" for="accessible-chromatin-encode-any">
+                                    In any selected tissues</label>
+                            </div>
+                            <label for="accessible-chromatin-encode-kbs" class="col-form-label">
+                                Kb upstream
+                                <input name="accessible-chromatin-encode-kbs" class="form-control" type="number"
+                                       value="500" id="accessible-chromatin-encode-kbs" disabled>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block summary_panel %}
+    <div class="row align-items-top">
+        <div class="col-md-6 " style="padding-left: 0">
+            <div class="form-group">
+                <label for="select-operation" class="col-lg-6" style="padding-left: 0">
+                    Operation:
+                </label>
+                <select class="form-control" name="operation" id="select-operation" required></select>
+            </div>
+            <br>
+            <input type="submit" id="submit-all" class="btn btn-success btn-lg" role="button" aria-disabled="true">
+            <input type="button" id="download-result" class="btn btn-success btn-lg"
+                   role="button" aria-disabled="true" value="Download result" disabled>
+        </div>
+        <div class="col-md-6" style="margin-top: 32px">
+            <div id="results-loading" class="text-center" style="border: dashed 1px; display:none">
+                <img src="{{ url_for('static', filename='img/loading.gif') }}" class="w-25"/>
+                <p>Computing...
+                    <br>
+                    (Please don't close page until finished)</p>
+            </div>
+            <div id="results-table" class="text-center" style="display:none">
+            </div>
+        </div>
+    </div>
+{% endblock %}

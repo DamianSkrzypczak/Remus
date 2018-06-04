@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% block content %}
+    {{ super() }}
+    <div class="container content">
+        <div class="row">
+            <img src="{{ url_for('static', filename='img/remus_logo_no_text.png') }}" class="img-fluid" alt="Logo"
+                 style="width:8%; height: 8%;">
+            <h1 class="display-1">Remus</h1>
+        </div>
+        <div id="description-jumbotron" class="jumbotron">
+            <br>
+            <p><strong>Remus</strong> is a tool for identification of regulatory regions potentially associated with
+                monogenic disease
+                phenotypes.</p>
+
+            <strong>Description:</strong><br>
+            Starting from a small set of genes implicated in the disease pathogenesis, Remus finds regulatory features
+            linked with these genes in several large scale repositories of tissue-specific genome-scale regulatory data.
+            Customizable search and step-by-step process allows for iterative building of a tissue-specific set of
+            regions that likely play a role in regulating expression of the input genes in the tissues affected by the
+            disease.
+        </div>
+        <div id="content-jumbotron" class="jumbotron">
+            <div class="row">
+                {% block general_controls %}{% endblock %}
+            </div>
+            <br>
+            <form id="main-form" data-persist="garlic" method="POST">
+                <div id="accordion">
+                    <div class="card">
+                        {% block genes_section %}{% endblock %}
+                    </div>
+                    <br>
+                    <div class="card">
+                        {% block tissues_section %}{% endblock %}
+                    </div>
+                    <br>
+                    <div class="card">
+                        {% block transcription_start_sites %}{% endblock %}
+                    </div>
+                    <br>
+                    <div class="card">
+                        {% block enhancers %}{% endblock %}
+                    </div>
+                    <br>
+                    <div class="card">
+                        {% block accessible_chromatin %}{% endblock %}
+                    </div>
+                    <div class="card-body">
+                        {% block summary_panel %} {% endblock %}
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <script>
+        $("#genome-switch-button").bind('click', function (evt) {
+            $("#select-genes").empty()
+        });
+
+        $("#transcription-start-sites-fantom5-checkbox").bind('click dblclick', function (evt) {
+            if ($(this).is(":checked")) {
+                $('#transcription-start-sites-fantom5-controls').slideDown();
+                $("#transcription-start-sites-fantom5-controls input").prop('disabled', false);
+
+            } else {
+                $('#transcription-start-sites-fantom5-controls').slideUp();
+                $("#transcription-start-sites-fantom5-controls input").prop('disabled', true);
+            }
+        });
+
+        $("#enhancers-fantom5-checkbox").bind('click dblclick', function (evt) {
+            if ($(this).is(":checked")) {
+                $('#enhancers-fantom5-controls').slideDown();
+                $('#enhancers-fantom5-controls input').prop('disabled', false);
+            } else {
+                $('#enhancers-fantom5-controls').slideUp();
+                $('#enhancers-fantom5-controls input').prop('disabled', true);
+            }
+        });
+
+        $("#enhancers-encode-checkbox").bind('click dblclick', function (evt) {
+            if ($(this).is(":checked")) {
+                $('#enhancers-encode-controls').slideDown();
+                $('#enhancers-encode-controls input').prop('disabled', false);
+            } else {
+                $('#enhancers-encode-controls').slideUp();
+                $('#enhancers-encode-controls input').prop('disabled', true);
+            }
+        });
+        $("#accessible-chromatin-encode-checkbox").bind('click dblclick', function (evt) {
+            if ($(this).is(":checked")) {
+                $('#accessible-chromatin-encode-controls').slideDown();
+                $('#accessible-chromatin-encode-controls input').prop('disabled', false);
+            } else {
+                $('#accessible-chromatin-encode-controls').slideUp();
+                $('#accessible-chromatin-encode-controls input').prop('disabled', false);
+            }
+        });
+    </script>
+{% endblock %}

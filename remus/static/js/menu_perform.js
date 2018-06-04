@@ -17,7 +17,6 @@ $(document).ready(function () {
 });
 
 function perform_operation(json_string) {
-    console.log(json_string);
     var genome = $('#genome_select').val();
     var genes = $('#genes_select').val();
     var tissues = $('#tissues_select').val();

@@ -1,0 +1,43 @@
+html {
+    position: relative;
+    min-height: 100%;
+}
+
+body {
+    margin-bottom: 40px;
+}
+
+table {
+    width: 100%;
+    height: 100%;
+}
+
+
+#description-jumbotron {
+    padding-top: 0;
+    padding-bottom: 32px
+}
+
+#content-jumbotron {
+    padding-top: 32px;
+    padding-bottom: 32px;
+}
+
+.hiden-controls {
+    display: none;
+}
+
+.content {
+    margin-bottom: 64px;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    background: rgba(255, 255, 255, .8) url('http://i.stack.imgur.com/FhHRx.gif') 50% 50% no-repeat;
+}
