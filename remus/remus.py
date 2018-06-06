@@ -72,8 +72,8 @@ def perform():
             return "Problem occured: " + str(e)
         data = {
             "Time elapsed (s)": processor.time_elapsed,
-            "Result length (lines)": len(processor.result),
-            "Coverage (bps)": processor.result.total_coverage()
+            "No. features": len(processor.result),
+            "No. base pairs": processor.result.total_coverage()
         }
         summary = pd.DataFrame(data, index=[0])
         return summary.to_html(classes=["table-bordered", "table-striped", "table-hover"])
