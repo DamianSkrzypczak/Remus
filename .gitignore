@@ -109,3 +109,6 @@ venv.bak/
 
 # config files
 *.cfg
+
+#custom
+db/*

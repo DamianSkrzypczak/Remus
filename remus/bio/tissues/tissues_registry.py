@@ -39,5 +39,10 @@ class TissuesFilesRegistry:
             results[sub_dir] = [tn for tn in tissues_names if tn.endswith(sub_dir)]
 
     def get_matching_tissues(self, pattern, limit):
-        pattern = re.sub("\s+", ".*", pattern, re.IGNORECASE)
-        return sorted([i for i in self.available_tissues if re.search(pattern, i, re.IGNORECASE)])[:limit]
+        limit = limit if limit else -1
+        pattern = pattern if pattern else " "
+        try:
+            pattern = re.sub("\s+", ".*", pattern, re.IGNORECASE)
+            return sorted([i for i in self.available_tissues if re.search(pattern, i, re.IGNORECASE)])[:limit]
+        except LookupError:
+            return []

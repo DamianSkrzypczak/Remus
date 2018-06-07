@@ -39,7 +39,7 @@ $(document).ready(function () {
     $('#select-tissues').select2({
         multiple: true,
         width: '100%',
-        minimumInputLength: 1,
+        minimumInputLength: -1,
 
         placeholder: "Select organs/tissues/cell types",
         // closeOnSelect: false,
@@ -53,7 +53,7 @@ $(document).ready(function () {
                 } else {
                     return {
                         "pattern": params.term,
-                        "limit": 10
+                        "limit": 0
                     }
                 }
             },
@@ -66,7 +66,6 @@ $(document).ready(function () {
             }
         }
     });
-
 
     $("form").submit(function (e) {
         e.preventDefault();
@@ -92,10 +91,16 @@ $(document).ready(function () {
         return false;
     });
 
+
+    $("#download-result").bind("click", "doubleclick", (function (e) {
+        e.preventDefault();
+        window.location.href = $SCRIPT_ROOT + "/api/download_last";
+        return false
+    }));
+
     $(function () {
         $('[data-toggle="popover"]').popover()
     });
-
 });
 
 

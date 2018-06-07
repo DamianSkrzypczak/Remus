@@ -10,32 +10,43 @@ class BedGetters:
     @staticmethod
     def get_genes_beds(genes, genome):
         genome = convert_genome_name(genome, desirable_older_format="hg37")
-        return [g.genes_registry.get_bed(genome, gene) for gene in genes]
-        # return BedsMutualOperation(result, operation="union").result
+        genes_beds = [g.genes_registry.get_bed(genome, gene) for gene in genes]
+        return [BedsMutualOperation(genes_beds, operation="union").result]
 
     @staticmethod
-    def get_tissues_beds(tissues):
-        return [g.tissues_registry.get_bed(tissue) for tissue in tissues]
+    def get_transcription_starting_sites_fantom5_beds(genes, genome, flank_range, upstream, downstream):
+        tss_genes = BedGetters._get_joined_flanked_genes(genes, genome, upstream, downstream)
+        promoters = g.tss_registry.get_bed()
+        return [
+            BedsMutualOperation([tss_genes, promoters], operation="intersection", **{"wa": True}).result]
 
     @staticmethod
-    def get_transcription_starting_sites_fantom5_beds(tissues, genome, flank_range, upstream, downstream):
-        genome = convert_genome_name(genome, desirable_older_format="hg19")
-        return BedsFlanker([g.tss_registry.get_bed()], downstream, upstream, genome).results
+    def get_enhancers_fantom5_beds(genes, tissues, genome, flank_range, upstream, downstream):
+        tss_genes = BedGetters._get_joined_flanked_genes(genes, genome, upstream, downstream)
+        f5_enh_tissues = BedGetters._get_tissues_beds(tissues)
+        joined_f5_enh_tissues = BedGetters._process_with_overlapping(flank_range, f5_enh_tissues).result
+        return [
+            BedsMutualOperation([tss_genes, joined_f5_enh_tissues], operation="intersection", **{"wa": True}).result]
 
     @staticmethod
-    def get_enhancers_fantom5_beds(tissues, genome, flank_range, upstream, downstream):
-        flanked_tissues_beds = []
-        genome = convert_genome_name(genome, desirable_older_format="hg19")
-        tissues_beds = BedGetters.get_tissues_beds(tissues)
-        flanked_tissues_beds.extend(BedsFlanker(tissues_beds, downstream, upstream, genome).results)
-        if len(flanked_tissues_beds) <= 1:
-            return flanked_tissues_beds
-        elif flank_range == "all":
-            return BedsMutualOperation(flanked_tissues_beds, operation="intersection").result
+    def _process_with_overlapping(flank_range, beds):
+        if flank_range == "all":
+            return BedsMutualOperation(beds, operation="intersection")
         elif flank_range == "any":
-            return BedsMutualOperation(flanked_tissues_beds, operation="union").result
+            return BedsMutualOperation(beds, operation="union")
         else:
             return []
+
+    @staticmethod
+    def _get_joined_flanked_genes(genes, genome, upstream, downstream):
+        genome = convert_genome_name(genome, desirable_older_format="hg19")
+        genes_beds = BedGetters.get_genes_beds(genes, genome)
+        flanked_genes_beds = BedsFlanker(genes_beds, downstream, upstream, genome).results
+        return BedsMutualOperation(flanked_genes_beds, operation="union").result
+
+    @staticmethod
+    def _get_tissues_beds(tissues):
+        return [g.tissues_registry.get_bed(tissue) for tissue in tissues]
 
     @staticmethod
     def get_enhancers_encode_beds(tissues, genome, flank_range, upstram, downstream):
@@ -47,29 +58,29 @@ class BedGetters:
 
 
 class BedsCollector:
-    genes_params = [
-        "genes", "genome"
-    ]
-    tissues_params = [
-        "tissues"]
+    genes_params = ["genes", "genome"]
+
     transcription_fantom5_params = [
-        "tissues", "genome",
+        "genes", "genome",
         "transcription-fantom5-range",
         "transcription-fantom5-kbs-upstream",
         "transcription-fantom5-kbs-downstream"
     ]
+
     enhancers_fantom5_params = [
-        "tissues", "genome",
+        "genes", "tissues", "genome",
         "enhancers-fantom5-range",
         "enhancers-fantom5-kbs-upstream",
         "enhancers-fantom5-kbs-downstream"
     ]
+
     enhancers_encode_params = [
         "tissues", "genome",
         "enhancers-encode-range",
         "enhancers-encode-kbs-upstream",
         "enhancers-encode-kbs-downstream"
     ]
+
     accessible_chromatin_encode_params = [
         "tissues", "genome",
         "accessible-chromatin-encode-range",
@@ -86,11 +97,6 @@ class BedsCollector:
              self._get_bed_files(
                  self.genes_params,
                  BedGetters.get_genes_beds)
-             ),
-            ("tissues",
-             self._get_bed_files(
-                 self.tissues_params,
-                 BedGetters.get_tissues_beds)
              ),
             ("transcription-fantom5",
              self._get_bed_files(
@@ -132,10 +138,7 @@ def get_matching_genes(pattern, genome_name, limit):
 
 
 def get_matching_tissues(pattern, limit):
-    if pattern:
-        return g.tissues_registry.get_matching_tissues(pattern, limit)
-    else:
-        return []
+    return g.tissues_registry.get_matching_tissues(pattern, limit)
 
 
 def convert_genome_name(genome, desirable_older_format="hg37"):
@@ -143,3 +146,8 @@ def convert_genome_name(genome, desirable_older_format="hg37"):
         return desirable_older_format
     else:
         return genome.lower()
+
+# TODO tu flankujesz promotory, a nam chodzi o znalezienie promotorów w rejonach flankujacych geny,
+# TODO trzebaby dodac jeszcze jeden arg dla tej funkcji - genes/transcripts
+# TODO tu flankujesz enhancery, a nam chodzi o znalezienie enhancerów w rejonach flankujacych geny,
+# TODO wiec trzebaby dodac jeszcze jeden arg dla tej funkcji - genes/transcripts

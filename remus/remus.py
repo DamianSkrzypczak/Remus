@@ -1,8 +1,10 @@
 import logging
+import os
+from tempfile import NamedTemporaryFile
 
 import pandas as pd
 import pybedtools
-from flask import Flask, render_template, jsonify, request, redirect, url_for, g
+from flask import Flask, render_template, jsonify, request, redirect, url_for, g, send_file, session
 
 from remus.bio.bed.beds_operations import BedsMutualOperation
 from remus.bio.genes.genes_registry import GenesDBRegistry
@@ -11,8 +13,9 @@ from remus.bio.tss.tss_registry import TranscriptionStartSitesRegistry
 from remus.processing import get_matching_genes, get_matching_tissues, BedsCollector
 
 app = Flask(__name__)
-
+app.secret_key = b'\xa9\xf8J\xad\x1bj\x02\x06\x12\xdf\xd9\xf2\xb1\xe9Zu'
 pybedtools.debug_mode(True)
+pd.set_option('display.float_format', lambda x: '%.3f' % x)
 
 
 @app.before_request
@@ -45,7 +48,7 @@ def genes():
 @app.route("/api/tissues")
 def tissues():
     pattern = request.args.get("pattern", None)
-    limit = request.args.get("limit", default=10, type=int)
+    limit = request.args.get("limit", default=0, type=int)
     tissues_names = get_matching_tissues(pattern, limit)
     return jsonify(tissues_names)
 
@@ -56,15 +59,30 @@ def perform():
         params = get_perform_params()
         collected_beds_map = BedsCollector(params).collect_bed_files()
         collected_beds_without_categories = [bed for beds_list in collected_beds_map.values() for bed in beds_list]
-        if len(collected_beds_without_categories) > 1:
-            final_processor = BedsMutualOperation(collected_beds_without_categories, operation="intersection")
-            return return_summary(final_processor)
-        else:
-            return """No bed operations were done,
-                   but You can download selected file"""
+        if len(collected_beds_without_categories) == 1:
+            collected_beds_without_categories += collected_beds_without_categories
+        final_processor = BedsMutualOperation(collected_beds_without_categories, operation="union")
+        tmp_file_path = save_as_tmp(final_processor.result)
+        session["last_result"] = tmp_file_path.name
+        return return_summary(final_processor)
     except Exception as e:
         logging.exception("Error occurred, details:")
         return "Error occurred"
+
+
+def save_as_tmp(result):
+    tmp_file = NamedTemporaryFile(suffix="bed", delete=False)
+    result.saveas(tmp_file.name)
+    return tmp_file
+
+
+@app.route("/api/download_last")
+def download_last():
+    last_result_path = session.get("last_result", None)
+    if last_result_path and os.path.exists(last_result_path):
+        return send_file(last_result_path, mimetype="text/bed", attachment_filename='result.bed', as_attachment=True)
+    else:
+        return "", 202
 
 
 def return_summary(processor):

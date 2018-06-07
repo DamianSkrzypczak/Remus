@@ -43,12 +43,11 @@
         Organs, tissues and cell types
     </a>
     <div id="collapse-tissues" class="form-group collapse show">
-        <div class="row">
-            <div class="card-body align-self-center col-md-6">
-                <h5><label for="select-tissues">Select organs/tissues/cell types:</label></h5>
-                <div>
-                    <select class="form-control" name="tissues" id="select-tissues" required></select>
-                </div>
+    <div class="row">
+        <div class="card-body align-self-center col-md-6">
+            <h5><label for="select-tissues">Select organs/tissues/cell types:</label></h5>
+            <div>
+                <select class="form-control" name="tissues" id="select-tissues"></select>
             </div>
         </div>
     </div>
@@ -95,15 +94,23 @@
                                    data-content="This option is currently unavailable but we are working on it.">
                                     [?]
                                 </a>
-
                             </div>
 
                             <div class="form-check">
                                 <input class="form-check-input"
                                        name="transcription-fantom5-range" type="radio"
-                                       id="transcription-fantom5-any" value="any" checked disabled>
+                                       id="transcription-fantom5-any" value="any" disabled>
                                 <label class="form-check-label" for="transcription-fantom5-any">
                                     Active in any of selected tissues</label>
+                                <a class="ask-btn"
+                                   tabindex="0"
+                                   role="button"
+                                   data-trigger="focus"
+                                   data-toggle="popover"
+                                   data-placement="right"
+                                   data-content="This option is currently unavailable but we are working on it.">
+                                    [?]
+                                </a>
                             </div>
                             <label for="transcription-fantom5-kbs" class="col-form-label">
                                 bps upstream
@@ -263,7 +270,8 @@
 {% block summary_panel %}
     <div class="row align-items-top">
         <div class="col-md-4 " style="padding-left: 0">
-            <input type="submit" href="#footer" value="Query" id="submit-all" class="btn btn-success btn-lg" role="button"
+            <input type="submit" href="#footer" value="Query" id="submit-all" class="btn btn-success btn-lg"
+                   role="button"
                    aria-disabled="true">
             <input type="button" id="download-result" class="btn btn-success btn-lg"
                    role="button" aria-disabled="true" value="Download result" disabled>
