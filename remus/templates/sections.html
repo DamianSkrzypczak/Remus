@@ -4,8 +4,14 @@
     {{ super() }}
     <div class="col">
         <div class="float-right">
-            <button class="switch close " id="genome-switch-button">
-                <input id="genome-switch" class="switch" type="checkbox">
+
+            <button class="switch close " id="genome-switch-button"
+                    data-trigger="focus"
+                    data-toggle="popover"
+                    data-placement="left"
+                    data-content="Genome switch is currently disabled.
+                                  HG38 will be available soon.">
+                <input id="genome-switch" class="switch" type="checkbox" disabled>
                 <label for="genome-switch" id="genome-switch-label" class="">Genome</label>
             </button>
         </div>
@@ -34,12 +40,12 @@
 {% block tissues_section %}
     <a class="collapsed card-header bg-info card-link text-white" data-toggle="collapse"
        href="#collapse-tissues">
-        Tissues
+        Organs, tissues and cell types
     </a>
     <div id="collapse-tissues" class="form-group collapse show">
         <div class="row">
             <div class="card-body align-self-center col-md-6">
-                <h5><label for="select-tissues">Select tissues/cell-types:</label></h5>
+                <h5><label for="select-tissues">Select organs/tissues/cell types:</label></h5>
                 <div>
                     <select class="form-control" name="tissues" id="select-tissues" required></select>
                 </div>
@@ -59,35 +65,53 @@
                 <div class="form-group">
                     <label for="transcription-start-sites-fantom5-checkbox">
                         <input id="transcription-start-sites-fantom5-checkbox"
-                               name="transcription-fantom5"
                                type="checkbox" value="on">
                         FANTOM5
                     </label>
+                    {#                    <a class="ask-btn"#}
+                    {#                       tabindex="0"#}
+                    {#                       role="button"#}
+                    {#                       data-trigger="focus"#}
+                    {#                       data-toggle="popover"#}
+                    {#                       data-placement="right"#}
+                    {#                       data-content="There will be help here">#}
+                    {#                        [?]#}
+                    {#                    </a>#}
                     <div id="transcription-start-sites-fantom5-controls"
                          class="collapse hiden-controls">
                         <div class="col-md-12">
                             <div class="form-check">
                                 <input class="form-check-input"
                                        name="transcription-fantom5-range" type="radio"
-                                       id="transcription-fantom5-all" value="all" checked disabled>
+                                       id="transcription-fantom5-all" value="all" disabled>
                                 <label class="form-check-label" for="transcription-fantom5-all">
                                     Active in all selected tissues</label>
+                                <a class="ask-btn"
+                                   tabindex="0"
+                                   role="button"
+                                   data-trigger="focus"
+                                   data-toggle="popover"
+                                   data-placement="right"
+                                   data-content="This option is currently unavailable but we are working on it.">
+                                    [?]
+                                </a>
+
                             </div>
 
                             <div class="form-check">
                                 <input class="form-check-input"
                                        name="transcription-fantom5-range" type="radio"
-                                       id="transcription-fantom5-any" value="any" disabled>
+                                       id="transcription-fantom5-any" value="any" checked disabled>
                                 <label class="form-check-label" for="transcription-fantom5-any">
                                     Active in any of selected tissues</label>
                             </div>
                             <label for="transcription-fantom5-kbs" class="col-form-label">
                                 bps upstream
-                                <input name="transcription-fantom5-kbs" class="form-control" type="number"
-                                       value="3000" id="transcription-fantom5-kbs" disabled>
+                                <input name="transcription-fantom5-kbs-upstream" class="form-control" type="number"
+                                       min="0" value="3000" id="transcription-fantom5-kbs-upstream" disabled>
                                 bps downstream
-                                <input name="transcription-fantom5-kbs" class="form-control" type="number"
-                                       value="100" id="transcription-fantom5-kbs-down" disabled>
+                                <input name="transcription-fantom5-kbs-downstream" class="form-control" type="number"
+                                       min="0" value="100" id="transcription-fantom5-kbs-downstream" disabled>
 
                             </label>
                         </div>
@@ -109,7 +133,6 @@
                 <div class="form-group">
                     <label for="enhancers-fantom5-checkbox">
                         <input id="enhancers-fantom5-checkbox"
-                               name="enhancers-fantom5"
                                type="checkbox" value="on">
                         FANTOM5
                     </label>
@@ -119,7 +142,7 @@
                             <div class="form-check">
                                 <input class="form-check-input"
                                        name="enhancers-fantom5-range" type="radio"
-                                       id="enhancers-fantom5-all" value="all" checked disabled>
+                                       id="enhancers-fantom5-all" value="all" disabled>
                                 <label class="form-check-label" for="enhancers-fantom5-all">
                                     Active in all selected tissues</label>
                             </div>
@@ -127,17 +150,17 @@
                             <div class="form-check">
                                 <input class="form-check-input"
                                        name="enhancers-fantom5-range" type="radio"
-                                       id="enhancers-fantom5-any" value="any" disabled>
+                                       id="enhancers-fantom5-any" value="any" checked disabled>
                                 <label class="form-check-label" for="enhancers-fantom5-any">
                                     Active in any of selected tissues</label>
                             </div>
                             <label for="enhancers-fantom5-kbs" class="col-form-label">
                                 Kb upstream
                                 <input name="enhancers-fantom5-kbs-upstream" class="form-control" type="number"
-                                       value="500" id="enhancers-fantom5-kbs-upstream" disabled>
+                                       min="0" value="500" id="enhancers-fantom5-kbs-upstream" disabled>
                                 Kb downstream
                                 <input name="enhancers-fantom5-kbs-downstream" class="form-control" type="number"
-                                       value="500" id="enhancers-fantom5-kbs-downstream" disabled>
+                                       min="0" value="500" id="enhancers-fantom5-kbs-downstream" disabled>
 
                             </label>
                         </div>
@@ -148,7 +171,6 @@
                 <div class="form-group">
                     <label for="enhancers-encode-checkbox">
                         <input id="enhancers-encode-checkbox"
-                               name="enhancers-encode"
                                type="checkbox" value="on">
                         ENCODE
                     </label>
@@ -158,7 +180,7 @@
                             <div class="form-check">
                                 <input class="form-check-input"
                                        name="enhancers-encode-range" type="radio"
-                                       id="enhancers-encode-all" value="all" checked disabled>
+                                       id="enhancers-encode-all" value="all" disabled>
                                 <label class="form-check-label" for="enhancers-encode-all">
                                     Active in all selected tissues</label>
                             </div>
@@ -166,17 +188,17 @@
                             <div class="form-check">
                                 <input class="form-check-input"
                                        name="enhancers-encode-range" type="radio"
-                                       id="enhancers-encode-any" value="any" disabled>
+                                       id="enhancers-encode-any" value="any" checked disabled>
                                 <label class="form-check-label" for="enhancers-encode-any">
                                     Active in any of selected tissues</label>
                             </div>
                             <label for="enhancers-encode-kbs" class="col-form-label">
                                 Kb upstream
                                 <input name="enhancers-encode-kbs-upstream" class="form-control" type="number"
-                                       value="500" id="enhancers-encode-kbs-upstream" disabled>
+                                       min="0" value="500" id="enhancers-encode-kbs-upstream" disabled>
                                 Kb downstream
                                 <input name="enhancers-encode-kbs-downstream" class="form-control" type="number"
-                                       value="500" id="enhancers-encode-kbs-downstream" disabled>
+                                       min="0" value="500" id="enhancers-encode-kbs-downstream" disabled>
 
                             </label>
                         </div>
@@ -198,7 +220,6 @@
                 <div class="form-group">
                     <label for="accessible-chromatin-encode-checkbox">
                         <input id="accessible-chromatin-encode-checkbox"
-                               name="accessible-chromatin-encode"
                                type="checkbox" value="on">
                         ENCODE
                     </label>
@@ -208,7 +229,7 @@
                             <div class="form-check">
                                 <input class="form-check-input"
                                        name="accessible-chromatin-encode-range" type="radio"
-                                       id="accessible-chromatin-encode-all" value="all" checked disabled>
+                                       id="accessible-chromatin-encode-all" value="all" disabled>
                                 <label class="form-check-label" for="accessible-chromatin-encode-all">
                                     Accessible in all selected tissues</label>
                             </div>
@@ -216,16 +237,18 @@
                             <div class="form-check">
                                 <input class="form-check-input"
                                        name="accessible-chromatin-encode-range" type="radio"
-                                       id="accessible-chromatin-encode-any" value="any" disabled>
+                                       id="accessible-chromatin-encode-any" value="any" checked disabled>
                                 <label class="form-check-label" for="accessible-chromatin-encode-any">
                                     Accessible in any of selected tissues</label>
                             </div>
                             <label for="accessible-chromatin-encode-kbs" class="col-form-label">
                                 Kb upstream
-                                <input name="accessible-chromatin-encode-kbs-upstream" class="form-control" type="number"
+                                <input name="accessible-chromatin-encode-kbs-upstream" class="form-control"
+                                       type="number" min="0"
                                        value="500" id="accessible-chromatin-encode-kbs-upstream" disabled>
                                 Kb downstream
-                                <input name="accessible-chromatin-encode-kbs-downstream" class="form-control" type="number"
+                                <input name="accessible-chromatin-encode-kbs-downstream" class="form-control"
+                                       type="number" min="0"
                                        value="500" id="accessible-chromatin-encode-kbs-downstream" disabled>
 
                             </label>
@@ -239,19 +262,13 @@
 
 {% block summary_panel %}
     <div class="row align-items-top">
-        <div class="col-md-6 " style="padding-left: 0">
-            <div class="form-group">
-                <label for="select-operation" class="col-lg-6" style="padding-left: 0">
-                    Operation:
-                </label>
-                <select class="form-control" name="operation" id="select-operation" required></select>
-            </div>
-            <br>
-            <input type="submit" id="submit-all" class="btn btn-success btn-lg" role="button" aria-disabled="true">
+        <div class="col-md-4 " style="padding-left: 0">
+            <input type="submit" href="#footer" value="Query" id="submit-all" class="btn btn-success btn-lg" role="button"
+                   aria-disabled="true">
             <input type="button" id="download-result" class="btn btn-success btn-lg"
                    role="button" aria-disabled="true" value="Download result" disabled>
         </div>
-        <div class="col-md-6" style="margin-top: 32px">
+        <div class="col-md-8" style="">
             <div id="results-loading" class="text-center" style="border: dashed 1px; display:none">
                 <img src="{{ url_for('static', filename='img/loading.gif') }}" class="w-25"/>
                 <p>Computing...

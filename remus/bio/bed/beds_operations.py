@@ -5,9 +5,7 @@ from pybedtools import BedTool
 from remus.bio.time_measurement import time_it
 
 
-class BedsOperation:
-    # TODO: docstring
-
+class BedsMutualOperation:
     operations = OrderedDict(
         [
             ("intersection", "intersect"),
@@ -16,8 +14,9 @@ class BedsOperation:
         ]
     )
 
-    def __init__(self, beds, operation):
-        # TODO: docstring
+    def __init__(self, beds, operation, **operation_kwargs):
+        self._operation_kwargs = operation_kwargs
+
         if len(beds) < 2:
             raise MissingBedsException("{} requires a collection of at least two Beds".format(self.__class__))
         self._beds = beds
@@ -34,25 +33,47 @@ class BedsOperation:
     def _execute_with_accumulation(self, operation):
         accumulation = self._beds[0]
         for bed in self._beds[1:]:
-            accumulation = operation(accumulation, bed).sort().merge()
+            accumulation = operation(accumulation, bed, **self._operation_kwargs).sort().merge()
         return accumulation
 
     @property
     def result(self):
-        # TODO: docstring
+
         return self._result_bed
 
     @property
     def time_elapsed(self, decimal_precision=6):
-        # TODO: docstring
+
         return round(self._time_elapsed, decimal_precision)
 
 
+class BedsFlanker:
+
+    def __init__(self, beds, upstream, downstream, genome):
+        self._beds = beds
+        self.results_with_times = [self._flank_bed(b, upstream, downstream, genome) for b in self._beds]
+        self._times_elapsed = [r[1] for r in self.results_with_times]
+        self._result_beds = [r[0] for r in self.results_with_times]
+
+    @time_it
+    def _flank_bed(self, bed, upstream, downstream, genome):
+        bed_reduced_to_1_size = bed.flank(**{"l": 1, "r": 0, "genome": genome})
+        bed_flanked = bed_reduced_to_1_size.flank(**{"l": upstream, "r": downstream, "s": True, "genome": genome})
+        bed_sorted = bed_flanked.sort()
+        bed_merged_strand_wise_without_distance_between_features_merged = bed_sorted.merge(**{"s": True, "d": 1})
+        return bed_merged_strand_wise_without_distance_between_features_merged
+
+    @property
+    def results(self):
+        return self._result_beds
+
+    def times_elapsed(self, decimal_precision=6):
+        return [round(t, decimal_precision) for t in self._times_elapsed]
+
+
 class MissingBedsException(Exception):
-    # TODO: docstring
     pass
 
 
 class OperationError(Exception):
-    # TODO: docstring
     pass

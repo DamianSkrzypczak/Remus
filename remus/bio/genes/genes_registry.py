@@ -9,14 +9,14 @@ from remus.bio.bed.beds_loading import BedLoader
 class GenesDBRegistry:
     query_genomes = """SELECT DISTINCT genome FROM genes"""
     query_genes = """SELECT DISTINCT geneSymbol FROM genes 
-                     WHERE genome=='{genome}' AND geneSymbol LIKE '{pattern}%' 
+                     WHERE genome =='{genome}' AND geneSymbol LIKE '{pattern}%' 
                      ORDER BY geneSymbol
                      LIMIT '{limit_to}'"""
     query_gene_sources = """SELECT DISTINCT * FROM genes 
                             WHERE genome=='{genome}' AND geneSymbol=='{gene}'
                             ORDER BY chrom,txStart,txEnd"""
 
-    def __init__(self, genes_db=os.path.join("db", "genes.db")):
+    def __init__(self, genes_db=os.path.join("db", "genes", "genes.db")):
         self.conn = sqlite3.connect(genes_db)
 
     @property
@@ -39,7 +39,7 @@ class GenesDBRegistry:
 
     @staticmethod
     def _extract_sources(genes_df):
-        sources_df = genes_df.iloc[:, [2, 4, 5]]
+        sources_df = genes_df.iloc[:, [1, 2, 3, 4]]
         strings_df = sources_df.apply(lambda x: '\t'.join([str(i) for i in x]), axis=1)
         return strings_df.tolist()
 

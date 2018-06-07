@@ -1,31 +1,31 @@
-import os
+import logging
 
 import pandas as pd
+import pybedtools
 from flask import Flask, render_template, jsonify, request, redirect, url_for, g
 
-from remus.bio.bed.beds_loading import BedLoader
-from remus.bio.bed.beds_operations import BedsOperation
+from remus.bio.bed.beds_operations import BedsMutualOperation
 from remus.bio.genes.genes_registry import GenesDBRegistry
 from remus.bio.tissues.tissues_registry import TissuesFilesRegistry
+from remus.bio.tss.tss_registry import TranscriptionStartSitesRegistry
+from remus.processing import get_matching_genes, get_matching_tissues, BedsCollector
 
 app = Flask(__name__)
+
+pybedtools.debug_mode(True)
 
 
 @app.before_request
 def setup_registries():
-    g.tissues_registry = TissuesFilesRegistry()
     g.genes_registry = GenesDBRegistry()
+    g.tissues_registry = TissuesFilesRegistry()
+    g.tss_registry = TranscriptionStartSitesRegistry()
 
 
 @app.after_request
 def teardown_registries(response):
     g.genes_registry.teardown_registry()
     return response
-
-
-@app.route('/favicon.ico')
-def hello():
-    return redirect(url_for('static', filename='img/remus.ico'), code=302)
 
 
 @app.route("/")
@@ -35,64 +35,85 @@ def index():
 
 @app.route("/api/genes")
 def genes():
-    genome_name = request.args.get("genome").lower()
-    pattern = request.args.get("pattern")
-    genes_names = []
-    if pattern and (genome_name in g.genes_registry.available_genomes):
-        limit = request.args.get("limit", default=10, type=int)
-        genes_names = g.genes_registry.get_matching_genes(genome_name, pattern, limit)
+    genome_name = request.args.get("genome", None)
+    pattern = request.args.get("pattern", None)
+    limit = request.args.get("limit", default=10, type=int)
+    genes_names = get_matching_genes(pattern, genome_name, limit)
     return jsonify(genes_names)
 
 
 @app.route("/api/tissues")
 def tissues():
-    return jsonify(g.tissues_registry.available_tissues)
+    pattern = request.args.get("pattern", None)
+    limit = request.args.get("limit", default=10, type=int)
+    tissues_names = get_matching_tissues(pattern, limit)
+    return jsonify(tissues_names)
 
 
-@app.route("/api/operations")
-def operations():
-    return jsonify(list(BedsOperation.operations.keys()))
+@app.route("/api/perform", methods=["POST"])
+def perform():
+    try:
+        params = get_perform_params()
+        collected_beds_map = BedsCollector(params).collect_bed_files()
+        collected_beds_without_categories = [bed for beds_list in collected_beds_map.values() for bed in beds_list]
+        if len(collected_beds_without_categories) > 1:
+            final_processor = BedsMutualOperation(collected_beds_without_categories, operation="intersection")
+            return return_summary(final_processor)
+        else:
+            return """No bed operations were done,
+                   but You can download selected file"""
+    except Exception as e:
+        logging.exception("Error occurred, details:")
+        return "Error occurred"
+
+
+def return_summary(processor):
+    summary = pd.DataFrame(
+        {
+            "Time elapsed (s)": processor.time_elapsed,
+            "No. features": len(processor.result),
+            "No. base pairs": processor.result.total_coverage()
+        }, index=[0])
+    summary = summary.transpose()
+    summary.columns = [""] * len(summary.columns)
+    return summary.to_html(classes=["table-bordered", "table-striped", "table-hover"])
+
+
+def get_perform_params():
+    collected_parameters = {}
+    collected_parameters.update(get_single_value_params())
+    collected_parameters.update(get_multiple_values_params())
+    return collected_parameters
+
+
+def get_single_value_params():
+    single_value_params = ["genome",
+                           "transcription-fantom5-range",
+                           "enhancers-fantom5-range",
+                           "enhancers-encode-range",
+                           "accessible-chromatin-encode-range",
+                           "transcription-fantom5-kbs-upstream",
+                           "transcription-fantom5-kbs-downstream",
+                           "enhancers-fantom5-kbs-upstream",
+                           "enhancers-fantom5-kbs-downstream",
+                           "enhancers-encode-kbs-upstream",
+                           "enhancers-encode-kbs-downstream",
+                           "accessible-chromatin-encode-kbs-upstream",
+                           "accessible-chromatin-encode-kbs-downstream"
+                           ]
+    return {p: request.form.get(p, None) for p in single_value_params}
+
+
+def get_multiple_values_params():
+    multiple_values_params = ["genes", "tissues"]
+    return {p: request.form.getlist(p, None) for p in multiple_values_params}
+
+
+@app.route('/favicon.ico')
+def favicon():
+    return redirect(url_for('static', filename='img/remus.ico'), code=302)
 
 
 @app.errorhandler(404)
 def page_not_found(e):
     return render_template('errors/404.html'), 404
-
-
-@app.route("/api/perform", methods=["GET", "POST"])
-def perform():
-    params = get_operation_params()
-    if all(params.values()):
-        genes_beds = [get_genes_bed(params["genome"], gene) for gene in params["genes"] if gene]
-        tissues_beds = [get_tissue_bed(tissue) for tissue in params["tissues"] if tissue]
-        all_beds = genes_beds + tissues_beds
-        try:
-            processor = BedsOperation(all_beds, operation=params["operation"])
-        except Exception as e:
-            return "Problem occured: " + str(e)
-        data = {
-            "Time elapsed (s)": processor.time_elapsed,
-            "No. features": len(processor.result),
-            "No. base pairs": processor.result.total_coverage()
-        }
-        summary = pd.DataFrame(data, index=[0])
-        return summary.to_html(classes=["table-bordered", "table-striped", "table-hover"])
-
-
-def get_tissue_bed(tissue_name):
-    tissue_path = os.path.join("db/tissues", "{}.bed".format(tissue_name))
-    loader = BedLoader(tissue_path)
-    return loader.bed
-
-
-def get_genes_bed(genome, gene):
-    return g.genes_registry.get_bed(genome, gene)
-
-
-def get_operation_params():
-    return {
-        'genome': request.form.get("genome", None),
-        'genes': request.form.getlist("genes", None),
-        'tissues': request.form.getlist("tissues", None),
-        'operation': request.form.get("operation", None)
-    }

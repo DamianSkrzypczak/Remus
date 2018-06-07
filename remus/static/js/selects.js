@@ -1,4 +1,4 @@
-DELAY = 10;
+DELAY = 100;
 $(document).ready(function () {
 
     function get_genome() {
@@ -11,7 +11,7 @@ $(document).ready(function () {
         width: '100%',
         minimumInputLength: 1,
         placeholder: "Select genes",
-        allowClear: true,
+        // allowClear: true,
         ajax: {
             delay: DELAY,
             url: $SCRIPT_ROOT + "/api/genes",
@@ -39,10 +39,11 @@ $(document).ready(function () {
     $('#select-tissues').select2({
         multiple: true,
         width: '100%',
-        minimumInputLength: 0,
-        placeholder: "Select tissues",
-        closeOnSelect: false,
-        allowClear: true,
+        minimumInputLength: 1,
+
+        placeholder: "Select organs/tissues/cell types",
+        // closeOnSelect: false,
+        // allowClear: true,
         ajax: {
             delay: DELAY,
             url: $SCRIPT_ROOT + "/api/tissues",
@@ -66,38 +67,9 @@ $(document).ready(function () {
         }
     });
 
-    $('#select-operation').select2({
-        multiple: false,
-        width: '100%',
-        placeholder: "Choose operation",
-        allowClear: true,
-        ajax: {
-            delay: DELAY,
-            url: $SCRIPT_ROOT + "/api/operations",
-            data: function (params) {
-                if (params["term"] === undefined) {
-                    return {};
-                } else {
-                    return {
-                        "pattern": params.term,
-                        "limit": 10
-                    }
-                }
-            },
-            processResults: function (data) {
-                var results = [];
-                $.each(data, function (i, item) {
-                    results.push({"id": item, "text": item})
-                });
-                return {results: results};
-            }
-        }
-    });
 
     $("form").submit(function (e) {
         e.preventDefault();
-        var data = $("#main-form").serializeArray(); // convert form to array
-        data.push({name: "genome", value: get_genome()});
         $('#results-table').hide();
         $('#results-loading').show();
         // $('#submit-all').attr("disabled", true);
@@ -105,9 +77,9 @@ $(document).ready(function () {
         $.ajax({
             type: "POST",
             url: $SCRIPT_ROOT + "/api/perform",
-            data: $.param(data),
+            data: $("#main-form").serialize() + "&genome=" + get_genome(),
             success: function (result) {
-                $("#results-table").html("<p>Summary table:</p>" + result);
+                $("#results-table").html("<h3>Summary table</h3>" + result);
                 $('#results-loading').hide();
                 $('#results-table').show();
                 // $('#submit-all').attr("disabled", false);
@@ -119,6 +91,11 @@ $(document).ready(function () {
         });
         return false;
     });
+
+    $(function () {
+        $('[data-toggle="popover"]').popover()
+    });
+
 });
 
 
