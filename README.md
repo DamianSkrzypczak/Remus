@@ -1,5 +1,5 @@
 # Remus  
-Remus is an online tool which helps with identification of 
+Remus is tool which helps with identification of 
 regulatory regions relevant to a given monogenic disease phenotype.  
 
 

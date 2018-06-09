@@ -111,4 +111,4 @@ venv.bak/
 *.cfg
 
 #custom
-db/*
+data/*
