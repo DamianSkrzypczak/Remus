@@ -14,7 +14,6 @@ from remus.processing import get_matching_genes, get_matching_tissues, BedsColle
 
 app = Flask(__name__)
 app.secret_key = b'\xa9\xf8J\xad\x1bj\x02\x06\x12\xdf\xd9\xf2\xb1\xe9Zu'
-pybedtools.debug_mode(True)
 pd.set_option('display.float_format', lambda x: '%.3f' % x)
 
 
