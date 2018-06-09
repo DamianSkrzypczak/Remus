@@ -58,7 +58,7 @@ class BedsFlanker:
     @time_it
     def _get_promoter(self, bed, upstream, downstream, genome):
         bed_reduced_to_1_size = bed.flank(**{"l": 1, "r": 0, "genome": genome})
-        bed_flanked = bed_reduced_to_1_size.flank(**{"l": upstream, "r": downstream, "s": True, "genome": genome})
+        bed_flanked = bed_reduced_to_1_size.flank(**{"r": upstream, "l": downstream, "s": True, "genome": genome})
         bed_sorted = bed_flanked.sort()
         bed_merged_strand_wise_without_distance_between_features_merged = bed_sorted.merge(**{"s": True, "d": 1})
         return bed_merged_strand_wise_without_distance_between_features_merged
