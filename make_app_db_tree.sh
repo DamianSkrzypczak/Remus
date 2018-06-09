@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-DB_ROOT=db2
+DB_ROOT=db
 GENES_DB=${DB_ROOT}/genes
 GENES_DB_SOURCES=${GENES_DB}/genes_db_sources
 TISSUES=${DB_ROOT}/tissues
