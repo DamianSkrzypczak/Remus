@@ -1,4 +1,4 @@
-## Remus  
+# Remus  
 Remus is an online tool which helps with identification of 
 regulatory regions relevant to a given monogenic disease phenotype.  
 
@@ -18,3 +18,16 @@ of transcription factors and miRNAs, as well as locations of
 TAD boundaries adjacent to the input genes.
 
 Remus is in active development and will be made freely available in fall 2018.
+
+### Installation
+##### Dependencies:
+    pip install -r requirements.txt
+
+or if development mode:  
+    
+    pip install -r requirements-dev.txt
+##### Data tree preparation:
+In application root run:  
+(ensure that at least "pandas" library is installed)  
+    
+    bash make_data_tree.sh

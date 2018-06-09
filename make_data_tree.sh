@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
 
-DB_ROOT=db
-GENES_DB=${DB_ROOT}/genes
-GENES_DB_SOURCES=${GENES_DB}/genes_db_sources
-TISSUES=${DB_ROOT}/tissues
-TISSUES_CELLTYPE=${DB_ROOT}/tissues/celltype
-TISSUES_ORGAN=${DB_ROOT}/tissues/organ
-TSS=${DB_ROOT}/transcription_start_sites
+DATA_ROOT=data
+GENES_DATA=${DATA_ROOT}/genes
+GENES_DB_SOURCES=${GENES_DATA}/genes_db_sources
+TISSUES=${DATA_ROOT}/tissues
+TISSUES_CELLTYPE=${DATA_ROOT}/tissues/celltype
+TISSUES_ORGAN=${DATA_ROOT}/tissues/organ
+TSS=${DATA_ROOT}/transcription_start_sites
 
 #Make dirs
-printf "Making directories tree under %s\n" ${DB_ROOT}
+printf "Making directories tree under %s\n" ${DATA_ROOT}
 mkdir -p ${GENES_DB_SOURCES} -v
 mkdir -p ${TISSUES_CELLTYPE} -v
 mkdir -p ${TISSUES_ORGAN} -v
@@ -23,7 +23,7 @@ cp -R predefined_genes_db_sources ${GENES_DB_SOURCES}
 
 # create genes_db
 printf "Creating genes db\n"
-python create_genes_db.py -i ${GENES_DB_SOURCES} -o ${GENES_DB}/genes.db
+python create_genes_db.py -i ${GENES_DB_SOURCES} -o ${GENES_DATA}/genes.db
 
 
 # Download enhancers fantom5

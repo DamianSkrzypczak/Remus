@@ -16,7 +16,7 @@ class GenesDBRegistry:
                             WHERE genome=='{genome}' AND geneSymbol=='{gene}'
                             ORDER BY chrom,txStart,txEnd"""
 
-    def __init__(self, genes_db=os.path.join("db", "genes", "genes.db")):
+    def __init__(self, genes_db=os.path.join("data", "genes", "genes.db")):
         self.conn = sqlite3.connect(genes_db)
 
     @property
