@@ -1,4 +1,5 @@
-# Remus  
+
+# ![RemusLogo](remus/static/img/remus_logo_mini.png) Remus  
 Remus is tool which helps with identification of 
 regulatory regions relevant to a given monogenic disease phenotype.  
 
