@@ -7,9 +7,9 @@ FROM rastasheep/ubuntu-sshd
 
 RUN apt update && \
     apt install -y \
-	build-essentials \
-	python-dev \
-	python-pip \
+	build-essential \
+	python3-dev \
+	python3-pip \
 	vim \
 	git
 
