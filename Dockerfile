@@ -10,6 +10,12 @@ RUN apt update && \
 	build-essential \
 	python3-dev \
 	python3-pip \
+	zlib1g-dev \
+	liblzma-dev \
+	bedtools \
 	vim \
-	git
+	git && \
+    pip3 install \
+	pandas \
+	pybedtools
 
