@@ -23,7 +23,7 @@ class BedGetters:
     @staticmethod
     def get_enhancers_fantom5_beds(genes, tissues, genome, flank_range, upstream, downstream):
         tss_genes = BedGetters._get_joined_flanked_genes(genes, genome, upstream, downstream)
-        f5_enh_tissues = BedGetters._get_tissues_beds(tissues)
+        f5_enh_tissues = BedGetters._get_fantom5_promoters(tissues)
         joined_f5_enh_tissues = BedGetters._process_with_overlapping(flank_range, f5_enh_tissues).result
         return [
             BedsMutualOperation([tss_genes, joined_f5_enh_tissues], operation="intersection", **{"wa": True}).result]
@@ -45,7 +45,7 @@ class BedGetters:
         return BedsMutualOperation(flanked_genes_beds, operation="union").result
 
     @staticmethod
-    def _get_tissues_beds(tissues):
+    def _get_fantom5_promoters(tissues):
         return [g.tissues_registry.get_bed(tissue) for tissue in tissues]
 
     @staticmethod

@@ -7,14 +7,13 @@ import pybedtools
 from flask import Flask, render_template, jsonify, request, redirect, url_for, g, send_file, session
 
 from remus.bio.bed.beds_operations import BedsMutualOperation
-from remus.bio.genes.genes_registry import GenesDBRegistry
-from remus.bio.tissues.tissues_registry import TissuesFilesRegistry
-from remus.bio.tss.tss_registry import TranscriptionStartSitesRegistry
+from remus.bio.genes.registry import GenesDBRegistry
+from remus.bio.tissues.registry import TissuesFilesRegistry
+from remus.bio.tss.registry import TranscriptionStartSitesRegistry
 from remus.processing import get_matching_genes, get_matching_tissues, BedsCollector
 
 app = Flask(__name__)
 app.secret_key = b'\xa9\xf8J\xad\x1bj\x02\x06\x12\xdf\xd9\xf2\xb1\xe9Zu'
-pybedtools.debug_mode(True)
 pd.set_option('display.float_format', lambda x: '%.3f' % x)
 
 
@@ -119,7 +118,10 @@ def get_single_value_params():
                            "accessible-chromatin-encode-kbs-upstream",
                            "accessible-chromatin-encode-kbs-downstream"
                            ]
-    return {p: request.form.get(p, None) for p in single_value_params}
+
+    params_map = {p: request.form.get(p, None) for p in single_value_params}
+    params_map["transcription-fantom5-range"] = "=-=-=-="  # Not used currently but generally required parameter
+    return params_map
 
 
 def get_multiple_values_params():
