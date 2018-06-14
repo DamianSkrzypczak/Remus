@@ -8,9 +8,9 @@ import sys, os
 def is_header(line):
      return line.find('File accession\t')==0
 
-def collapse_beds(name, accessions, assembly):
-    bednames = [os.path.join(assembly, 'raw', acc+'.bed.gz') for acc in accessions]
-    output_name = os.path.join(assembly, name.replace(" ","_")+'.bed.gz')
+def collapse_beds(name, accessions, raw_bed_dir, collapsed_bed_dir):
+    bednames = [os.path.join(raw_bed_dir, acc+'.bed.gz') for acc in accessions]
+    output_name = os.path.join(collapsed_bed_dir, name.replace(" ","_")+'.bed.gz')
     print " ".join(["zcat",
                     " ".join(bednames),
                     "| bedtools sort -i -",
@@ -21,6 +21,8 @@ def collapse_beds(name, accessions, assembly):
 
 
 metadatafile = sys.argv[1]
+raw_bed_dir = sys.argv[2]
+collapsed_bed_dir = sys.argv[3]
 
 hg19_bed_groups = {}
 hg38_bed_groups = {}
@@ -69,7 +71,8 @@ with open(metadatafile) as md:
 
 EMBRYO = 'embryonic'
 
-assemblies = ['hg19','hg38'] if sys.argv[2]=='all' else [sys.argv[2]]
+#assemblies = ['hg19','hg38'] if sys.argv[2]=='all' else [sys.argv[2]]
+assemblies = ['hg19']
 
 for assembly in assemblies:
     
@@ -85,10 +88,10 @@ for assembly in assemblies:
                 accessions.extend(tissue[s])
             
         if EMBRYO in tissue:
-            collapse_beds(" ".join([tissue_ids[t],t,"embryonic"]), tissue[EMBRYO], assembly)
-            collapse_beds(" ".join([tissue_ids[t],t,"other"]), accessions, assembly)
+            collapse_beds(" ".join([tissue_ids[t],t,"embryonic"]), tissue[EMBRYO], raw_bed_dir, collapsed_bed_dir)
+            collapse_beds(" ".join([tissue_ids[t],t,"other"]), accessions, raw_bed_dir, collapsed_bed_dir)
         else:
-            collapse_beds(" ".join([tissue_ids[t],t]), accessions, assembly)
+            collapse_beds(" ".join([tissue_ids[t],t]), accessions, raw_bed_dir, collapsed_bed_dir)
             
      
         
