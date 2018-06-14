@@ -7,6 +7,8 @@ TISSUES=${DATA_ROOT}/tissues
 TISSUES_CELLTYPE=${DATA_ROOT}/tissues/celltype
 TISSUES_ORGAN=${DATA_ROOT}/tissues/organ
 TSS=${DATA_ROOT}/transcription_start_sites
+ENC_ENH=${DATA_ROOT}/enhancers/encode
+ENC_ENH_RAW=${DATA_ROOT}/enhancers/encode/raw
 CHROMATIN=${DATA_ROOT}/chromatin
 CHROMATIN_RAW=${DATA_ROOT}/chromatin/raw
 
@@ -17,6 +19,8 @@ mkdir -p ${GENES_DB_SOURCES} -v
 mkdir -p ${TISSUES_CELLTYPE} -v
 mkdir -p ${TISSUES_ORGAN} -v
 mkdir -p ${TSS} -v
+mkdir -p ${ENC_ENH} -v
+mkdir -p ${ENC_ENH_RAW} -v
 mkdir -p ${CHROMATIN} -v
 mkdir -p ${CHROMATIN_RAW} -v
 
@@ -44,6 +48,20 @@ tar -xzf ${TISSUES}/facet_expressed_enhancers.tgz -C ${TISSUES_ORGAN} --wildcard
 ##printf "Acquiring transcription start sites fantom5 data\n"
 ##wget -O ${TSS}/promoter_data.bed 'http://promoter.binf.ku.dk/viewer.php?match=and&sort-by=donotsort&end-site=249250621&start-site=1&chr-number=ALL&toggle=basic&return=download'
 
+
+#
+# Download ENCODE enhancers data (ChIP-seq)
+PREDEFINED_ENC_ENH_SOURCES=predefined_encode_enhancer_data_sources
+printf "Acquiring ENCODE enhancers data\n"
+# download raw BED files
+awk -F '\t' '$43 ~ hg19 {print $42}' ${PREDEFINED_ENC_ENH_SOURCES}/ENCODE_enhancers_ChipSeq.metadata.tsv | wget -i - -P ${ENC_ENH_RAW}
+# generate collapsing script & run it
+python ${PREDEFINED_ENC_ENH_SOURCES}/collapse_tissue_beds.py ${PREDEFINED_ENC_ENH_SOURCES}/ENCODE_enhancers_ChipSeq.metadata.tsv ${ENC_ENH_RAW} ${ENC_ENH} > ${ENC_ENH}/collapse_hg19.sh
+chmod u+x ${ENC_ENH}/collapse_hg19.sh && ${ENC_ENH}/collapse_hg19.sh
+# delete raw BEDs to save space
+#rm -r ${ENC_ENH}
+
+
 #
 # Download ENCODE accessible chromatin data
 PREDEFINED_DNASEQ_SOURCES=predefined_dnaseq_data_sources
@@ -51,8 +69,13 @@ PREDEFINED_DNASEQ_SOURCES=predefined_dnaseq_data_sources
 # download raw BED files
 ##awk -F '\t' '$43 ~ hg19 {print $42}' ${PREDEFINED_DNASEQ_SOURCES}/ENCODE_DNase_seq.metadata.tsv | ##wget -i - -P ${CHROMATIN_RAW}
 # generate collapsing script & run it
+<<<<<<< HEAD
 ##python3 ${PREDEFINED_DNASEQ_SOURCES}/collapse_tissue_beds.py ${PREDEFINED_DNASEQ_SOURCES}/ENCODE_DNase_seq.metadata.tsv hg19 > ${CHROMATIN}/collapse_hg19.sh
 ##chmod u+x ${CHROMATIN}/collapse_hg19.sh && ${CHROMATIN}/collapse_hg19.sh
+=======
+python ${PREDEFINED_DNASEQ_SOURCES}/collapse_tissue_beds.py ${PREDEFINED_DNASEQ_SOURCES}/ENCODE_DNase_seq.metadata.tsv ${CHROMATIN_RAW} ${CHROMATIN} > ${CHROMATIN}/collapse_hg19.sh
+chmod u+x ${CHROMATIN}/collapse_hg19.sh && ${CHROMATIN}/collapse_hg19.sh
+>>>>>>> 616332306141443a03d970d504021a5c610b9e72
 # delete raw BEDs to save space
 #rm -r ${CHROMATIN_RAW}
 
