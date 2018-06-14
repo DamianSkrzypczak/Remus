@@ -28,7 +28,7 @@ cp -R predefined_genes_db_sources ${GENES_DB_SOURCES}
 
 # create genes_db
 printf "Creating genes db\n"
-python create_genes_db.py -i ${GENES_DB_SOURCES} -o ${GENES_DATA}/genes.db
+python3 create_genes_db.py -i ${GENES_DB_SOURCES} -o ${GENES_DATA}/genes.db
 
 
 # Download enhancers fantom5
@@ -41,18 +41,18 @@ tar -xzf ${TISSUES}/facet_expressed_enhancers.tgz -C ${TISSUES_ORGAN} --wildcard
 
 
 # Download transcription start sites
-printf "Acquiring transcription start sites fantom5 data\n"
-wget -O ${TSS}/promoter_data.bed 'http://promoter.binf.ku.dk/viewer.php?match=and&sort-by=donotsort&end-site=249250621&start-site=1&chr-number=ALL&toggle=basic&return=download'
+##printf "Acquiring transcription start sites fantom5 data\n"
+##wget -O ${TSS}/promoter_data.bed 'http://promoter.binf.ku.dk/viewer.php?match=and&sort-by=donotsort&end-site=249250621&start-site=1&chr-number=ALL&toggle=basic&return=download'
 
 #
 # Download ENCODE accessible chromatin data
 PREDEFINED_DNASEQ_SOURCES=predefined_dnaseq_data_sources
-printf "Acquiring ENCODE accessible chromatin data\n"
+##printf "Acquiring ENCODE accessible chromatin data\n"
 # download raw BED files
-awk -F '\t' '$43 ~ hg19 {print $42}' ${PREDEFINED_DNASEQ_SOURCES}/ENCODE_DNase_seq.metadata.tsv | wget -i - -P ${CHROMATIN_RAW}
+##awk -F '\t' '$43 ~ hg19 {print $42}' ${PREDEFINED_DNASEQ_SOURCES}/ENCODE_DNase_seq.metadata.tsv | ##wget -i - -P ${CHROMATIN_RAW}
 # generate collapsing script & run it
-python ${PREDEFINED_DNASEQ_SOURCES}/collapse_tissue_beds.py ${PREDEFINED_DNASEQ_SOURCES}/ENCODE_DNase_seq.metadata.tsv hg19 > ${CHROMATIN}/collapse_hg19.sh
-chmod u+x ${CHROMATIN}/collapse_hg19.sh && ${CHROMATIN}/collapse_hg19.sh
+##python3 ${PREDEFINED_DNASEQ_SOURCES}/collapse_tissue_beds.py ${PREDEFINED_DNASEQ_SOURCES}/ENCODE_DNase_seq.metadata.tsv hg19 > ${CHROMATIN}/collapse_hg19.sh
+##chmod u+x ${CHROMATIN}/collapse_hg19.sh && ${CHROMATIN}/collapse_hg19.sh
 # delete raw BEDs to save space
 #rm -r ${CHROMATIN_RAW}
 

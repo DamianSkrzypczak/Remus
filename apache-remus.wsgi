@@ -1,5 +1,6 @@
-#! /usr/bin/python
+#! /usr/bin/python3
 
-from app import app as application
 import sys
-sys.path.append("/var/www/apache-flask")
+sys.path.insert(0, "/var/www/remus")
+
+from remus.remus import app as application
