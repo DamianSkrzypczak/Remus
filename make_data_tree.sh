@@ -7,8 +7,8 @@ TISSUES=${DATA_ROOT}/tissues
 TISSUES_CELLTYPE=${DATA_ROOT}/tissues/celltype
 TISSUES_ORGAN=${DATA_ROOT}/tissues/organ
 TSS=${DATA_ROOT}/transcription_start_sites
-ENC_ENH=${DATA_ROOT}/enahncers/encode
-ENC_ENH_RAW=${DATA_ROOT}/enahncers/encode/raw
+ENC_ENH=${DATA_ROOT}/enhancers/encode
+ENC_ENH_RAW=${DATA_ROOT}/enhancers/encode/raw
 CHROMATIN=${DATA_ROOT}/chromatin
 CHROMATIN_RAW=${DATA_ROOT}/chromatin/raw
 
