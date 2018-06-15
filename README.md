@@ -20,7 +20,7 @@ TAD boundaries adjacent to the input genes.
 
 Remus is in active development and will be made freely available in fall 2018.
 
-##### Acquirung repository:
+##### Acquiring repository:
     git clone https://github.com/DamianSkrzypczak/Remus.git
 
 ### Installation of local, plain instance of Remus
