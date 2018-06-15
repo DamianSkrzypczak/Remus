@@ -40,7 +40,7 @@ In application root run:
 
 ### Installation as Docker container
 ### Building container
-    docker build -t apache-flask .
+    docker build -t remus .
 (This step can take long time because of large amount of data needed to be downloaded.)
 
 
