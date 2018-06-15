@@ -32,9 +32,9 @@ or if development mode:
     pip install -r requirements-dev.txt
 
 ##### Data tree preparation:
+This step can take long time because of large amount of data needed to be download.
 In application root run:  
 (ensure that at least "pandas" library is installed)  
-This step can take long time because of large amount of data needed to be download.
     
     bash make_data_tree.sh
 
