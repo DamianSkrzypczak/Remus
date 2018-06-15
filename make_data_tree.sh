@@ -32,7 +32,7 @@ cp -R predefined_genes_db_sources ${GENES_DB_SOURCES}
 
 # create genes_db
 printf "Creating genes db\n"
-python3 create_genes_db.py -i ${GENES_DB_SOURCES} -o ${GENES_DATA}/genes.db
+python3 ${GENES_DB_SOURCES}/create_genes_db.py -i ${GENES_DB_SOURCES} -o ${GENES_DATA}/genes.db
 
 
 # Download enhancers fantom5
@@ -56,7 +56,7 @@ printf "Acquiring ENCODE enhancers data\n"
 # download raw BED files
 awk -F '\t' '$43 ~ hg19 {print $42}' ${PREDEFINED_ENC_ENH_SOURCES}/ENCODE_enhancers_ChipSeq.metadata.tsv | wget -i - -P ${ENC_ENH_RAW}
 # generate collapsing script & run it
-python ${PREDEFINED_ENC_ENH_SOURCES}/collapse_tissue_beds.py ${PREDEFINED_ENC_ENH_SOURCES}/ENCODE_enhancers_ChipSeq.metadata.tsv ${ENC_ENH_RAW} ${ENC_ENH} > ${ENC_ENH}/collapse_hg19.sh
+python3 ${PREDEFINED_ENC_ENH_SOURCES}/collapse_tissue_beds.py ${PREDEFINED_ENC_ENH_SOURCES}/ENCODE_enhancers_ChipSeq.metadata.tsv ${ENC_ENH_RAW} ${ENC_ENH} > ${ENC_ENH}/collapse_hg19.sh
 chmod u+x ${ENC_ENH}/collapse_hg19.sh && ${ENC_ENH}/collapse_hg19.sh
 # delete raw BEDs to save space
 #rm -r ${ENC_ENH}
