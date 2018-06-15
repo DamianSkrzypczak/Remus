@@ -32,14 +32,14 @@ or if development mode:
     pip install -r requirements-dev.txt
 
 ##### Data tree preparation:
-This step can take long time because of large amount of data needed to be download.
+This step can take long time because of large amount of data needed to be downloaded.
 In application root run:  
 (ensure that at least "pandas" library is installed)  
     
     bash make_data_tree.sh
 
 ### Installation as Docker container
-This step can take long time because of large amount of data needed to be download.
+This step can take long time because of large amount of data needed to be downloaded.
     docker build -t apache-flask .
  
 ### Running container
