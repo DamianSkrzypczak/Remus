@@ -39,12 +39,14 @@ In application root run:
     bash make_data_tree.sh
 
 ### Installation as Docker container
-This step can take long time because of large amount of data needed to be downloaded.
-    docker build -t apache-flask .
- 
+### Building container
+    docker build -t remus .
+(This step can take long time because of large amount of data needed to be downloaded.)
+
+
 ### Running container
     docker run -d -p 80:80 --name remus remus
 
 ### Accessing hosted website
-    If whole process of building and running container succeded  
+If whole process of building and running container succeded  
     Remus website should be accessible under 127.0.0.1:80
