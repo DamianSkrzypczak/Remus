@@ -69,13 +69,8 @@ printf "Acquiring ENCODE accessible chromatin data\n"
 # download raw BED files
 awk -F '\t' '$43 ~ hg19 {print $42}' ${PREDEFINED_DNASEQ_SOURCES}/ENCODE_DNase_seq.metadata.tsv | ##wget -i - -P ${CHROMATIN_RAW}
 # generate collapsing script & run it
-<<<<<<< HEAD
 python3 ${PREDEFINED_DNASEQ_SOURCES}/collapse_tissue_beds.py ${PREDEFINED_DNASEQ_SOURCES}/ENCODE_DNase_seq.metadata.tsv hg19 > ${CHROMATIN}/collapse_hg19.sh
 chmod u+x ${CHROMATIN}/collapse_hg19.sh && ${CHROMATIN}/collapse_hg19.sh
-=======
-python ${PREDEFINED_DNASEQ_SOURCES}/collapse_tissue_beds.py ${PREDEFINED_DNASEQ_SOURCES}/ENCODE_DNase_seq.metadata.tsv ${CHROMATIN_RAW} ${CHROMATIN} > ${CHROMATIN}/collapse_hg19.sh
-chmod u+x ${CHROMATIN}/collapse_hg19.sh && ${CHROMATIN}/collapse_hg19.sh
->>>>>>> 616332306141443a03d970d504021a5c610b9e72
 # delete raw BEDs to save space
 #rm -r ${CHROMATIN_RAW}
 
