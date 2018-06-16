@@ -3,21 +3,26 @@
 # Usage: collapse_tissue_beds.py METADATA_FILE [hg19|hg38|all]
 #
 
-import sys, os
+
+import os
+import sys
+
 
 def is_header(line):
-     return line.find('File accession\t')==0
+    return line.find('File accession\t') == 0
+
 
 def collapse_beds(name, accessions, assembly):
-    bednames = [os.path.join(assembly, 'raw', acc+'.bed.gz') for acc in accessions]
-    output_name = os.path.join(assembly, name.replace(" ","_")+'.bed.gz')
-    print " ".join(["zcat",
+    bednames = [os.path.join(assembly, 'raw', acc + '.bed.gz') for acc in accessions]
+    output_name = os.path.join(assembly, name.replace(" ", "_") + '.bed.gz')
+    print(" ".join(["zcat",
                     " ".join(bednames),
                     "| bedtools sort -i -",
                     "| bedtools merge -i -",
                     "| gzip -c >",
-                    output_name
-                   ])
+                    "\"{}\"".format(output_name)
+                    ]))
+    print(r'printf "File {} generated\n"'.format(output_name))
 
 
 metadatafile = sys.argv[1]
@@ -27,10 +32,9 @@ hg38_bed_groups = {}
 tissue_ids = {}
 
 with open(metadatafile) as md:
+    cols = {}
 
-    cols={}
-    
-    for line in md.xreadlines():
+    for line in md.readlines():
         ls = line.split('\t')
         if is_header(line):
             cols['accession'] = ls.index('File accession')
@@ -41,24 +45,24 @@ with open(metadatafile) as md:
         else:
             tissue = ls[cols['tissue']]
             lifestage = ls[cols['lifestage']]
-            
-            bed_groups = hg19_bed_groups if ls[cols['assembly']] =='hg19' else hg38_bed_groups
-            
+
+            bed_groups = hg19_bed_groups if ls[cols['assembly']] == 'hg19' else hg38_bed_groups
+
             if not tissue in bed_groups:
-               bed_groups[tissue] = {}
+                bed_groups[tissue] = {}
             if not lifestage in bed_groups[tissue]:
-               bed_groups[tissue][lifestage] = []
+                bed_groups[tissue][lifestage] = []
 
             bed_groups[tissue][lifestage].append(ls[cols['accession']])
-            
+
             tissue_ids[ls[cols['tissue']]] = ls[cols['tissue_id']]
 
-#bed_groups = hg19_bed_groups
-#for t in bed_groups.keys():
+# bed_groups = hg19_bed_groups
+# for t in bed_groups.keys():
 #    counts = ["\n\t"+ls+"("+str(len(bed_groups[t][ls]))+")" for ls in bed_groups[t].keys()]
 #    print t, "".join(counts)
 
-#print bed_groups
+# print bed_groups
 
 #
 # Analysis of gene regulation in embryonic life stages can be critical to finding causes for developmental disorders.
@@ -69,27 +73,23 @@ with open(metadatafile) as md:
 
 EMBRYO = 'embryonic'
 
-assemblies = ['hg19','hg38'] if sys.argv[2]=='all' else [sys.argv[2]]
+assemblies = ['hg19', 'hg38'] if sys.argv[2] == 'all' else [sys.argv[2]]
 
 for assembly in assemblies:
-    
-    bed_groups = hg19_bed_groups if assembly =='hg19' else hg38_bed_groups
+
+    bed_groups = hg19_bed_groups if assembly == 'hg19' else hg38_bed_groups
 
     for t in bed_groups.keys():
-        
+
         tissue = bed_groups[t]
-        accessions=[]
-        
+        accessions = []
+
         for s in tissue.keys():
-            if s is not EMBRYO: 
+            if s is not EMBRYO:
                 accessions.extend(tissue[s])
-            
+
         if EMBRYO in tissue:
-            collapse_beds(" ".join([tissue_ids[t],t,"embryonic"]), tissue[EMBRYO], assembly)
-            collapse_beds(" ".join([tissue_ids[t],t,"other"]), accessions, assembly)
+            collapse_beds(" ".join([tissue_ids[t], t, "embryonic"]), tissue[EMBRYO], assembly)
+            collapse_beds(" ".join([tissue_ids[t], t, "other"]), accessions, assembly)
         else:
-            collapse_beds(" ".join([tissue_ids[t],t]), accessions, assembly)
-            
-     
-        
-        
+            collapse_beds(" ".join([tissue_ids[t], t]), accessions, assembly)

@@ -19,8 +19,9 @@ def collapse_beds(name, accessions, raw_bed_dir, collapsed_bed_dir):
                     "| bedtools sort -i -",
                     "| bedtools merge -i -",
                     "| gzip -c >",
-                    output_name
+                    "\"{}\"".format(output_name)
                     ]))
+    print(r'printf "File {} generated\n"'.format(output_name))
 
 
 metadatafile = sys.argv[1]

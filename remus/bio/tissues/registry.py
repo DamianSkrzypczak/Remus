@@ -5,7 +5,7 @@ from remus.bio.bed.beds_loading import BedLoader
 
 
 class TissuesFilesRegistry:
-    def __init__(self, tissues_root=os.path.join("data", "tissues"), extension=".bed"):
+    def __init__(self, tissues_root=os.path.join("data", "enhancers", "fantom5"), extension=".bed"):
         self._root = tissues_root
         self._tissues_sub_dirs = next(os.walk(self._root))[1]
         self._available_tissues = {}

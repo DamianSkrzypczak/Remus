@@ -1,78 +1,80 @@
 #!/usr/bin/env bash
 
+
+# Tree Configuration
 DATA_ROOT=data
-GENES_DATA=${DATA_ROOT}/genes
-GENES_DB_SOURCES=${GENES_DATA}/genes_db_sources
-TISSUES=${DATA_ROOT}/tissues
-TISSUES_CELLTYPE=${DATA_ROOT}/tissues/celltype
-TISSUES_ORGAN=${DATA_ROOT}/tissues/organ
-TSS=${DATA_ROOT}/transcription_start_sites
+
+GENES=${DATA_ROOT}/genes
+GENES_RAW=${GENES}/raw
+
+TRANSCRIPTION_START_SITES=${DATA_ROOT}/transcription_start_sites
+
+FAN_ENH=${DATA_ROOT}/enhancers/fantom5
+FAN_ENH_RAW=${FAN_ENH}/raw
+
 ENC_ENH=${DATA_ROOT}/enhancers/encode
-ENC_ENH_RAW=${DATA_ROOT}/enhancers/encode/raw
+ENC_ENH_RAW=${ENC_ENH}/raw
+
 CHROMATIN=${DATA_ROOT}/chromatin
-CHROMATIN_RAW=${DATA_ROOT}/chromatin/raw
+CHROMATIN_RAW=${CHROMATIN}/raw
 
 
-#Make dirs
+# Make tree
 printf "Making directories tree under %s\n" ${DATA_ROOT}
-mkdir -p ${GENES_DB_SOURCES} -v
-mkdir -p ${TISSUES_CELLTYPE} -v
-mkdir -p ${TISSUES_ORGAN} -v
-mkdir -p ${TSS} -v
+mkdir -p ${GENES} -v
+mkdir -p ${GENES_RAW} -v
+mkdir -p ${FAN_ENH} -v
+mkdir -p ${FAN_ENH_RAW} -v
+mkdir -p ${TRANSCRIPTION_START_SITES} -v
 mkdir -p ${ENC_ENH} -v
 mkdir -p ${ENC_ENH_RAW} -v
 mkdir -p ${CHROMATIN} -v
 mkdir -p ${CHROMATIN_RAW} -v
 
 
-# Download genes
-# TODO: add file collecting for genes_db_sources instead of copying predefined files
-rm -Rf ${GENES_DB_SOURCES}
-cp -R predefined_genes_db_sources ${GENES_DB_SOURCES}
-
-# create genes_db
+# Create genes.db
 printf "Creating genes db\n"
-python3 ${GENES_DB_SOURCES}/create_genes_db.py -i ${GENES_DB_SOURCES} -o ${GENES_DATA}/genes.db
+PREDEFINED_GENES_DB_SOURCES=predefined_genes_db_sources
+cp ${PREDEFINED_GENES_DB_SOURCES}/*.tsv ${GENES_RAW}/
+python3 ${PREDEFINED_GENES_DB_SOURCES}/create_genes_db.py -i ${GENES_RAW} -o ${GENES}/genes.db
+
+# Download transcription start sites
+printf "Acquiring transcription start sites fantom5 data\n"
+wget -O ${TRANSCRIPTION_START_SITES}/promoter_data.bed 'http://promoter.binf.ku.dk/viewer.php?match=and&sort-by=donotsort&end-site=249250621&start-site=1&chr-number=ALL&toggle=basic&return=download'
 
 
 # Download enhancers fantom5
 printf "Acquiring enhancers fantom5 data\n"
-wget http://enhancer.binf.ku.dk/presets/facet_expressed_enhancers.tgz -P ${TISSUES}
+wget http://enhancer.binf.ku.dk/presets/facet_expressed_enhancers.tgz -P ${FAN_ENH_RAW}
 printf "... extracting celltype data"
-tar -xzf ${TISSUES}/facet_expressed_enhancers.tgz -C ${TISSUES_CELLTYPE} --wildcards CL:*
+tar -xzf ${FAN_ENH_RAW}/facet_expressed_enhancers.tgz -C ${FAN_ENH} --wildcards CL:*
 printf "... extracting organ data"
-tar -xzf ${TISSUES}/facet_expressed_enhancers.tgz -C ${TISSUES_ORGAN} --wildcards UBERON*
+tar -xzf ${FAN_ENH_RAW}/facet_expressed_enhancers.tgz -C ${FAN_ENH} --wildcards UBERON*
 
 
-# Download transcription start sites
-printf "Acquiring transcription start sites fantom5 data\n"
-wget -O ${TSS}/promoter_data.bed 'http://promoter.binf.ku.dk/viewer.php?match=and&sort-by=donotsort&end-site=249250621&start-site=1&chr-number=ALL&toggle=basic&return=download'
-
-
-#
 # Download ENCODE enhancers data (ChIP-seq)
 PREDEFINED_ENC_ENH_SOURCES=predefined_encode_enhancer_data_sources
 printf "Acquiring ENCODE enhancers data\n"
 # download raw BED files
 awk -F '\t' '$43 ~ hg19 {print $42}' ${PREDEFINED_ENC_ENH_SOURCES}/ENCODE_enhancers_ChipSeq.metadata.tsv | wget -i - -P ${ENC_ENH_RAW}
 # generate collapsing script & run it
-python3 ${PREDEFINED_ENC_ENH_SOURCES}/collapse_tissue_beds.py ${PREDEFINED_ENC_ENH_SOURCES}/ENCODE_enhancers_ChipSeq.metadata.tsv ${ENC_ENH_RAW} ${ENC_ENH} > ${ENC_ENH}/collapse_hg19.sh
+python3 ${PREDEFINED_ENC_ENH_SOURCES}/collapse_tissue_beds.py ${PREDEFINED_ENC_ENH_SOURCES}/ENCODE_enhancers_ChipSeq.metadata.tsv ${ENC_ENH} ${ENC_ENH} > ${ENC_ENH}/collapse_hg19.sh
 chmod u+x ${ENC_ENH}/collapse_hg19.sh && ${ENC_ENH}/collapse_hg19.sh
 # delete raw BEDs to save space
-#rm -r ${ENC_ENH}
+# rm -r ${ENC_ENH}
 
 
-#
 # Download ENCODE accessible chromatin data
 PREDEFINED_DNASEQ_SOURCES=predefined_dnaseq_data_sources
 printf "Acquiring ENCODE accessible chromatin data\n"
 # download raw BED files
-awk -F '\t' '$43 ~ hg19 {print $42}' ${PREDEFINED_DNASEQ_SOURCES}/ENCODE_DNase_seq.metadata.tsv | ##wget -i - -P ${CHROMATIN_RAW}
+awk -F '\t' '$43 ~ hg19 {print $42}' ${PREDEFINED_DNASEQ_SOURCES}/ENCODE_DNase_seq.metadata.tsv | wget -i - -P ${CHROMATIN_RAW}
 # generate collapsing script & run it
-python3 ${PREDEFINED_DNASEQ_SOURCES}/collapse_tissue_beds.py ${PREDEFINED_DNASEQ_SOURCES}/ENCODE_DNase_seq.metadata.tsv hg19 > ${CHROMATIN}/collapse_hg19.sh
+
+python3 ${PREDEFINED_DNASEQ_SOURCES}/collapse_tissue_beds.py ${PREDEFINED_DNASEQ_SOURCES}/ENCODE_DNase_seq.metadata.tsv ${CHROMATIN_RAW} ${CHROMATIN}> ${CHROMATIN}/collapse_hg19.sh
 chmod u+x ${CHROMATIN}/collapse_hg19.sh && ${CHROMATIN}/collapse_hg19.sh
 # delete raw BEDs to save space
-#rm -r ${CHROMATIN_RAW}
+# rm -r ${CHROMATIN_RAW}
 
 
 
