@@ -1,14 +1,15 @@
 import logging
 import os
+import time
 from tempfile import NamedTemporaryFile
 
 import pandas as pd
-import pybedtools
-from flask import Flask, render_template, jsonify, request, redirect, url_for, g, send_file, session
+from flask import Flask, render_template, jsonify, request, redirect, url_for, g, send_file, session, \
+    render_template_string
 
 from remus.bio.bed.beds_operations import BedsMutualOperation
 from remus.bio.genes.registry import GenesDBRegistry
-from remus.bio.tissues.registry import TissuesFilesRegistry
+from remus.bio.regulatory_regions.registry import RegulatoryRegionsFilesRegistry
 from remus.bio.tss.registry import TranscriptionStartSitesRegistry
 from remus.processing import get_matching_genes, get_matching_tissues, BedsCollector
 
@@ -20,7 +21,7 @@ pd.set_option('display.float_format', lambda x: '%.3f' % x)
 @app.before_request
 def setup_registries():
     g.genes_registry = GenesDBRegistry()
-    g.tissues_registry = TissuesFilesRegistry()
+    g.tissues_registry = RegulatoryRegionsFilesRegistry()
     g.tss_registry = TranscriptionStartSitesRegistry()
 
 
@@ -55,6 +56,7 @@ def tissues():
 @app.route("/api/perform", methods=["POST"])
 def perform():
     try:
+        start_time = time.time()
         params = get_perform_params()
         collected_beds_map = BedsCollector(params).collect_bed_files()
         collected_beds_without_categories = [bed for beds_list in collected_beds_map.values() for bed in beds_list]
@@ -63,7 +65,8 @@ def perform():
         final_processor = BedsMutualOperation(collected_beds_without_categories, operation="union")
         tmp_file_path = save_as_tmp(final_processor.result)
         session["last_result"] = tmp_file_path.name
-        return return_summary(final_processor)
+        end_time = (time.time() - start_time)
+        return return_summary(final_processor, end_time)
     except Exception as e:
         logging.exception("Error occurred, details:")
         return "Error occurred"
@@ -84,16 +87,23 @@ def download_last():
         return "", 202
 
 
-def return_summary(processor):
-    summary = pd.DataFrame(
-        {
-            "Time elapsed (s)": processor.time_elapsed,
-            "No. features": len(processor.result),
-            "No. base pairs": processor.result.total_coverage()
-        }, index=[0])
-    summary = summary.transpose()
-    summary.columns = [""] * len(summary.columns)
-    return summary.to_html(classes=["table-bordered", "table-striped", "table-hover"])
+def return_summary(processor, time_elapsed):
+    summary_data = [
+        ("Time elapsed (s)", round(time_elapsed, 6)),
+        ("No. features", int(len(processor.result))),
+        ("No. base pairs", int(processor.result.total_coverage()))
+    ]
+    template = """
+    <table border="1" class="table-bordered table-striped table-hover">
+        {% for header, value in data %}
+           <tr>
+                <th> {{ header }} </th>
+                <td> {{ value }} </td>
+           </tr>
+        {% endfor %}
+    </table>
+    """
+    return render_template_string(template, data=summary_data)
 
 
 def get_perform_params():

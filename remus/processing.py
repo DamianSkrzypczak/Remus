@@ -6,7 +6,7 @@ from flask import g
 from remus.bio.bed.beds_operations import BedsMutualOperation, BedsFlanker
 
 
-class BedGetters:
+class BedsProcessor:
     @staticmethod
     def get_genes_beds(genes, genome):
         genome = convert_genome_name(genome, desirable_older_format="hg37")
@@ -15,18 +15,45 @@ class BedGetters:
 
     @staticmethod
     def get_transcription_starting_sites_fantom5_beds(genes, genome, flank_range, upstream, downstream):
-        tss_genes = BedGetters._get_joined_flanked_genes(genes, genome, upstream, downstream)
+        tss_genes = BedsProcessor._get_joined_flanked_genes(genes, genome, upstream, downstream)
         promoters = g.tss_registry.get_bed()
         return [
             BedsMutualOperation([tss_genes, promoters], operation="intersection", **{"wa": True}).result]
 
     @staticmethod
     def get_enhancers_fantom5_beds(genes, tissues, genome, flank_range, upstream, downstream):
-        tss_genes = BedGetters._get_joined_flanked_genes(genes, genome, upstream, downstream)
-        f5_enh_tissues = BedGetters._get_fantom5_promoters(tissues)
-        joined_f5_enh_tissues = BedGetters._process_with_overlapping(flank_range, f5_enh_tissues).result
-        return [
-            BedsMutualOperation([tss_genes, joined_f5_enh_tissues], operation="intersection", **{"wa": True}).result]
+        tss_genes = BedsProcessor._get_joined_flanked_genes(genes, genome, upstream, downstream)
+        bed = BedsProcessor._get_fantom5_enhancers(tissues)
+        if bed and tss_genes:
+            joined_f5_enh_tissues = BedsProcessor._process_with_overlapping(flank_range, bed).result
+            return [
+                BedsMutualOperation([tss_genes, joined_f5_enh_tissues], operation="intersection", **{"wa": True}).result]
+        else:
+            return []
+
+    @staticmethod
+    def get_enhancers_encode_beds(genes, tissues, genome, flank_range, upstream, downstream):
+        tss_genes = BedsProcessor._get_joined_flanked_genes(genes, genome, upstream, downstream)
+        bed = BedsProcessor._get_enhancers_encode_beds(tissues)
+        if bed and tss_genes:
+            joined_f5_enh_tissues = BedsProcessor._process_with_overlapping(flank_range, bed).result
+            return [
+                BedsMutualOperation([tss_genes, joined_f5_enh_tissues], operation="intersection", **{"wa": True}).result]
+        else:
+            return []
+
+    @staticmethod
+    def get_accessible_chromatin_beds(genes, tissues, genome, flank_range, upstream, downstream):
+        tss_genes = BedsProcessor._get_joined_flanked_genes(genes, genome, upstream, downstream)
+        bed = BedsProcessor._get_accessible_chromatin_encode_beds(tissues)
+        if bed and tss_genes:
+            joined_f5_enh_tissues = BedsProcessor._process_with_overlapping(flank_range, bed).result
+            return [
+                BedsMutualOperation([tss_genes, joined_f5_enh_tissues], operation="intersection", **{"wa": True}).result]
+        else:
+            return []
+
+
 
     @staticmethod
     def _process_with_overlapping(flank_range, beds):
@@ -40,21 +67,24 @@ class BedGetters:
     @staticmethod
     def _get_joined_flanked_genes(genes, genome, upstream, downstream):
         genome = convert_genome_name(genome, desirable_older_format="hg19")
-        genes_beds = BedGetters.get_genes_beds(genes, genome)
+        genes_beds = BedsProcessor.get_genes_beds(genes, genome)
         flanked_genes_beds = BedsFlanker(genes_beds, downstream, upstream, genome).results
         return BedsMutualOperation(flanked_genes_beds, operation="union").result
 
     @staticmethod
-    def _get_fantom5_promoters(tissues):
-        return [g.tissues_registry.get_bed(tissue) for tissue in tissues]
+    def _get_fantom5_enhancers(tissues):
+        results = [g.tissues_registry.get_bed(tissue, "ENH_F5") for tissue in tissues]
+        return [i for i in results if i]
 
     @staticmethod
-    def get_enhancers_encode_beds(tissues, genome, flank_range, upstram, downstream):
-        return []
+    def _get_enhancers_encode_beds(tissues):
+        results = [g.tissues_registry.get_bed(tissue, "ENH_EN") for tissue in tissues]
+        return [i for i in results if i]
 
     @staticmethod
-    def get_accessible_chromatin_encode_beds(tissues, genome, flank_range, upstream, downstream):
-        return []
+    def _get_accessible_chromatin_encode_beds(tissues):
+        results = [g.tissues_registry.get_bed(tissue, "CHRM") for tissue in tissues]
+        return [i for i in results if i]
 
 
 class BedsCollector:
@@ -75,14 +105,14 @@ class BedsCollector:
     ]
 
     enhancers_encode_params = [
-        "tissues", "genome",
+        "genes", "tissues", "genome",
         "enhancers-encode-range",
         "enhancers-encode-kbs-upstream",
         "enhancers-encode-kbs-downstream"
     ]
 
     accessible_chromatin_encode_params = [
-        "tissues", "genome",
+        "genes", "tissues", "genome",
         "accessible-chromatin-encode-range",
         "accessible-chromatin-encode-kbs-upstream",
         "accessible-chromatin-encode-kbs-downstream"
@@ -96,27 +126,27 @@ class BedsCollector:
             ("genes",
              self._get_bed_files(
                  self.genes_params,
-                 BedGetters.get_genes_beds)
+                 BedsProcessor.get_genes_beds)
              ),
             ("transcription-fantom5",
              self._get_bed_files(
                  self.transcription_fantom5_params,
-                 BedGetters.get_transcription_starting_sites_fantom5_beds)
+                 BedsProcessor.get_transcription_starting_sites_fantom5_beds)
              ),
             ("enhancers-fantom5",
              self._get_bed_files(
                  self.enhancers_fantom5_params,
-                 BedGetters.get_enhancers_fantom5_beds)
+                 BedsProcessor.get_enhancers_fantom5_beds)
              ),
             ("enhancers-encode",
              self._get_bed_files(
                  self.enhancers_encode_params,
-                 BedGetters.get_enhancers_encode_beds)
+                 BedsProcessor.get_enhancers_encode_beds)
              ),
             ("accessible-chromatin-fantom5",
              self._get_bed_files(
                  self.accessible_chromatin_encode_params,
-                 BedGetters.get_accessible_chromatin_encode_beds)
+                 BedsProcessor.get_accessible_chromatin_beds)
              )
         ])
         return bed_files

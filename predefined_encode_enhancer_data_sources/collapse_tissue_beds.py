@@ -15,14 +15,15 @@ def is_header(line):
 def collapse_beds(name, accessions, assembly):
     bednames = [os.path.join(assembly, 'raw', acc + '.bed.gz') for acc in accessions]
     output_name = os.path.join(assembly, name.replace(" ", "_") + '.bed.gz')
-    print(" ".join(["zcat",
-                    " ".join(bednames),
-                    "| bedtools sort -i -",
-                    "| bedtools merge -i -",
-                    "| gzip -c >",
-                    "\"{}\"".format(output_name)
-                    ]))
-    print(r'printf "File {} generated\n"'.format(output_name))
+    if not "NTR:0004647" in output_name:
+        print(" ".join(["zcat",
+                        " ".join(bednames),
+                        "| bedtools sort -i -",
+                        "| bedtools merge -i -",
+                        "| gzip -c >",
+                        "\"{}\"".format(output_name)
+                        ]))
+        print(r'printf "File {} generated\n"'.format(output_name))
 
 
 metadatafile = sys.argv[1]
