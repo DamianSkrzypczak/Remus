@@ -31,6 +31,16 @@
                     <div>
                         <select class="form-control" name="genes" id="select-genes" required></select>
                     </div>
+                    <a class="ask-btn small text-success"
+                       tabindex="0"
+                       role="button"
+                       data-trigger="focus"
+                       data-toggle="popover"
+                       data-placement="right"
+                       data-html="true"
+                       data-content="Holding [ctrl✲] key will prevent modal dialog from closing on selection">
+                        [Tips]
+                    </a>
                 </div>
             </div>
         </div>
@@ -45,10 +55,37 @@
     <div id="collapse-tissues" class="form-group collapse show">
         <div class="row">
             <div class="card-body align-self-center col-md-6">
-                <h5><label for="select-tissues">Select organs/tissues/cell types:</label></h5>
+                <h5><label for="select-tissues">Select organs/tissues/cell types:<br/>
+                </label></h5>
                 <div>
                     <select class="form-control" name="tissues" id="select-tissues"></select>
                 </div>
+                <a class="ask-btn small text-success"
+                   tabindex="0"
+                   role="button"
+                   data-trigger="focus"
+                   data-toggle="popover"
+                   data-placement="right"
+                   data-html="true"
+                   data-content="Because data is still not fully complete, symbols in parentheses are telling which sections are affected by chosen tissue/organ/cell type: <br /><br />
+                                    Legend:<br />
+
+                                    TSS - Transcription start sites <br />
+                                    ENH_F5 - Enhancers -> FANTOM55 <br />
+                                    ENH_EN - Enhancers -> ENCODE <br />
+                                    CHRM - Accessible chromatin">
+                    [Meaning of symbols in parentheses]
+                </a><br />
+                <a class="ask-btn small text-success"
+                   tabindex="0"
+                   role="button"
+                   data-trigger="focus"
+                   data-toggle="popover"
+                   data-placement="right"
+                   data-html="true"
+                   data-content="Holding [ctrl✲] key will prevent modal dialog from closing on selection">
+                    [Tips]
+                </a>
             </div>
         </div>
     </div>
@@ -65,7 +102,8 @@
                 <div class="form-group">
                     <label for="transcription-start-sites-fantom5-checkbox">
                         <input id="transcription-start-sites-fantom5-checkbox"
-                               type="checkbox" value="on">
+                               name="transcription-fantom5-used"
+                               type="checkbox" value="yes">
                         FANTOM5
                     </label>
                     {#                    <a class="ask-btn"#}
@@ -141,7 +179,8 @@
                 <div class="form-group">
                     <label for="enhancers-fantom5-checkbox">
                         <input id="enhancers-fantom5-checkbox"
-                               type="checkbox" value="on">
+                               name="enhancers-fantom5-used"
+                               type="checkbox" value="yes">
                         FANTOM5
                     </label>
                     <div id="enhancers-fantom5-controls"
@@ -179,7 +218,8 @@
                 <div class="form-group">
                     <label for="enhancers-encode-checkbox">
                         <input id="enhancers-encode-checkbox"
-                               type="checkbox" value="on">
+                               name="enhancers-encode-used"
+                               type="checkbox" value="yes">
                         ENCODE
                     </label>
                     <div id="enhancers-encode-controls"
@@ -228,7 +268,8 @@
                 <div class="form-group">
                     <label for="accessible-chromatin-encode-checkbox">
                         <input id="accessible-chromatin-encode-checkbox"
-                               type="checkbox" value="on">
+                               name="accessible-chromatin-encode-used"
+                               type="checkbox" value="yes">
                         ENCODE
                     </label>
                     <div id="accessible-chromatin-encode-controls"

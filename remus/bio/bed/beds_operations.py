@@ -34,7 +34,7 @@ class BedsMutualOperation:
     def _execute_with_accumulation(self, operation):
         accumulation = self._beds[0]
         for bed in self._beds[1:]:
-            accumulation = operation(accumulation, bed, **self._operation_kwargs).sort().merge()
+            accumulation = operation(accumulation, bed, **self._operation_kwargs).sort()
         return accumulation
 
     @property

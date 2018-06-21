@@ -115,6 +115,10 @@ def get_perform_params():
 
 def get_single_value_params():
     single_value_params = ["genome",
+                           "transcription-fantom5-used",
+                           "enhancers-fantom5-used",
+                           "enhancers-encode-used",
+                           "accessible-chromatin-encode-used",
                            "transcription-fantom5-range",
                            "enhancers-fantom5-range",
                            "enhancers-encode-range",
@@ -130,7 +134,7 @@ def get_single_value_params():
                            ]
 
     params_map = {p: request.form.get(p, None) for p in single_value_params}
-    params_map["transcription-fantom5-range"] = "=-=-=-="  # Not used currently but generally required parameter
+    params_map["transcription-fantom5-range"] = "any"  # Not used currently but generally required parameter
     return params_map
 
 
