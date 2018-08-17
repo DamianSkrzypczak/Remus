@@ -3,7 +3,7 @@ from unittest import mock
 
 from ddt import ddt, data
 
-from remus.bio.bed.beds_operations import BedsMutualOperation, MissingBedsException, OperationError
+from remus.bio.bed.beds_operations import BedsMutualOperation, OperationError
 
 
 @ddt
@@ -23,7 +23,7 @@ class TestBedsOperator(unittest.TestCase):
             operation = getattr(bed_tool_mock, expected_operation)
             expected_mock_objects = [self.bed1, self.bed2]
             operation.assert_called_once_with(*expected_mock_objects)
-            self.assertEqual(result, operation(*expected_mock_objects).sort().merge())
+            self.assertEqual(operation(*expected_mock_objects).sort(), result)
 
     def _get_operation(self, operation):
         expected_operation = self.operations[operation]
@@ -39,8 +39,3 @@ class TestBedsOperator(unittest.TestCase):
     def test_unavailable_operation_error(self):
         with self.assertRaises(OperationError):
             test_obj = BedsMutualOperation(beds=[self.bed1, self.bed2], operation="Not Valid Operation")
-            test_obj.result("Dummy Operation that not exists")
-
-    def test_wrong_number_of_beds(self):
-        with self.assertRaises(MissingBedsException):
-            BedsMutualOperation(beds=[self.bed1], operation=list(self.operations.keys())[0])
