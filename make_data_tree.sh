@@ -38,9 +38,17 @@ PREDEFINED_GENES_DB_SOURCES=predefined_genes_db_sources
 cp ${PREDEFINED_GENES_DB_SOURCES}/*.tsv ${GENES_RAW}/
 python3 ${PREDEFINED_GENES_DB_SOURCES}/create_genes_db.py -i ${GENES_RAW} -o ${GENES}/genes.db
 
-# Download transcription start sites
-printf "Acquiring transcription start sites fantom5 data\n"
-wget -O ${TRANSCRIPTION_START_SITES}/promoter_data.bed 'http://promoter.binf.ku.dk/viewer.php?match=and&sort-by=donotsort&end-site=249250621&start-site=1&chr-number=ALL&toggle=basic&return=download'
+# Download FANTOM5 CAGE expression matrix and ontology (to find transcription start sites)
+PREDEFINED_F5_TSS_SOURCES=predefined_fantom5_tss_data_sources
+printf "Acquiring transcription start sites FANTOM5 data\n"
+wget -O ${PREDEFINED_F5_TSS_SOURCES}/hg19.cage_peak_phase1and2combined_tpm.osc.txt.gz 'http://fantom.gsc.riken.jp/5/datafiles/latest/extra/CAGE_peaks/hg19.cage_peak_phase1and2combined_tpm.osc.txt.gz'
+wget -O ${PREDEFINED_F5_TSS_SOURCES}/ff-phase2-170801.obo.txt http://fantom.gsc.riken.jp/5/datafiles/latest/extra/Ontology/ff-phase2-170801.obo.txt
+# aggregate samples by organs, tissues and cell-types and store location of TSSs in BED files
+python ${PREDEFINED_F5_TSS_SOURCES}/aggregate_CAGE_peaks.py ${PREDEFINED_F5_TSS_SOURCES}/ff-phase2-170801.obo.txt ${PREDEFINED_F5_TSS_SOURCES}/hg19.cage_peak_phase1and2combined_tpm.osc.txt.gz ${TRANSCRIPTION_START_SITES}
+#
+# not-tissue-specific TSSs, replaced by the data generated above
+#wget -O ${TRANSCRIPTION_START_SITES}/promoter_data.bed 'http://promoter.binf.ku.dk/viewer.php?match=and&sort-by=donotsort&end-site=249250621&start-site=1&chr-number=ALL&toggle=basic&return=download'
+
 
 
 # Download enhancers fantom5
