@@ -24,10 +24,42 @@ class F5Ontology():
             'UBERON:0001723','UBERON:0001736','UBERON:0001831','UBERON:0001981','UBERON:0001987','UBERON:0002046','UBERON:0002048',
             'UBERON:0002097','UBERON:0002106','UBERON:0002107','UBERON:0002108','UBERON:0002110','UBERON:0002113','UBERON:0002240',
             'UBERON:0002331','UBERON:0002360','UBERON:0002367','UBERON:0002370','UBERON:0002372','UBERON:0003112','UBERON:0004054'])
-    
+               
+    ENCODE_ORGANS = set(['UBERON:0000006','UBERON:0000059','UBERON:0000473','UBERON:0000945','UBERON:0000948','UBERON:0000955',
+            'UBERON:0000966','UBERON:0000970','UBERON:0000992','UBERON:0000995','UBERON:0000996','UBERON:0001114','UBERON:0001150',
+            'UBERON:0001157','UBERON:0001159','UBERON:0001211','UBERON:0001224','UBERON:0001264','UBERON:0001323','UBERON:0001383',
+            'UBERON:0001496','UBERON:0001499','UBERON:0001515','UBERON:0001621','UBERON:0001723','UBERON:0001774','UBERON:0001870',
+            'UBERON:0001875','UBERON:0001987','UBERON:0002037','UBERON:0002046','UBERON:0002048','UBERON:0002080','UBERON:0002084',
+            'UBERON:0002106','UBERON:0002107','UBERON:0002108','UBERON:0002113','UBERON:0002129','UBERON:0002167','UBERON:0002168',
+            'UBERON:0002190','UBERON:0002240','UBERON:0002324','UBERON:0002331','UBERON:0002367','UBERON:0002369','UBERON:0002370',
+            'UBERON:0003662','UBERON:0003663','UBERON:0004264','UBERON:0004538','UBERON:0004539','UBERON:0004550','UBERON:0004648',
+            'UBERON:0005270','UBERON:0006631','UBERON:0006920','UBERON:0007610','UBERON:0008367','UBERON:0008450','UBERON:0008952',
+            'UBERON:0010414','UBERON:0011907','UBERON:0018115','UBERON:0018116','UBERON:0018117','UBERON:0018118','UBERON:0036149'])
+
     OTHER_ORGANS = set()
     
-    ORGAN_IDS = SLIDEBASE_ORGANS | OTHER_ORGANS
+    SLIDEBASE_CELLTYPES = set(['CL:0000047','CL:0000056','CL:0000062','CL:0000067','CL:0000071','CL:0000077','CL:0000080','CL:1000487',
+            'CL:0000084','CL:0000094','CL:0000097','CL:0000098','CL:0000127','CL:0000134','CL:0000136','CL:0000138','CL:0000148',
+            'CL:0000182','CL:0000188','CL:0000235','CL:0000312','CL:0000359','CL:0000388','CL:0000451','CL:0000499','CL:0000540',
+            'CL:0000558','CL:0000575','CL:0000576','CL:0000622','CL:0000623','CL:0000632','CL:0000669','CL:0000731','CL:0000746',
+            'CL:0000767','CL:0000775','CL:0000945','CL:0002138','CL:0002166','CL:0002224','CL:0002231','CL:0002252','CL:0002327',
+            'CL:0002334','CL:0002363','CL:0002367','CL:0002368','CL:0002504','CL:0002518','CL:0002536','CL:0002548','CL:0002549',
+            'CL:0002550','CL:0002552','CL:0002554','CL:0002556','CL:0002557','CL:0002559','CL:0002563','CL:0002565','CL:0002577',
+            'CL:0002586','CL:0002598','CL:0002599','CL:0002600','CL:0002601','CL:0002620','CL:0002621','CL:1000306','CL:1000398'])
+
+    ENCODE_CELLTYPES = set(['CL:0000056','CL:0000084','CL:0000127','CL:0000188','CL:0000236','CL:0000307','CL:0000312',
+            'CL:0000351','CL:0000515','CL:0000545','CL:0000546','CL:0000623','CL:0000624','CL:0000625','CL:0000706','CL:0000746',
+            'CL:0000765','CL:0000775','CL:0000815','CL:0000895','CL:0000899','CL:0001054','CL:0001059','CL:0002188','CL:0002231',
+            'CL:0002252','CL:0002304','CL:0002306','CL:0002327','CL:0002328','CL:0002399','CL:0002518','CL:0002536','CL:0002539',
+            'CL:0002547','CL:0002548','CL:0002550','CL:0002551','CL:0002552','CL:0002553','CL:0002555','CL:0002557','CL:0002558',
+            'CL:0002565','CL:0002584','CL:0002586','CL:0002590','CL:0002603','CL:0002604','CL:0002606','CL:0002618','CL:0002620',
+            'CL:0010001','CL:1001568','CL:1001606','CL:1001608','CL:2000010','CL:2000012','CL:2000013','CL:2000014','CL:2000016',
+            'CL:2000017','CL:2000041','CL:2000043','CL:2000044','CL:2000045','NTR:0004646','NTR:0004647'])
+
+    OTHER_CELLTYPES = set()
+    
+    ORGAN_IDS = SLIDEBASE_ORGANS | ENCODE_ORGANS | OTHER_ORGANS
+    CELLTYPE_IDS = SLIDEBASE_CELLTYPES | ENCODE_CELLTYPES | OTHER_CELLTYPES
     
     HOMO_SAMPIENS_ID = 'NCBITaxon:9606'
     CELL_LINE_SAMPLE_ID='FF:0000003'
@@ -48,41 +80,53 @@ class F5Ontology():
         
     def id2name(self, ids):
         if isinstance(ids, list) or isinstance(ids, set):
-            return [self._id2name[identifier] for identifier in ids]
-        return self._id2name[ids]
+            return [self.id2name(identifier) for identifier in ids]
+        return self._id2name[ids] if ids in self._id2name else None
     
     def name2id(self, names):
         if isinstance(names, list) or isinstance(names, set):
-            return [self._name2id[name] for name in names]
-        return self._name2id[name]
+            return [self.name2id(name) for name in names]
+        return self._name2id[name] if name in _name2id else None
     
-    def get_samples_for_organs(self, organs):
+    def get_samples_for_terms(self, term_ids):
         """ Returns a dictionary organ_id:[samples] build of organ_ids given as argument,
             and list of samples belonging to that organ (according to ontology) """
-        organ_samples={}
-        for organ_id in organs:
-            human_samples = networkx.ancestors(self.slim_g, F5Ontology.HOMO_SAMPIENS_ID)
-            cell_line_samples = networkx.ancestors(self.slim_g, F5Ontology.CELL_LINE_SAMPLE_ID)
-            celltypes = networkx.ancestors(self.slim_g, organ_id)          # take all celltypes composing an organ
-            organ_samples[organ_id] = list((set(human_samples) - set(cell_line_samples)) & set(celltypes)) # exclude cell_line samples and intersect
-            # remove non-root terms
-            organ_samples[organ_id] = [s for s in organ_samples[organ_id] if len(networkx.ancestors(self.slim_g, s))==0]
+        
+        human_samples = networkx.ancestors(self.slim_g, F5Ontology.HOMO_SAMPIENS_ID)
+        cell_line_samples = networkx.ancestors(self.slim_g, F5Ontology.CELL_LINE_SAMPLE_ID)
+        
+        samples={}
+        for term_id in term_ids:
+            if term_id not in self.slim_g:
+                samples[term_id] = []
+            else:
+                ancestor_terms = networkx.ancestors(self.slim_g, term_id)          # take all celltypes composing an organ
+                samples[term_id] = list((set(human_samples) - set(cell_line_samples)) & set(ancestor_terms)) # exclude cell_line samples and intersect
+                # remove non-root terms
+                samples[term_id] = [s for s in samples[term_id] if len(networkx.ancestors(self.slim_g, s))==0]
  
-        return organ_samples
+        return samples
     
     
     def get_organ_for_sample(self, sample_id, allow_missing = False):
-        """ Returns a list of organ_ids. One sample can be part of several organs. """    
-        try:
-            descendants = networkx.descendants(self.slim_g, sample_id)
-        except networkx.exception.NetworkXError as e:
-            if allow_missing: 
-                return []
-            else:
-                raise Error("Node %s is missing from the ontology.\n Original exception: %s" % (sample_id, str(e)))
- 
-        return list(descendants & F5Ontology.ORGAN_IDS)
+        return self._get_term_for_sample(sample_id, F5Ontology.ORGAN_IDS)
+    
+    def get_celltypes_for_samples(self, sample_id, allow_missing = False):
+        return self._get_term_for_sample(sample_id, F5Ontology.CELLTYPE_IDS)
 
+
+    def _get_terms_for_sample(self, sample_id, term_ids, missing = False):
+        """ Returns a list of term_ids (organs / celltypes). One sample can be part of several terms. """    
+        if sample_id not in self.slim_g:
+            if allow_missing: 
+                descendants = set()
+            else:
+                raise Error("Node %s is missing from the ontology.\n Original exception: %s" % (sample_id, str(e)))    
+        else:
+            descendants = networkx.descendants(self.slim_g, sample_id)
+         
+        return list(descendants & term_ids)
+        
         
         
         
@@ -134,13 +178,13 @@ if __name__ == '__main__':
     
     print("Reading ontology file...")
     f5o = F5Ontology(OBO_FILE)
-    osd = f5o.get_samples_for_organs(F5Ontology.ORGAN_IDS)  ## organ-samples dict
+    tsd = f5o.get_samples_for_terms(F5Ontology.ORGAN_IDS | F5Ontology.CELLTYPE_IDS)  ## term-samples dict
     
-    
+    # Prepare list of output files, one per organ/celltype. 
+    # Organ/celltypes missing from the ontology are skipped
     print("Initiating output BED files...")
-    # prepare list of output files, one per organ
-    organ_bed_names = {o : os.path.join(OUTPUT_DIR, "_".join([o,f5o.id2name(o).replace(" ","_"),"promoters.bed"])) for o in osd.keys()}
-    organ_bed_files = {o : open(organ_bed_names[o], 'wt') for o in osd.keys()}
+    bed_names = {t : os.path.join(OUTPUT_DIR, "_".join([t,f5o.id2name(t).replace(" ","_"),"promoters.bed"])) for t in tsd if len(tsd[t])>0}
+    bed_files = {t : open(bed_names[t], 'wt') for t in bed_names}
     
     # iterate over expression table, and append single records to organ BED files.
     print("Parsing CAGE expression matrix...")
@@ -175,18 +219,21 @@ if __name__ == '__main__':
             if row_cnt%100==0: print(new_record)
             row_cnt+=1
             
-            for organ, samples in osd.items():
+            for facet, samples in tsd.items():
+                
+                # skip if there is no samples for term/facet
+                if len(samples) == 0: continue
                 
                 s_ids = [s[len('FF:'):] for s in samples]
                 
                 # remove ontology sample_ids missing from expression matrix (isolated cases)
                 missing = [s for s in s_ids if s not in s_col]
                 if len(missing)>0:
-                    #print("Following sample IDs for organ [%s] (%s) are missing from expression matrix: %s" % (f5o.id2name(organ), organ, str(["FF:"+s for s in missing])))
+                    #print("Following sample IDs for facet [%s] (%s) are missing from expression matrix: %s" % (f5o.id2name(facet), facet, str(["FF:"+s for s in missing])))
                     s_ids = [s for s in s_ids if s not in missing]
                     
-                # extract promoter expression values for samples in this organ
-                # values for technical replicates (list of columns with the same extract ID) are aggregated separately, to not bias the organ score           
+                # extract promoter expression values for samples in this facet
+                # values for technical replicates (list of columns with the same extract ID) are aggregated separately, to not bias the facet score           
                 expr_list = []
                 for s in s_ids:
                     cols = s_col[s]
@@ -196,14 +243,14 @@ if __name__ == '__main__':
                     else:
                         expr_list.append(float(lsplit[cols[0]]))           
                 
-                # calculate aggregated expression/activity of the promoter in the organ
+                # calculate aggregated expression/activity of the promoter in the facet
                 # provided that at least one of samples meets the cutoff criteria
                 if max(expr_list) >= EXPRESSION_CUTOFF:
                     #expression = sum(expression_list)/len(expression_list)
                     score = EXPRESSION_AGGREGATE_FUNCTION(expr_list)
-                    organ_bed_files[organ].write(new_record + ('\t%.2f\n' % score))
+                    bed_files[facet].write(new_record + ('\t%.2f\n' % score))
         
-    for _,f in organ_bed_files.items():
+    for _,f in bed_files.items():
         f.close()
     
     print("Done.")
