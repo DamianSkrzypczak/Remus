@@ -21,8 +21,10 @@ class BedsProcessor:
         bed = BedsProcessor._get_tss_fantom5_beds(tissues)    
         if bed and tss_genes:
             joined_f5_tss = BedsProcessor._process_with_overlapping(flank_range, bed).result
-        return [
-            BedsMutualOperation([tss_genes, joined_f5_tss], operation="intersection", **{"wb": True}).result]
+            return [
+                BedsMutualOperation([tss_genes, joined_f5_tss], operation="intersection", **{"wb": True}).result]
+        else:
+            return []
 
     @staticmethod
     def get_enhancers_fantom5_beds(genes, tissues, genome, flank_range, upstream, downstream, *args):
