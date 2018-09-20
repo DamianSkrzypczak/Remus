@@ -15,18 +15,21 @@ class BedsProcessor:
         return [BedsMutualOperation(genes_beds, operation="union").result]
 
     @staticmethod
-    def get_transcription_starting_sites_fantom5_beds(genes, genome, flank_range, upstream, downstream, *args):
+    def get_tss_fantom5_beds(genes, tissues, genome, flank_range, upstream, downstream, *args):
         tss_genes = BedsProcessor._get_joined_flanked_genes(genes, genome, upstream, downstream)
-        promoters = g.tss_registry.get_bed()
+        
+        bed = BedsProcessor._get_tss_fantom5_beds(tissues)    
+        if bed and tss_genes:
+            joined_f5_tss = BedsProcessor._process_with_overlapping(flank_range, bed).result
         return [
-            BedsMutualOperation([tss_genes, promoters], operation="intersection", **{"wb": True}).result]
+            BedsMutualOperation([tss_genes, joined_f5_tss], operation="intersection", **{"wb": True}).result]
 
     @staticmethod
     def get_enhancers_fantom5_beds(genes, tissues, genome, flank_range, upstream, downstream, *args):
         tss_genes = BedsProcessor._get_joined_flanked_genes(genes, genome,
                                                             int(float(upstream) * 1000),
                                                             int(float(downstream) * 1000))
-        bed = BedsProcessor._get_fantom5_enhancers(tissues)
+        bed = BedsProcessor._get_enhancers_fantom5_beds(tissues)
         if bed and tss_genes:
             joined_f5_enh_tissues = BedsProcessor._process_with_overlapping(flank_range, bed).result
             return [
@@ -80,10 +83,15 @@ class BedsProcessor:
         return BedsMutualOperation(flanked_genes_beds, operation="union").result
 
     @staticmethod
-    def _get_fantom5_enhancers(tissues):
+    def _get_enhancers_fantom5_beds(tissues):
         results = [g.tissues_registry.get_bed(tissue, "ENH_F5") for tissue in tissues]
         return [i for i in results if i]
 
+    def _get_tss_fantom5_beds(tissues):
+        results = [g.tissues_registry.get_bed(tissue, "TSS_F5") for tissue in tissues]
+        return [i for i in results if i]
+        
+        
     @staticmethod
     def _get_enhancers_encode_beds(tissues):
         results = [g.tissues_registry.get_bed(tissue, "ENH_EN") for tissue in tissues]
@@ -98,8 +106,8 @@ class BedsProcessor:
 class BedsCollector:
     genes_params = ["genes", "genome"]
 
-    transcription_fantom5_params = [
-        "genes", "genome",
+    tss_fantom5_params = [
+        "genes", "tissues", "genome",
         "transcription-fantom5-range",
         "transcription-fantom5-kbs-upstream",
         "transcription-fantom5-kbs-downstream",
@@ -142,8 +150,8 @@ class BedsCollector:
              ),
             ("transcription-fantom5",
              self._get_bed_files(
-                 self.transcription_fantom5_params,
-                 BedsProcessor.get_transcription_starting_sites_fantom5_beds)
+                 self.tss_fantom5_params,
+                 BedsProcessor.get_tss_fantom5_beds)
              ),
             ("enhancers-fantom5",
              self._get_bed_files(
@@ -166,7 +174,7 @@ class BedsCollector:
     def _get_bed_files(self, params, getter_method):
         params_values = [self._data.get(p) for p in params]
         if all(params_values):
-            logging.error("All values provided, running {}".format(getter_method.__name__))
+            logging.info("All values provided, running {}".format(getter_method.__name__))
             return getter_method(*params_values)
         else:
             logging.error("NOT all values provided for {} => values:{}".format(getter_method.__name__, params_values))
