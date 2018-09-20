@@ -119,10 +119,10 @@ def get_single_value_params():
                            "enhancers-fantom5-used",
                            "enhancers-encode-used",
                            "accessible-chromatin-encode-used",
-                           "transcription-fantom5-range",
-                           "enhancers-fantom5-range",
-                           "enhancers-encode-range",
-                           "accessible-chromatin-encode-range",
+                           "transcription-fantom5-combine-mode",
+                           "enhancers-fantom5-combine-mode",
+                           "enhancers-encode-combine-mode",
+                           "accessible-chromatin-encode-combine-mode",
                            "transcription-fantom5-kbs-upstream",
                            "transcription-fantom5-kbs-downstream",
                            "enhancers-fantom5-kbs-upstream",
@@ -134,7 +134,6 @@ def get_single_value_params():
                            ]
 
     params_map = {p: request.form.get(p, None) for p in single_value_params}
-    #params_map["transcription-fantom5-range"] = "any"  # Not used currently but generally required parameter
     return params_map
 
 
