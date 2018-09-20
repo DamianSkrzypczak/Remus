@@ -134,7 +134,7 @@ def get_single_value_params():
                            ]
 
     params_map = {p: request.form.get(p, None) for p in single_value_params}
-    params_map["transcription-fantom5-range"] = "any"  # Not used currently but generally required parameter
+    #params_map["transcription-fantom5-range"] = "any"  # Not used currently but generally required parameter
     return params_map
 
 

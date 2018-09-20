@@ -7,10 +7,10 @@ DATA_ROOT=data
 GENES=${DATA_ROOT}/genes
 GENES_RAW=${GENES}/raw
 
-TRANSCRIPTION_START_SITES=${DATA_ROOT}/transcription_start_sites
+F5_TSS=${DATA_ROOT}/tss/fantom5
 
-FAN_ENH=${DATA_ROOT}/enhancers/fantom5
-FAN_ENH_RAW=${FAN_ENH}/raw
+F5_ENH=${DATA_ROOT}/enhancers/fantom5
+F5_ENH_RAW=${F5_ENH}/raw
 
 ENC_ENH=${DATA_ROOT}/enhancers/encode
 ENC_ENH_RAW=${ENC_ENH}/raw
@@ -23,9 +23,9 @@ CHROMATIN_RAW=${CHROMATIN}/raw
 printf "Making directories tree under %s\n" ${DATA_ROOT}
 mkdir -p ${GENES} -v
 mkdir -p ${GENES_RAW} -v
-mkdir -p ${FAN_ENH} -v
-mkdir -p ${FAN_ENH_RAW} -v
-mkdir -p ${TRANSCRIPTION_START_SITES} -v
+mkdir -p ${F5_ENH} -v
+mkdir -p ${F5_ENH_RAW} -v
+mkdir -p ${f5_TSS} -v
 mkdir -p ${ENC_ENH} -v
 mkdir -p ${ENC_ENH_RAW} -v
 mkdir -p ${CHROMATIN} -v
@@ -44,20 +44,20 @@ printf "Acquiring transcription start sites FANTOM5 data\n"
 wget -O ${PREDEFINED_F5_TSS_SOURCES}/hg19.cage_peak_phase1and2combined_tpm.osc.txt.gz 'http://fantom.gsc.riken.jp/5/datafiles/latest/extra/CAGE_peaks/hg19.cage_peak_phase1and2combined_tpm.osc.txt.gz'
 wget -O ${PREDEFINED_F5_TSS_SOURCES}/ff-phase2-170801.obo.txt http://fantom.gsc.riken.jp/5/datafiles/latest/extra/Ontology/ff-phase2-170801.obo.txt
 # aggregate samples by organs, tissues and cell-types and store location of TSSs in BED files
-python ${PREDEFINED_F5_TSS_SOURCES}/aggregate_CAGE_peaks.py ${PREDEFINED_F5_TSS_SOURCES}/ff-phase2-170801.obo.txt ${PREDEFINED_F5_TSS_SOURCES}/hg19.cage_peak_phase1and2combined_tpm.osc.txt.gz ${TRANSCRIPTION_START_SITES}
+python ${PREDEFINED_F5_TSS_SOURCES}/aggregate_CAGE_peaks.py ${PREDEFINED_F5_TSS_SOURCES}/ff-phase2-170801.obo.txt ${PREDEFINED_F5_TSS_SOURCES}/hg19.cage_peak_phase1and2combined_tpm.osc.txt.gz ${F5_TSS}
 #
 # not-tissue-specific TSSs, replaced by the data generated above
-#wget -O ${TRANSCRIPTION_START_SITES}/promoter_data.bed 'http://promoter.binf.ku.dk/viewer.php?match=and&sort-by=donotsort&end-site=249250621&start-site=1&chr-number=ALL&toggle=basic&return=download'
+#wget -O ${F5_TSS}/promoter_data.bed 'http://promoter.binf.ku.dk/viewer.php?match=and&sort-by=donotsort&end-site=249250621&start-site=1&chr-number=ALL&toggle=basic&return=download'
 
 
 
 # Download enhancers fantom5
 printf "Acquiring enhancers fantom5 data\n"
-wget http://enhancer.binf.ku.dk/presets/facet_expressed_enhancers.tgz -P ${FAN_ENH_RAW}
+wget http://enhancer.binf.ku.dk/presets/facet_expressed_enhancers.tgz -P ${F5_ENH_RAW}
 printf "... extracting celltype data"
-tar -xzf ${FAN_ENH_RAW}/facet_expressed_enhancers.tgz -C ${FAN_ENH} --wildcards CL:*
+tar -xzf ${F5_ENH_RAW}/facet_expressed_enhancers.tgz -C ${F5_ENH} --wildcards CL:*
 printf "... extracting organ data"
-tar -xzf ${FAN_ENH_RAW}/facet_expressed_enhancers.tgz -C ${FAN_ENH} --wildcards UBERON*
+tar -xzf ${F5_ENH_RAW}/facet_expressed_enhancers.tgz -C ${F5_ENH} --wildcards UBERON*
 
 
 # Download ENCODE enhancers data (ChIP-seq)

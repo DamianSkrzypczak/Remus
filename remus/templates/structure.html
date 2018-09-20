@@ -61,12 +61,10 @@
         $("#transcription-start-sites-fantom5-checkbox").bind('click dblclick', function (evt) {
             if ($(this).is(":checked")) {
                 $('#transcription-start-sites-fantom5-controls').slideDown();
-                $("#transcription-start-sites-fantom5-controls input").prop('disabled', false);
-                $("#transcription-fantom5-all").prop('disabled', true);
-                $("#transcription-fantom5-any").prop('disabled', true);
+                $('#transcription-start-sites-fantom5-controls input').prop('disabled', false);
             } else {
                 $('#transcription-start-sites-fantom5-controls').slideUp();
-                $("#transcription-start-sites-fantom5-controls input").prop('disabled', true);
+                $('#transcription-start-sites-fantom5-controls input').prop('disabled', true);
             }
         });
 
