@@ -58,7 +58,7 @@ class BedsFlanker:
     @time_it
     def _get_promoter(self, bed, upstream, downstream, genome):
         from pybedtools.featurefuncs import TSS
-        return bed.each(TSS, upstream=int(upstream), downstream=int(downstream))
+        return bed.each(TSS, upstream=int(upstream), downstream=int(downstream)).saveas()
 
     @property
     def result(self):

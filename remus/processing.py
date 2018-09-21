@@ -19,13 +19,15 @@ class BedsProcessor:
     def get_tss_fantom5_bed(genes, tissues, genome, combine_mode, upstream, downstream, *args):
         genes = BedsProcessor._get_joined_flanked_genes(genes, genome, upstream, downstream)
         
-        beds = BedsProcessor._get_tss_fantom5_beds(tissues)    
+        beds = BedsProcessor._get_tss_fantom5_beds(tissues)  
+        
         if beds and genes:
+            
             joined_f5_tss = BedsProcessor._process_with_overlapping(combine_mode, beds).result
             return [
-                BedsMutualOperation([genes, joined_f5_tss], 
+                BedsMutualOperation([joined_f5_tss, genes], 
                                     operation="intersection", 
-                                    **{"wb": True}).result]
+                                    **{"u": True}).result]
         else:
             return []
 
@@ -38,9 +40,9 @@ class BedsProcessor:
         if beds and genes:
             joined_f5_enh_tissues = BedsProcessor._process_with_overlapping(combine_mode, beds).result
             return [
-                BedsMutualOperation([genes, joined_f5_enh_tissues], 
+                BedsMutualOperation([joined_f5_enh_tissues, genes], 
                                     operation="intersection",
-                                    **{"wb": True}).result]
+                                    **{"u": True}).result]
         else:
             return []
 
@@ -53,9 +55,9 @@ class BedsProcessor:
         if beds and genes:
             joined_f5_enh_tissues = BedsProcessor._process_with_overlapping(combine_mode, beds).result
             return [
-                BedsMutualOperation([genes, joined_f5_enh_tissues], 
+                BedsMutualOperation([joined_f5_enh_tissues, genes], 
                                     operation="intersection",
-                                    **{"wb": True}).result]
+                                    **{"u": True}).result]
         else:
             return []
 
@@ -68,9 +70,9 @@ class BedsProcessor:
         if beds and genes:
             joined_f5_enh_tissues = BedsProcessor._process_with_overlapping(combine_mode, beds).result
             return [
-                BedsMutualOperation([genes, joined_f5_enh_tissues], 
+                BedsMutualOperation([joined_f5_enh_tissues, genes], 
                                     operation="intersection",
-                                    **{"wb": True}).result]
+                                    **{"u": True}).result]
         else:
             return []
 
