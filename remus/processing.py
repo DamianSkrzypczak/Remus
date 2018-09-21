@@ -12,7 +12,8 @@ class BedsProcessor:
     def get_genes_bed(genes, genome, *args):
         genome = convert_genome_name(genome, desirable_older_format="hg37")
         gene_beds = [g.genes_registry.get_bed(genome, gene) for gene in genes]
-        return [BedsMutualOperation(gene_beds, operation="union").result]
+        ret = [BedsMutualOperation(gene_beds, operation="union", **{"postmerge": False}).result]
+        return ret
 
     @staticmethod
     def get_tss_fantom5_bed(genes, tissues, genome, combine_mode, upstream, downstream, *args):
@@ -86,7 +87,7 @@ class BedsProcessor:
     def _get_joined_flanked_genes(genes, genome, upstream, downstream):
         genome = convert_genome_name(genome, desirable_older_format="hg19")
         genes_beds = BedsProcessor.get_genes_bed(genes, genome)
-        flanked_genes_beds = BedsFlanker(genes_beds, downstream, upstream, genome).results
+        flanked_genes_beds = BedsFlanker(genes_beds, upstream, downstream, genome).result
         return BedsMutualOperation(flanked_genes_beds, operation="union").result
 
     @staticmethod
