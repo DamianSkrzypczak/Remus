@@ -11,17 +11,17 @@ a role in regulating expression of the input genes.
 The growing inventory of data available in Remus at 
 the moment includes coordinates of tissue-specific enhancers, 
 transcription start sites, and regions of accessible chromatin 
-from large scale public datasets (ENCODE, FANTOM5, GTEx). 
+from large scale public datasets (ENCODE, FANTOM5). 
  
  
 In upcoming releases Remus will also enable inclusion of relevant binding sites 
 of transcription factors and miRNAs, as well as locations of 
 TAD boundaries adjacent to the input genes.
 
-Remus is in active development and will be made freely available in fall 2018.
+Remus is in active development and new releases will be published regularily.
 
 ##### Acquiring repository:
-    git clone https://github.com/DamianSkrzypczak/Remus.git
+    git clone https://github.com/seru71/Remus.git
 
 ### Installation of local, plain instance of Remus
 ##### Installing dependencies:
