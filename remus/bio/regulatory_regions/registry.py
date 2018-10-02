@@ -9,7 +9,7 @@ DATA_DIRECTORIES_MAP = {
     "enhancers/encode": "ENH_EN",
     "enhancers/fantom5": "ENH_F5",
     "chromatin": "CHRM",
-    "transcription_start_sites": "TSS"
+    "tss/fantom5": "TSS_F5"
 }
 
 
@@ -40,7 +40,7 @@ class RegulatoryRegionsFilesRegistry:
                     name = ontology_and_name.group(2)
                     symbol = directories_and_symbols[path]
                     sources[ontology][symbol] = os.path.join(root, path, bed)
-                    sources[ontology]["name"] = name.replace("_expressed_enhancers", "").replace("_", " ")
+                    sources[ontology]["name"] = name.replace("_expressed_enhancers", "").replace("_promoters", "").replace("_", " ")
         return sources
 
     @property
