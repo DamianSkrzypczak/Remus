@@ -22,20 +22,7 @@ class TestRemusProcessing(unittest.TestCase):
         self.genes_reg = GenesDBRegistry()
         
         self.genome = 'hg19'
-        
-        #gene1coord = 'chr1\t100000\t101000\t+\tgene1.1\t0\n'+\
-        #             'chr1\t100100\t101000\t+\tgene1.2\t0\n'
-                     
-        #gene2coord = 'chr2\t100000\t101000\t-\tgene2.1\t0\n'+\
-        #             'chr2\t100100\t101000\t-\tgene2.2\t0\n'
-                     
-        #tss_coord  = ''
-        
-        #self.gene1bed = BedTool(gene1coord, from_string=True)
-        #self.gene1bed = BedTool(gene1coord, from_string=True)
-        #self.gene2bed = BedTool(gene2coord, from_string=True)
-        #self.tss_bed  = BedTool(tss_coord,  from_string=True)
-        
+               
         self.hnf1b = 'HNF1B'
         self.hnf4a = 'HNF4A'
         self.unknown_gene = 'unknown gene symbol'
@@ -55,16 +42,40 @@ class TestRemusProcessing(unittest.TestCase):
                          "chr20\t43029895\t43061485\tuc010ggq.4\t11\t+\n"+\
                          "chr20\t43029895\t43061485\tuc002xlz.4\t10\t+\n"+\
                          "chr20\t43029895\t43061485\tuc002xma.4\t10\t+\n"
-       
+                         
+        gene1coord = 'chr1\t100000\t101000\tgene1.1\t0\t+\n'+\
+                     'chr1\t100100\t101000\tgene1.2\t0\t+'
+                     
+        gene2coord = 'chr2\t100000\t101000\tgene2.1\t0\t-\n'+\
+                     'chr2\t100100\t101000\tgene2.2\t0\t-'
+                             
+        self.gene1bed = BedTool(gene1coord, from_string=True)
+        self.gene2bed = BedTool(gene2coord, from_string=True)
+
         
+    def _bed2str(self, bed):
+        return "\n".join([str(i).strip() for i in bed])
+        
+    #################################
+    #
+    #   Gene BED extraction tests
+    #
+    ################
       
-     
+      
+    #
+    # throws IndexError. Handle it as exception?
+    #     
     #def test_get_genes_bed_empty_genelist(self):
-    #    self.assertEqual(BedsProcessor.get_genes_bed([], self.genome), [])
+    #    self.assertEqual([], BedsProcessor.get_genes_bed([], self.genome))
          
          
     def test_get_genes_bed_output_content(self):
         
+        # pybedtools does not close file_handles immediately, which yields a stack of warnings
+        # ignore them!        
+        warnings.simplefilter("ignore", ResourceWarning)
+
         with patch("remus.processing.g") as g:
             
             g.genes_registry = self.genes_reg
@@ -91,48 +102,123 @@ class TestRemusProcessing(unittest.TestCase):
             self.assertEqual(len(bed),1)
             self.assertEqual(bed[0].count(), 0)
         
-           
+        
+        
+        
+    ###########################
+    #
+    #   Gene flanking tests
+    #
+    ####################
     
-    def test_extraction_of_genes_tss(self):
-       
+    def _test_get_joined_flanked_genes(self, genes, expected_bed):
+
         # pybedtools does not close file_handles immediately, which yields a stack of warnings
-        # ignore them!
+        # ignore them!        
         warnings.simplefilter("ignore", ResourceWarning)
-       
+        
         upstreams, downstreams = [0,1,10,200], [0,1,10,200]
-       
+    
         with patch("remus.processing.g") as g:
             
             g.genes_registry = self.genes_reg 
             
-            genes = ['HNF1B']
             for upstream in upstreams:
                 for downstream in downstreams:
             
                     bed = BedsProcessor._get_joined_flanked_genes(genes, self.genome, upstream, downstream)
             
-                    self.assertEqual(len(bed), len((self.hnf1b_bed.strip()).split('\n')))
+                    self.assertEqual(len(bed), len((expected_bed.strip()).split('\n')))
                     
                     intervals = [str(i).split("\t") for i in bed]
                     for i in intervals:
-                        self.assertEqual(int(i[2])-int(i[1]), upstream + downstream)
-                        self.assertEqual(len(i), 6)
+                        self.assertEqual(upstream + downstream, int(i[2])-int(i[1]))
+                        self.assertEqual(6, len(i))
             
-            
-            genes = ['HNF1B', 'HNF4A']
-            for upstream in upstreams:
-                for downstream in downstreams:
-            
-                    bed = BedsProcessor._get_joined_flanked_genes(genes, self.genome, upstream, downstream)
-            
-                    self.assertEqual(len(bed), len((self.hnf1b_bed + self.hnf4a_bed).strip().split('\n')))
-            
-                    intervals = [str(i).split("\t") for i in bed]
-                    for i in intervals:
-                        self.assertEqual(int(i[2])-int(i[1]), upstream + downstream)
-                        self.assertEqual(len(i), 6)
+    #
+    # throws IndexError. Handle it as exception?
+    #
+    #def test_get_joined_flanked_genes_empty_list(self):
+    #    self.assertEqual([], self._test_get_joined_flanked_genes([], ""))
+    
+    
+    def test_get_joined_flanked_genes_single_gene(self):
+        self._test_get_joined_flanked_genes([self.hnf1b], self.hnf1b_bed)
+       
+       
+    def test_get_joined_flanked_genes_list_of_genes(self):
+        self._test_get_joined_flanked_genes([self.hnf1b, self.hnf4a], self.hnf1b_bed + self.hnf4a_bed)
+        
+    
+    
+    
+    ###########################
+    #
+    #   Interval overlapping tests
+    #
+    ####################
 
-                
-            
 
+
+    def test_process_with_overlapping_combine_mode_all(self):
+        
+        mode = "all"
+        
+        beds = [self.gene1bed]
+        overlap = BedsProcessor._process_with_overlapping(mode, beds).result
+        # nothing happens if the list has a single bed
+        self.assertEqual(2, len(overlap))
+        self.assertEqual(self._bed2str(self.gene1bed), self._bed2str(overlap))
+
+        # nothing in common between the two beds
+        beds = [self.gene1bed, self.gene2bed]
+        overlap = BedsProcessor._process_with_overlapping(mode, beds).result
+        self.assertEqual(0, len(overlap))
+        self.assertEqual("", self._bed2str(overlap))
+
+        # shared small interval
+        gene3=BedTool('chr1\t100300\t100310\tgene3.1\t0\t+', from_string=True)
+        
+        beds = [self.gene1bed, gene3]
+        overlap = BedsProcessor._process_with_overlapping(mode, beds).result
+        self.assertEqual(2, len(overlap))
+        self.assertEqual("chr1\t100300\t100310\tgene1.1\t0\t+\n" +\
+                         "chr1\t100300\t100310\tgene1.2\t0\t+", self._bed2str(overlap))
+        
+        # the operation is not symmetric, unless columns 4+ are dropped!!
+        beds = [gene3, self.gene1bed]
+        overlap = BedsProcessor._process_with_overlapping(mode, beds).result
+        self.assertEqual(2, len(overlap))
+        self.assertEqual("chr1\t100300\t100310\tgene3.1\t0\t+\n"+\
+                         "chr1\t100300\t100310\tgene3.1\t0\t+", self._bed2str(overlap))
+        
+        
+    def test_process_with_overlapping_combine_mode_any(self):
+        mode = "any"
+
+        beds = [self.gene1bed]
+        overlap = BedsProcessor._process_with_overlapping(mode, beds).result
+        # nothing happens if the list has a single bed
+        self.assertEqual(2, len(overlap))
+        self.assertEqual(self._bed2str(self.gene1bed), self._bed2str(overlap))
+
+
+        beds = [self.gene1bed, self.gene2bed]
+        overlap = BedsProcessor._process_with_overlapping(mode, beds).result
+        # by default union (Bedtool.cat) merges overlaping intervals, and drops columns 4+
+        self.assertEqual(2, len(overlap))
+        expected_output='chr1\t100000\t101000\n'+\
+                        'chr2\t100000\t101000'
+        self.assertEqual(expected_output, self._bed2str(overlap))
+        
+        
+    #
+    # TODO
+    # Process_with_overlapping returns an BedMutualOperation object, or an ampty list
+    # Make the result type coherent
+    #
+    def test_process_with_overlapping_unknown_combine_mode(self):
+        mode = 'unknown'
+        self.assertEqual([], BedsProcessor._process_with_overlapping(mode, None))
+    
 

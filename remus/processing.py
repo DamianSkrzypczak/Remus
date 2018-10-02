@@ -209,7 +209,3 @@ def convert_genome_name(genome, desirable_older_format="hg37"):
     else:
         return genome.lower()
 
-# TODO tu flankujesz promotory, a nam chodzi o znalezienie promotorów w rejonach flankujacych geny,
-# TODO trzebaby dodac jeszcze jeden arg dla tej funkcji - genes/transcripts
-# TODO tu flankujesz enhancery, a nam chodzi o znalezienie enhancerów w rejonach flankujacych geny,
-# TODO wiec trzebaby dodac jeszcze jeden arg dla tej funkcji - genes/transcripts

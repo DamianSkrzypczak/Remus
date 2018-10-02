@@ -22,7 +22,7 @@ pd.set_option('display.float_format', lambda x: '%.3f' % x)
 def setup_registries():
     g.genes_registry = GenesDBRegistry()
     g.tissues_registry = RegulatoryRegionsFilesRegistry()
-    g.tss_registry = TranscriptionStartSitesRegistry()
+#    g.tss_registry = TranscriptionStartSitesRegistry()
 
 
 @app.after_request
