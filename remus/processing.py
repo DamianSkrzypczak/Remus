@@ -4,99 +4,88 @@ from collections import OrderedDict
 
 from flask import g
 
-from remus.bio.bed.beds_operations import BedsMutualOperation, BedsFlanker
+from remus.bio.bed.beds_operations import BedOperations
 
 
 class BedsProcessor:
+    
     @staticmethod
     def get_genes_bed(genes, genome, *args):
         genome = convert_genome_name(genome, desirable_older_format="hg37")
         gene_beds = [g.genes_registry.get_bed(genome, gene) for gene in genes]
-        ret = [BedsMutualOperation(gene_beds, operation="union", **{"postmerge": False}).result]
-        return ret
+        return BedOperations.union(gene_beds)
 
     @staticmethod
     def get_tss_fantom5_bed(genes, tissues, genome, combine_mode, upstream, downstream, *args):
-        genes = BedsProcessor._get_joined_flanked_genes(genes, genome, upstream, downstream)
+        flanked_genes = BedsProcessor._get_gene_promoter_sites(genes, genome, upstream, downstream)
         
         beds = BedsProcessor._get_tss_fantom5_beds(tissues)  
         
-        if beds and genes:
+        if beds and flanked_genes:
             
-            joined_f5_tss = BedsProcessor._process_with_overlapping(combine_mode, beds).result
-            return [
-                BedsMutualOperation([joined_f5_tss, genes], 
-                                    operation="intersection", 
-                                    **{"u": True}).result]
+            joined_f5_tss = BedsProcessor._combine_beds(beds, combine_mode)
+            return [ BedOperations.intersect([joined_f5_tss, flanked_genes], **{"u": True}) ]
         else:
             return []
 
     @staticmethod
     def get_enhancers_fantom5_bed(genes, tissues, genome, combine_mode, upstream, downstream, *args):
-        genes = BedsProcessor._get_joined_flanked_genes(genes, genome,
+        flanked_genes = BedsProcessor._get_gene_promoter_sites(genes, genome,
                                                             int(float(upstream) * 1000),
                                                             int(float(downstream) * 1000))
         beds = BedsProcessor._get_enhancers_fantom5_beds(tissues)
-        if beds and genes:
-            joined_f5_enh_tissues = BedsProcessor._process_with_overlapping(combine_mode, beds).result
-            return [
-                BedsMutualOperation([joined_f5_enh_tissues, genes], 
-                                    operation="intersection",
-                                    **{"u": True}).result]
+        if beds and flanked_genes:
+            joined_f5_enh_tissues = BedsProcessor._combine_beds(beds, combine_mode)
+            return [ BedOperations.intersect([joined_f5_enh_tissues, flanked_genes], **{"u": True}) ]
         else:
             return []
 
     @staticmethod
     def get_enhancers_encode_bed(genes, tissues, genome, combine_mode, upstream, downstream, *args):
-        genes = BedsProcessor._get_joined_flanked_genes(genes, genome,
+        flanked_genes = BedsProcessor._get_gene_promoter_sites(genes, genome,
                                                             int(float(upstream) * 1000),
                                                             int(float(downstream) * 1000))
         beds = BedsProcessor._get_enhancers_encode_beds(tissues)
-        if beds and genes:
-            joined_f5_enh_tissues = BedsProcessor._process_with_overlapping(combine_mode, beds).result
-            return [
-                BedsMutualOperation([joined_f5_enh_tissues, genes], 
-                                    operation="intersection",
-                                    **{"u": True}).result]
+        if beds and flanked_genes:
+            joined_f5_enh_tissues = BedsProcessor._combine_beds(beds, combine_mode)
+            return [ BedOperations.intersect([joined_f5_enh_tissues, flanked_genes], **{"u": True}) ]
         else:
             return []
 
     @staticmethod
     def get_accessible_chromatin_bed(genes, tissues, genome, combine_mode, upstream, downstream, *args):
-        genes = BedsProcessor._get_joined_flanked_genes(genes, genome,
+        flanked_genes = BedsProcessor._get_gene_promoter_sites(genes, genome,
                                                             int(float(upstream) * 1000),
                                                             int(float(downstream) * 1000))
         beds = BedsProcessor._get_accessible_chromatin_encode_beds(tissues)
-        if beds and genes:
-            joined_f5_enh_tissues = BedsProcessor._process_with_overlapping(combine_mode, beds).result
-            return [
-                BedsMutualOperation([joined_f5_enh_tissues, genes], 
-                                    operation="intersection",
-                                    **{"u": True}).result]
+        if beds and flanked_genes:
+            joined_f5_enh_tissues = BedsProcessor._combine_beds(beds, combine_mode)
+            return [ BedOperations.intersect([joined_f5_enh_tissues, flanked_genes], **{"u": True}) ]
         else:
             return []
 
     @staticmethod
-    def _process_with_overlapping(combine_mode, beds):
+    def _combine_beds(beds, combine_mode, merge=False):
         if combine_mode == "all":
-            return BedsMutualOperation(beds, operation="intersection")
+            return BedOperations.intersect(beds, merge=merge)
         elif combine_mode == "any":
-            return BedsMutualOperation(beds, operation="union")
+            return BedOperations.union(beds, merge=merge)
         else:
             return []
 
     @staticmethod
-    def _get_joined_flanked_genes(genes, genome, upstream, downstream):
+    def _get_gene_promoter_sites(genes, genome, upstream, downstream):
         genome = convert_genome_name(genome, desirable_older_format="hg19")
-        genes_beds = BedsProcessor.get_genes_bed(genes, genome)
-        flanked_genes_beds = BedsFlanker(genes_beds, upstream, downstream, genome).result
-        return BedsMutualOperation(flanked_genes_beds, operation="union").result
+        genes_bed = BedsProcessor.get_genes_bed(genes, genome)
+        promoters = BedOperations.get_promoter_region(genes_bed, upstream, downstream, genome)
+        return promoters
 
     @staticmethod
     def _get_enhancers_fantom5_beds(tissues):
         results = [g.tissues_registry.get_bed(tissue, "ENH_F5") for tissue in tissues]
         return [i for i in results if i]
 
+    @staticmethod
     def _get_tss_fantom5_beds(tissues):
         results = [g.tissues_registry.get_bed(tissue, "TSS_F5") for tissue in tissues]
         return [i for i in results if i]

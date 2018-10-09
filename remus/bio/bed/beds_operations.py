@@ -1,76 +1,56 @@
-from collections import OrderedDict
-
 from pybedtools import BedTool
 
 from remus.bio.time_measurement import time_it
 
-
-class BedsMutualOperation:
-    operations = OrderedDict(
-        [
-            ("intersection", "intersect"),
-            ("subtraction", "subtract"),
-            ("union", "cat")
-        ]
-    )
-
-    def __init__(self, beds, operation, **operation_kwargs):
-        self._operation_kwargs = operation_kwargs
-        if len(beds) == 1:
-            self._result_bed = beds[0]
-            self._time_elapsed = 0
-        else:
-            self._beds = beds
-            chosen_operation = self._choose_operation(operation)
-            self._result_bed, self._time_elapsed = self._execute_with_accumulation(chosen_operation)
-
-    def _choose_operation(self, operation):
-        if operation in self.operations:
-            return getattr(BedTool, self.operations[operation])
-        else:
-            raise OperationError('{} has no operation named "{}"'.format(self.__class__, operation))
-
-    @time_it
-    def _execute_with_accumulation(self, operation):
-        accumulation = self._beds[0]
-        for bed in self._beds[1:]:
-            accumulation = operation(accumulation, bed, **self._operation_kwargs).sort()
+class BedOperations:
+    
+    
+    @staticmethod
+    #@time_it
+    def intersect(beds, merge=False, **kwargs):
+        """ produces a BED with intersection of features from input BEDs. 
+        Intervals are sorted and optionally merged"""
+        
+        if len(beds) == 0: 
+            raise MissingBedsException('Empty BED list for intersect operation')
+                        
+        accumulation = beds[0]
+        for bed in beds[1:]:
+            accumulation = accumulation.intersect(bed, **kwargs)
+            
+        accumulation = accumulation.sort()
+        if merge:
+            accumulation = accumulation.merge()
+            
         return accumulation
 
-    @property
-    def result(self):
 
-        return self._result_bed
+    @staticmethod
+    #@time_it
+    def union(beds, merge=False, **kwargs):
+        """ Produces a BED with union of features in all input BEDs. 
+        Intervls are sorted and optionally merged """
+        
+        if len(beds) == 0: 
+            raise MissingBedsException('Empty BED list for union operation')
+        
+        accumulation = beds[0].merge() if merge else beds[0]
+        for bed in beds[1:]:
+            accumulation = accumulation.cat(bed, postmerge=merge, **kwargs)
+            
+        accumulation = accumulation.sort()
+            
+        return accumulation
 
-    @property
-    def time_elapsed(self, decimal_precision=6):
-
-        return round(self._time_elapsed, decimal_precision)
-
-
-class BedsFlanker:
-    def __init__(self, beds, upstream, downstream, genome):
-        self._beds = beds
-        self.results_with_times = [self._get_promoter(b, upstream, downstream, genome) for b in self._beds]
-        self._times_elapsed = [r[1] for r in self.results_with_times]
-        self._result_beds = [r[0] for r in self.results_with_times]
-
-    @time_it
-    def _get_promoter(self, bed, upstream, downstream, genome):
+    @staticmethod
+    #@time_it
+    def get_promoter_region(bed, upstream, downstream, genome):
+        """ gets promoter region for each feature in a BED file """
         from pybedtools.featurefuncs import TSS
         return bed.each(TSS, upstream=int(upstream), downstream=int(downstream)).saveas()
 
-    @property
-    def result(self):
-        return self._result_beds
-
-    def times_elapsed(self, decimal_precision=6):
-        return [round(t, decimal_precision) for t in self._times_elapsed]
 
 
 class MissingBedsException(Exception):
     pass
 
-
-class OperationError(Exception):
-    pass

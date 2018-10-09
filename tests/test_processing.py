@@ -81,12 +81,14 @@ class TestRemusProcessing(unittest.TestCase):
             g.genes_registry = self.genes_reg
             
             hnf1b = BedsProcessor.get_genes_bed([self.hnf1b], self.genome)           
-            self.assertEqual(len(hnf1b), 1)
+            self.assertEqual(len(hnf1b), 6)
             self.assertEqual(''.join([str(i) for i in hnf1b]), self.hnf1b_bed)
+
             
             two_genes = BedsProcessor.get_genes_bed([self.hnf1b, self.hnf4a], self.genome)
-            self.assertEqual(len(two_genes), 1)
+            self.assertEqual(len(two_genes), 14)
             self.assertEqual(''.join([str(i) for i in two_genes]), self.hnf1b_bed + self.hnf4a_bed)
+
 
 
                 
@@ -99,8 +101,8 @@ class TestRemusProcessing(unittest.TestCase):
 
             bed = BedsProcessor.get_genes_bed([self.unknown_gene], self.genome)
 
-            self.assertEqual(len(bed),1)
-            self.assertEqual(bed[0].count(), 0)
+            self.assertEqual(len(bed), 0)
+            
         
         
         
@@ -111,7 +113,7 @@ class TestRemusProcessing(unittest.TestCase):
     #
     ####################
     
-    def _test_get_joined_flanked_genes(self, genes, expected_bed):
+    def _test_get_gene_promoter_sites(self, genes, expected_bed):
 
         # pybedtools does not close file_handles immediately, which yields a stack of warnings
         # ignore them!        
@@ -126,7 +128,7 @@ class TestRemusProcessing(unittest.TestCase):
             for upstream in upstreams:
                 for downstream in downstreams:
             
-                    bed = BedsProcessor._get_joined_flanked_genes(genes, self.genome, upstream, downstream)
+                    bed = BedsProcessor._get_gene_promoter_sites(genes, self.genome, upstream, downstream)
             
                     self.assertEqual(len(bed), len((expected_bed.strip()).split('\n')))
                     
@@ -138,16 +140,16 @@ class TestRemusProcessing(unittest.TestCase):
     #
     # throws IndexError. Handle it as exception?
     #
-    #def test_get_joined_flanked_genes_empty_list(self):
-    #    self.assertEqual([], self._test_get_joined_flanked_genes([], ""))
+    #def test_get_gene_promoter_sites_empty_list(self):
+    #    self.assertEqual([], self._test_get_gene_promoter_sites([], ""))
     
     
-    def test_get_joined_flanked_genes_single_gene(self):
-        self._test_get_joined_flanked_genes([self.hnf1b], self.hnf1b_bed)
+    def test_get_gene_promoter_sites_single_gene(self):
+        self._test_get_gene_promoter_sites([self.hnf1b], self.hnf1b_bed)
        
        
-    def test_get_joined_flanked_genes_list_of_genes(self):
-        self._test_get_joined_flanked_genes([self.hnf1b, self.hnf4a], self.hnf1b_bed + self.hnf4a_bed)
+    def test_get_gene_promoter_sites_list_of_genes(self):
+        self._test_get_gene_promoter_sites([self.hnf1b, self.hnf4a], self.hnf1b_bed + self.hnf4a_bed)
         
     
     
@@ -165,14 +167,14 @@ class TestRemusProcessing(unittest.TestCase):
         mode = "all"
         
         beds = [self.gene1bed]
-        overlap = BedsProcessor._process_with_overlapping(mode, beds).result
+        overlap = BedsProcessor._combine_beds(beds, mode)
         # nothing happens if the list has a single bed
         self.assertEqual(2, len(overlap))
         self.assertEqual(self._bed2str(self.gene1bed), self._bed2str(overlap))
 
         # nothing in common between the two beds
         beds = [self.gene1bed, self.gene2bed]
-        overlap = BedsProcessor._process_with_overlapping(mode, beds).result
+        overlap = BedsProcessor._combine_beds(beds, mode)
         self.assertEqual(0, len(overlap))
         self.assertEqual("", self._bed2str(overlap))
 
@@ -180,14 +182,14 @@ class TestRemusProcessing(unittest.TestCase):
         gene3=BedTool('chr1\t100300\t100310\tgene3.1\t0\t+', from_string=True)
         
         beds = [self.gene1bed, gene3]
-        overlap = BedsProcessor._process_with_overlapping(mode, beds).result
+        overlap = BedsProcessor._combine_beds(beds, mode)
         self.assertEqual(2, len(overlap))
         self.assertEqual("chr1\t100300\t100310\tgene1.1\t0\t+\n" +\
                          "chr1\t100300\t100310\tgene1.2\t0\t+", self._bed2str(overlap))
         
         # the operation is not symmetric, unless columns 4+ are dropped!!
         beds = [gene3, self.gene1bed]
-        overlap = BedsProcessor._process_with_overlapping(mode, beds).result
+        overlap = BedsProcessor._combine_beds(beds, mode)
         self.assertEqual(2, len(overlap))
         self.assertEqual("chr1\t100300\t100310\tgene3.1\t0\t+\n"+\
                          "chr1\t100300\t100310\tgene3.1\t0\t+", self._bed2str(overlap))
@@ -197,19 +199,28 @@ class TestRemusProcessing(unittest.TestCase):
         mode = "any"
 
         beds = [self.gene1bed]
-        overlap = BedsProcessor._process_with_overlapping(mode, beds).result
+        overlap = BedsProcessor._combine_beds(beds, mode)
         # nothing happens if the list has a single bed
         self.assertEqual(2, len(overlap))
         self.assertEqual(self._bed2str(self.gene1bed), self._bed2str(overlap))
 
+        overlap = BedsProcessor._combine_beds(beds, mode, merge=True)
+        # merges overlapping intervals
+        self.assertEqual(1, len(overlap))
+        self.assertEqual('chr1\t100000\t101000', self._bed2str(overlap))
+
 
         beds = [self.gene1bed, self.gene2bed]
-        overlap = BedsProcessor._process_with_overlapping(mode, beds).result
-        # by default union (Bedtool.cat) merges overlaping intervals, and drops columns 4+
+        overlap = BedsProcessor._combine_beds(beds, mode)
+        self.assertEqual(4, len(overlap))
+        self.assertEqual('\n'.join([self._bed2str(self.gene1bed), self._bed2str(self.gene2bed)]), self._bed2str(overlap))
+        
+        overlap = BedsProcessor._combine_beds(beds, mode, merge=True)
         self.assertEqual(2, len(overlap))
         expected_output='chr1\t100000\t101000\n'+\
                         'chr2\t100000\t101000'
         self.assertEqual(expected_output, self._bed2str(overlap))
+        
         
         
     #
@@ -219,6 +230,6 @@ class TestRemusProcessing(unittest.TestCase):
     #
     def test_process_with_overlapping_unknown_combine_mode(self):
         mode = 'unknown'
-        self.assertEqual([], BedsProcessor._process_with_overlapping(mode, None))
+        self.assertEqual([], BedsProcessor._combine_beds(None, mode))
     
 

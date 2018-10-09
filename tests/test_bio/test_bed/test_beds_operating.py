@@ -5,6 +5,9 @@ from ddt import ddt, data
 
 from remus.bio.bed.beds_operations import BedsMutualOperation, OperationError
 
+"""
+After refactoring this TestSuite is not valid. Leaving it here for the moment
+"""
 
 @ddt
 class TestBedsOperator(unittest.TestCase):
