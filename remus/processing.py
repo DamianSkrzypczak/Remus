@@ -4,7 +4,7 @@ from collections import OrderedDict
 
 from flask import g
 
-from remus.bio.bed.beds_operations import BedOperations
+from remus.bio.bed.beds_operations import BedOperations, BedOperationResult
 
 
 class BedsProcessor:
