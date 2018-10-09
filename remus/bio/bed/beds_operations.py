@@ -2,12 +2,44 @@ from pybedtools import BedTool
 
 from remus.bio.time_measurement import time_it
 
+class BedOperationResult:
+    
+    def __init__(self, result, time):
+        self._result = result
+        self._time = time
+    
+    @property
+    def result(self):
+        return self._result
+
+    @property
+    def time_elapsed(self, decimal_precision=3):
+        return round(self._time, decimal_precision)
+
+
+
 class BedOperations:
     
     
     @staticmethod
-    #@time_it
+    def union(beds, merge=False, **kwargs):
+        result, time = BedOperations._union(beds, merge, **kwargs)
+        return BedOperationResult(result, time)
+    
+    @staticmethod
     def intersect(beds, merge=False, **kwargs):
+        result, time = BedOperations._intersect(beds, merge, **kwargs)
+        return BedOperationResult(result, time)
+        
+    @staticmethod
+    def get_promoter_region(bed, upstream, downstream, genome):
+        result, time  = BedOperations._get_promoter_region(bed, upstream, downstream, genome)
+        return BedOperationResult(result, time)
+        
+    
+    @staticmethod
+    @time_it
+    def _intersect(beds, merge=False, **kwargs):
         """ produces a BED with intersection of features from input BEDs. 
         Intervals are sorted and optionally merged"""
         
@@ -26,8 +58,8 @@ class BedOperations:
 
 
     @staticmethod
-    #@time_it
-    def union(beds, merge=False, **kwargs):
+    @time_it
+    def _union(beds, merge, **kwargs):
         """ Produces a BED with union of features in all input BEDs. 
         Intervls are sorted and optionally merged """
         
@@ -43,8 +75,8 @@ class BedOperations:
         return accumulation
 
     @staticmethod
-    #@time_it
-    def get_promoter_region(bed, upstream, downstream, genome):
+    @time_it
+    def _get_promoter_region(bed, upstream, downstream, genome):
         """ gets promoter region for each feature in a BED file """
         from pybedtools.featurefuncs import TSS
         return bed.each(TSS, upstream=int(upstream), downstream=int(downstream)).saveas()

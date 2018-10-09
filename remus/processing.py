@@ -13,7 +13,7 @@ class BedsProcessor:
     def get_genes_bed(genes, genome, *args):
         genome = convert_genome_name(genome, desirable_older_format="hg37")
         gene_beds = [g.genes_registry.get_bed(genome, gene) for gene in genes]
-        return BedOperations.union(gene_beds)
+        return BedOperations.union(gene_beds).result
 
     @staticmethod
     def get_tss_fantom5_bed(genes, tissues, genome, combine_mode, upstream, downstream, *args):
@@ -24,7 +24,7 @@ class BedsProcessor:
         if beds and flanked_genes:
             
             joined_f5_tss = BedsProcessor._combine_beds(beds, combine_mode)
-            return [ BedOperations.intersect([joined_f5_tss, flanked_genes], **{"u": True}) ]
+            return [ BedOperations.intersect([joined_f5_tss, flanked_genes], **{"u": True}).result ]
         else:
             return []
 
@@ -36,7 +36,7 @@ class BedsProcessor:
         beds = BedsProcessor._get_enhancers_fantom5_beds(tissues)
         if beds and flanked_genes:
             joined_f5_enh_tissues = BedsProcessor._combine_beds(beds, combine_mode)
-            return [ BedOperations.intersect([joined_f5_enh_tissues, flanked_genes], **{"u": True}) ]
+            return [ BedOperations.intersect([joined_f5_enh_tissues, flanked_genes], **{"u": True}).result ]
         else:
             return []
 
@@ -48,7 +48,7 @@ class BedsProcessor:
         beds = BedsProcessor._get_enhancers_encode_beds(tissues)
         if beds and flanked_genes:
             joined_f5_enh_tissues = BedsProcessor._combine_beds(beds, combine_mode)
-            return [ BedOperations.intersect([joined_f5_enh_tissues, flanked_genes], **{"u": True}) ]
+            return [ BedOperations.intersect([joined_f5_enh_tissues, flanked_genes], **{"u": True}).result ]
         else:
             return []
 
@@ -60,16 +60,16 @@ class BedsProcessor:
         beds = BedsProcessor._get_accessible_chromatin_encode_beds(tissues)
         if beds and flanked_genes:
             joined_f5_enh_tissues = BedsProcessor._combine_beds(beds, combine_mode)
-            return [ BedOperations.intersect([joined_f5_enh_tissues, flanked_genes], **{"u": True}) ]
+            return [ BedOperations.intersect([joined_f5_enh_tissues, flanked_genes], **{"u": True}).result ]
         else:
             return []
 
     @staticmethod
     def _combine_beds(beds, combine_mode, merge=False):
         if combine_mode == "all":
-            return BedOperations.intersect(beds, merge=merge)
+            return BedOperations.intersect(beds, merge=merge).result
         elif combine_mode == "any":
-            return BedOperations.union(beds, merge=merge)
+            return BedOperations.union(beds, merge=merge).result
         else:
             return []
 
@@ -78,7 +78,7 @@ class BedsProcessor:
         genome = convert_genome_name(genome, desirable_older_format="hg19")
         genes_bed = BedsProcessor.get_genes_bed(genes, genome)
         promoters = BedOperations.get_promoter_region(genes_bed, upstream, downstream, genome)
-        return promoters
+        return promoters.result
 
     @staticmethod
     def _get_enhancers_fantom5_beds(tissues):
