@@ -7,6 +7,9 @@ DATA_ROOT=data
 GENES=${DATA_ROOT}/genes
 GENES_RAW=${GENES}/raw
 
+MIRNA=${DATA_ROOT}/mirna
+MIRNA_RAW=${MIRNA}/raw
+
 F5_TSS=${DATA_ROOT}/tss/fantom5
 
 F5_ENH=${DATA_ROOT}/enhancers/fantom5
@@ -23,9 +26,11 @@ CHROMATIN_RAW=${CHROMATIN}/raw
 printf "Making directories tree under %s\n" ${DATA_ROOT}
 mkdir -p ${GENES} -v
 mkdir -p ${GENES_RAW} -v
+mkdir -p ${MIRNA} -v
+mkdir -p ${MIRNA_RAW} -v
 mkdir -p ${F5_ENH} -v
 mkdir -p ${F5_ENH_RAW} -v
-mkdir -p ${f5_TSS} -v
+mkdir -p ${F5_TSS} -v
 mkdir -p ${ENC_ENH} -v
 mkdir -p ${ENC_ENH_RAW} -v
 mkdir -p ${CHROMATIN} -v
@@ -37,6 +42,13 @@ printf "Creating genes db\n"
 PREDEFINED_GENES_DB_SOURCES=predefined_genes_db_sources
 cp ${PREDEFINED_GENES_DB_SOURCES}/*.tsv ${GENES_RAW}/
 python3 ${PREDEFINED_GENES_DB_SOURCES}/create_genes_db.py -i ${GENES_RAW} -o ${GENES}/genes.db
+
+# Create miRNA targets.db
+printf "Creating miRNA targets db\n"
+PREDEFINED_MIRNA_DB_SOURCES=predefined_mirna_db_sources
+cp ${PREDEFINED_MIRNA_DB_SOURCES}/*.tsv ${MIRNA_RAW}/
+python3 ${PREDEFINED_MIRNA_DB_SOURCES}/create_mirna_target_db.py -i ${MIRNA_RAW} -o ${MIRNA}/targets.db
+
 
 # Download FANTOM5 CAGE expression matrix and ontology (to find transcription start sites)
 PREDEFINED_F5_TSS_SOURCES=predefined_fantom5_tss_data_sources
