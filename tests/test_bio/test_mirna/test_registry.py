@@ -38,3 +38,6 @@ class MiRNATargetRegistryTest(unittest.TestCase):
         self.assertEqual(len(hnf1b_all), len(mirnas))
         for m in mirnas:
             self.assertTrue(m in hnf1b_all)
+
+    def tearDown(self):
+        self.reg.teardown_registry()

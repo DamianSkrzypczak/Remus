@@ -13,7 +13,7 @@ class BedsProcessor:
     def get_genes_bed(genes, genome, *args):
         genome = convert_genome_name(genome, desirable_older_format="hg37")
         gene_beds = [g.genes_registry.get_bed(genome, gene) for gene in genes]
-        return BedOperations.union(gene_beds).result
+        return [ BedOperations.union(gene_beds).result ]
 
     @staticmethod
     def get_tss_fantom5_bed(genes, tissues, genome, combine_mode, upstream, downstream, *args):
@@ -65,6 +65,34 @@ class BedsProcessor:
             return []
 
     @staticmethod
+    def get_mirnas_targetting_genes(genes, tissues, genome, combine_mode, *args):
+        mirna_symbols = BedsProcessor._get_mirnas_targetting_gene(genes)
+        mirna_bed = get_genes_bed(mirna_symbols, genome)
+        
+        print(*args)
+        print(args)
+        # intersect beds with accessible chromatin in tissues
+        #accessible_chromatin = BedsProcessor._get_accessible_chromatin_encode_beds(tissues)
+        #accessible_chromatin_aggregate = BedsProcessor._combine_beds(accessible_chromatin, combine_mode)
+        #accessible_mirna = BedsProcessor._combine_beds([mirna_bed] + accessible_chromatin_aggregate, combine_mode)
+        #return accessible_mirna
+        
+        return mirna_bed
+
+    #
+    # private methods below
+    #
+    
+    @staticmethod
+    def _get_mirnas_targetting_genes(genes):
+        mirs = set()
+        for gene in genes:
+            mirs += g.mirna_target_registry.get_mirnas_targetting_gene(gene)
+        
+        return g.mirna_target_registry.get_mirna_gene_symbols(list(mirs))
+
+    
+    @staticmethod
     def _combine_beds(beds, combine_mode, merge=False):
         if combine_mode == "all":
             return BedOperations.intersect(beds, merge=merge).result
@@ -76,7 +104,7 @@ class BedsProcessor:
     @staticmethod
     def _get_gene_promoter_sites(genes, genome, upstream, downstream):
         genome = convert_genome_name(genome, desirable_older_format="hg19")
-        genes_bed = BedsProcessor.get_genes_bed(genes, genome)
+        genes_bed = BedsProcessor.get_genes_bed(genes, genome)[0]
         promoters = BedOperations.get_promoter_region(genes_bed, upstream, downstream, genome)
         return promoters.result
 
@@ -136,6 +164,14 @@ class BedsCollector:
         "accessible-chromatin-encode-kbs-downstream",
         "accessible-chromatin-encode-used"
     ]
+    
+    mirna_target_params = [
+        "genes", "tissues", "genome",
+        "mirna-targets-combine-mode", 
+        "mirna-mirtarbase-used",
+        "mirna-mirwalk-used",
+        "mirna-mirtarbase-include-weak"
+    ]
 
     def __init__(self, data):
         self._data = data
@@ -166,6 +202,11 @@ class BedsCollector:
              self._get_bed_files(
                  self.accessible_chromatin_encode_params,
                  BedsProcessor.get_accessible_chromatin_bed)
+             ),
+            ("mirna-targets",
+             self._get_bed_files(
+                 self.mirna_target_params,
+                 BedsProcessor.get_mirnas_targetting_genes)
              )
         ])
         return bed_files
