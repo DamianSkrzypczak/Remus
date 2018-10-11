@@ -11,7 +11,7 @@ from remus.bio.bed.beds_operations import BedOperations
 from remus.bio.genes.registry import GenesDBRegistry
 from remus.bio.regulatory_regions.registry import RegulatoryRegionsFilesRegistry
 from remus.bio.tss.registry import TranscriptionStartSitesRegistry
-from remus.bio.mirna.registry import MirTarBaseRegistry
+from remus.bio.mirna.registry import MirTarBaseRegistry, MirWalkRegistry
 from remus.processing import get_matching_genes, get_matching_tissues, BedsCollector
 
 app = Flask(__name__)
@@ -23,7 +23,8 @@ pd.set_option('display.float_format', lambda x: '%.3f' % x)
 def setup_registries():
     g.genes_registry = GenesDBRegistry()
     g.tissues_registry = RegulatoryRegionsFilesRegistry()
-    g.mirna_target_registry = MirTarBaseRegistry()
+    g.mirna_target_registry = { "mirtarbase" : MirTarBaseRegistry(), 
+                                "mirwalk"    : MirWalkRegistry() }
 #    g.tss_registry = TranscriptionStartSitesRegistry()
 
 

@@ -64,12 +64,33 @@ class BedsProcessor:
         else:
             return []
 
+
+    def get_mirnas_targetting_genes_from_mirtarbase(genes, tissues, genome, combine_mode, include_weak_interactions, *args):
+        
+        mirna_symbols = BedsProcessor._get_mirnas_targetting_genes(genes, g.mirna_target_registries['mirtarbase'], include_weak_interactions=include_weak_interactions)
+        accessible_mirna = BedsProcessor._get_accessible_mirnas(mirna_sybols, tissues, genome, combine_mode)
+        
+        return accessible_mirna
+
+
+    def get_mirnas_targetting_genes_from_mirwalk(genes, tissues, genome, combine_mode, min_confidence, *args):
+        
+        mirna_symbols = BedsProcessor._get_mirnas_targetting_genes(genes, g.mirna_target_registries['mirwalk'], min_confidence=min_confidence)
+        accessible_mirna = BedsProcessor._get_accessible_mirnas(mirna_sybols, tissues, genome, combine_mode)
+        
+        return accessible_mirna
+
+
+
+    #
+    # private methods below
+    #
+
     @staticmethod
-    def get_mirnas_targetting_genes(genes, tissues, genome, combine_mode, include_weak_interactions, *args):
-        mirna_symbols = BedsProcessor._get_mirnas_targetting_genes(genes)
+    def _get_accessible_mirnas(mirna_symbols, tissues, genome, combine_mode):
+        
         mirna_bed = BedsProcessor.get_genes_bed(mirna_symbols, genome)
         
-        print(args)
         print(mirna_bed)
         
         # intersect beds with accessible chromatin in tissues
@@ -81,21 +102,13 @@ class BedsProcessor:
         
         return accessible_mirna
         
-        #return mirna_bed
-
-    #
-    # private methods below
-    #
     
     @staticmethod
-    def _get_mirnas_targetting_genes(genes):
-        mirs = []
-        for gene in genes:
-            mirs += g.mirna_target_registry.get_mirnas_targetting_gene(gene)
+    def _get_mirnas_targetting_genes_from_registry(genes, registry, **args):
+        mirs = [ registry.get_mirnas_targetting_gene(gene, **args) for gene in genes ]
+        return registry.get_mirna_gene_symbols(list(set(mirs)))
         
-        return g.mirna_target_registry.get_mirna_gene_symbols(list(set(mirs)))
-
-    
+     
     @staticmethod
     def _combine_beds(beds, combine_mode, merge=False):
         if combine_mode == "all":
@@ -216,7 +229,12 @@ class BedsCollector:
             ("mirna-targets-mirtarbase",
              self._get_bed_files(
                  self.mirna_target_mirtarbase_params,
-                 BedsProcessor.get_mirnas_targetting_genes)
+                 BedsProcessor.get_mirnas_targetting_genes_from_mirtarbase)
+             ),
+            ("mirna-targets-mirwalk",
+             self._get_bed_files(
+                 self.mirna_target_mirwalk_params,
+                 BedsProcessor.get_mirnas_targetting_genes_from_mirwalk)
              )
         ])
         return bed_files

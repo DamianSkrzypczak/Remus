@@ -59,5 +59,26 @@ class MirTarBaseRegistry(GenericMiRNATargetRegistry):
         self.conn.close()
 
         
+class MirWalkRegistry(GenericMiRNATargetRegistry):
+    
+
+    def __init__(self, db_file = os.path.join("data", "mirna", "targets.db")):
+        self.conn = sqlite3.connect(db_file)
+        self.query = "SELECT mirna FROM mirwalk " + \
+                     "WHERE target_gene=='{gene}' AND " + \
+                     "(confidence>='{minimal_confidence}')"
+        
+            
+            
+    def get_mirnas_targetting_gene(self, gene_symbol, min_confidence=0.5):
+        query = self.query.format(gene=gene_symbol, minimal_confidence=min_confidence)
+        
+        mirnas_df = pd.read_sql_query(query, self.conn)
+        
+        return mirnas_df['mirna'].values.tolist()
+        
+        
+    def teardown_registry(self):
+        self.conn.close()
         
         
