@@ -23,15 +23,17 @@ pd.set_option('display.float_format', lambda x: '%.3f' % x)
 def setup_registries():
     g.genes_registry = GenesDBRegistry()
     g.tissues_registry = RegulatoryRegionsFilesRegistry()
-    g.mirna_target_registry = { "mirtarbase" : MirTarBaseRegistry(), 
-                                "mirwalk"    : MirWalkRegistry() }
+    g.mirna_target_registries = { "mirtarbase" : MirTarBaseRegistry(), 
+                                  "mirwalk"    : MirWalkRegistry() }
 #    g.tss_registry = TranscriptionStartSitesRegistry()
 
 
 @app.after_request
 def teardown_registries(response):
     g.genes_registry.teardown_registry()
-    g.mirna_target_registry.teardown_registry()
+    for reg in g.mirna_target_registries.values():
+        reg.teardown_registry()
+        
     return response
 
 
