@@ -65,19 +65,23 @@ class BedsProcessor:
             return []
 
     @staticmethod
-    def get_mirnas_targetting_genes(genes, tissues, genome, combine_mode, *args):
-        mirna_symbols = BedsProcessor._get_mirnas_targetting_gene(genes)
-        mirna_bed = get_genes_bed(mirna_symbols, genome)
+    def get_mirnas_targetting_genes(genes, tissues, genome, combine_mode, include_weak_interactions, *args):
+        mirna_symbols = BedsProcessor._get_mirnas_targetting_genes(genes)
+        mirna_bed = BedsProcessor.get_genes_bed(mirna_symbols, genome)
         
-        print(*args)
         print(args)
-        # intersect beds with accessible chromatin in tissues
-        #accessible_chromatin = BedsProcessor._get_accessible_chromatin_encode_beds(tissues)
-        #accessible_chromatin_aggregate = BedsProcessor._combine_beds(accessible_chromatin, combine_mode)
-        #accessible_mirna = BedsProcessor._combine_beds([mirna_bed] + accessible_chromatin_aggregate, combine_mode)
-        #return accessible_mirna
+        print(mirna_bed)
         
-        return mirna_bed
+        # intersect beds with accessible chromatin in tissues
+        accessible_chromatin = BedsProcessor._get_accessible_chromatin_encode_beds(tissues)
+        accessible_chromatin_aggregate = BedsProcessor._combine_beds(accessible_chromatin, combine_mode)
+        accessible_mirna = BedsProcessor._combine_beds([mirna_bed] + accessible_chromatin_aggregate, combine_mode)
+        
+        print(accessible_mirna)
+        
+        return accessible_mirna
+        
+        #return mirna_bed
 
     #
     # private methods below
@@ -85,11 +89,11 @@ class BedsProcessor:
     
     @staticmethod
     def _get_mirnas_targetting_genes(genes):
-        mirs = set()
+        mirs = []
         for gene in genes:
             mirs += g.mirna_target_registry.get_mirnas_targetting_gene(gene)
         
-        return g.mirna_target_registry.get_mirna_gene_symbols(list(mirs))
+        return g.mirna_target_registry.get_mirna_gene_symbols(list(set(mirs)))
 
     
     @staticmethod
@@ -165,12 +169,18 @@ class BedsCollector:
         "accessible-chromatin-encode-used"
     ]
     
-    mirna_target_params = [
+    mirna_target_mirtarbase_params = [
         "genes", "tissues", "genome",
         "mirna-targets-combine-mode", 
-        "mirna-mirtarbase-used",
-        "mirna-mirwalk-used",
-        "mirna-mirtarbase-include-weak"
+        "mirna-mirtarbase-include-weak",
+        "mirna-mirtarbase-used"
+    ]
+
+    mirna_target_mirwalk_params = [
+        "genes", "tissues", "genome",
+        "mirna-targets-combine-mode", 
+        "mirna-mirwalk-minimal-confidence"
+        "mirna-mirwalk-used"
     ]
 
     def __init__(self, data):
@@ -203,9 +213,9 @@ class BedsCollector:
                  self.accessible_chromatin_encode_params,
                  BedsProcessor.get_accessible_chromatin_bed)
              ),
-            ("mirna-targets",
+            ("mirna-targets-mirtarbase",
              self._get_bed_files(
-                 self.mirna_target_params,
+                 self.mirna_target_mirtarbase_params,
                  BedsProcessor.get_mirnas_targetting_genes)
              )
         ])
