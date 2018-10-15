@@ -58,16 +58,16 @@ class BedsProcessor:
                                                             int(float(upstream) * 1000),
                                                             int(float(downstream) * 1000))
         beds = BedsProcessor._get_accessible_chromatin_encode_beds(tissues)
+        
         if beds and flanked_genes:
-            joined_f5_enh_tissues = BedsProcessor._combine_beds(beds, combine_mode)
-            return [ BedOperations.intersect([joined_f5_enh_tissues, flanked_genes], **{"u": True}).result ]
+            combined_chromatin = BedsProcessor._combine_beds(beds, combine_mode)
+            return [ BedOperations.intersect([combined_chromatin, flanked_genes], **{"u": True}).result ]
         else:
             return []
 
     
     @staticmethod
     def get_mirnas_targetting_genes_from_mirtarbase(genes, tissues, genome, combine_mode, include_weak_support, *args):
-        
         mirna_symbols = BedsProcessor._get_mirnas_targetting_genes(genes, g.mirna_target_registries['mirtarbase'], include_weak_support=include_weak_support)
         accessible_mirna = BedsProcessor._get_accessible_mirnas(mirna_symbols, tissues, genome, combine_mode)
         
@@ -75,7 +75,6 @@ class BedsProcessor:
 
     @staticmethod
     def get_mirnas_targetting_genes_from_mirwalk(genes, tissues, genome, combine_mode, min_confidence, *args):
-        
         mirna_symbols = BedsProcessor._get_mirnas_targetting_genes(genes, g.mirna_target_registries['mirwalk'], min_confidence=min_confidence)
         accessible_mirna = BedsProcessor._get_accessible_mirnas(mirna_symbols, tissues, genome, combine_mode)
         
@@ -87,20 +86,16 @@ class BedsProcessor:
     # private methods below
     #
 
-#    @staticmethod
     def _get_mirnas_targetting_genes(genes, registry, **args):
         mirs = set()
         for gene in genes:
             mirs.update(registry.get_mirnas_targetting_gene(gene, **args))
         return registry.get_mirna_gene_symbols(list(mirs))
 
- #   @staticmethod
     def _get_accessible_mirnas(mirna_symbols, tissues, genome, combine_mode):
         
         mirna_bed = BedsProcessor.get_genes_bed(mirna_symbols, genome)
-        
-        print(mirna_bed)
-        
+                
         # intersect beds with accessible chromatin in tissues
         #accessible_chromatin = BedsProcessor._get_accessible_chromatin_encode_beds(tissues)
         #accessible_chromatin_aggregate = BedsProcessor._combine_beds(accessible_chromatin, combine_mode)
@@ -111,7 +106,6 @@ class BedsProcessor:
         return accessible_mirna
         
      
-    @staticmethod
     def _combine_beds(beds, combine_mode, merge=False):
         if combine_mode == "all":
             return BedOperations.intersect(beds, merge=merge).result
@@ -120,30 +114,25 @@ class BedsProcessor:
         else:
             return []
 
-    @staticmethod
     def _get_gene_promoter_sites(genes, genome, upstream, downstream):
         genome = convert_genome_name(genome, desirable_older_format="hg19")
         genes_bed = BedsProcessor.get_genes_bed(genes, genome)[0]
         promoters = BedOperations.get_promoter_region(genes_bed, upstream, downstream, genome)
         return promoters.result
 
-    @staticmethod
     def _get_enhancers_fantom5_beds(tissues):
         results = [g.tissues_registry.get_bed(tissue, "ENH_F5") for tissue in tissues]
         return [i for i in results if i]
 
-    @staticmethod
     def _get_tss_fantom5_beds(tissues):
         results = [g.tissues_registry.get_bed(tissue, "TSS_F5") for tissue in tissues]
         return [i for i in results if i]
         
         
-    @staticmethod
     def _get_enhancers_encode_beds(tissues):
         results = [g.tissues_registry.get_bed(tissue, "ENH_EN") for tissue in tissues]
         return [i for i in results if i]
 
-    @staticmethod
     def _get_accessible_chromatin_encode_beds(tissues):
         results = [g.tissues_registry.get_bed(tissue, "CHRM") for tissue in tissues]
         return [i for i in results if i]
@@ -194,7 +183,7 @@ class BedsCollector:
     mirna_target_mirwalk_params = [
         "genes", "tissues", "genome",
         "mirna-targets-combine-mode", 
-        "mirna-mirwalk-minimal-confidence"
+        "mirna-mirwalk-minimal-confidence",
         "mirna-mirwalk-used"
     ]
 

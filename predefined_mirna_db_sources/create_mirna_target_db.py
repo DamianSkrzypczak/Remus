@@ -19,8 +19,15 @@ COL_NAME_DICT = {'mirtarbase': {'miRTarBase ID'                : DROP_COLUMN_MAR
                                 'Species (Target Gene)'        : DROP_COLUMN_MARKER+'6',
                                 'Experiments'                  : 'experiments',
                                 'Support Type'                 : 'support_type',
-                                'References (PMID)'            : DROP_COLUMN_MARKER+'9'}
-                }
+                                'References (PMID)'            : DROP_COLUMN_MARKER+'9'
+                                },
+                 'mirwalk_3UTR': {'miRNA'                      : 'mirna', 
+                                'mRNA'                         : DROP_COLUMN_MARKER+'2',
+                                'Genesymbol'                   : 'target_gene',
+                                'binding_site'                 : DROP_COLUMN_MARKER+'4',
+                                'binding_probability'          : 'confidence'
+                                }
+                } 
 
 def main(data_path, db_path):
     """
@@ -77,6 +84,16 @@ def reformat_data_frame(data_frame, col_mapping_dict, drop_column_marker):
     data_frame.columns = [col_mapping_dict[col_name] for col_name in data_frame.columns]
     # drop redundant columns
     data_frame = data_frame[[c for c in data_frame.columns if not c.startswith(drop_column_marker)]]
+    
+    # if confidence is provided, sort asecending by confidence and keep only interactions with highest confidence
+    if 'confidence' in col_mapping_dict:
+        data_frame = data_frame.sort_values(by='confidence')
+        cols = list(data_frame.columns)
+        cols.remove('confidence')
+        data_frame.drop_duplicates(cols, keep='last')
+    else:    
+        # drop duplicate interactions
+        data_frame = data_frame.drop_duplicates()
     
     return data_frame
 

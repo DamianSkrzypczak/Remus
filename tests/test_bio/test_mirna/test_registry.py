@@ -2,7 +2,7 @@
 
 import unittest
 
-from remus.bio.mirna.registry import MirTarBaseRegistry
+from remus.bio.mirna.registry import MirTarBaseRegistry, MirWalkRegistry
 
 class MiRNATargetRegistryTest(unittest.TestCase):
 
@@ -16,6 +16,7 @@ class MiRNATargetRegistryTest(unittest.TestCase):
                             'MIR103B', 'MIR1255B2', 'MIR548AQ']
                             
         self.reg = MirTarBaseRegistry()
+        self.reg2 = MirWalkRegistry()
 
     def test_get_mirna_gene_symbols(self):
         mir_genes = self.reg.get_mirna_gene_symbols(self.mir_symbols)
@@ -29,7 +30,7 @@ class MiRNATargetRegistryTest(unittest.TestCase):
         mir_gene = self.reg.get_mirna_gene_symbols([])
         self.assertEqual([], mir_gene)
 
-    def test_HNF1B_gene_query(self):
+    def test_HNF1B_gene_query_mirtarbase(self):
         mirnas = self.reg.get_mirnas_targetting_gene('HNF1B')
         self.assertEqual(['hsa-miR-23a-3p'], mirnas)
         
@@ -38,6 +39,14 @@ class MiRNATargetRegistryTest(unittest.TestCase):
         self.assertEqual(len(hnf1b_all), len(mirnas))
         for m in mirnas:
             self.assertTrue(m in hnf1b_all)
+            
+    def test_HNF1B_gene_query_mirwalk(self):
+        mirnas = self.reg2.get_mirnas_targetting_gene('HNF1B', min_confidence=0.5)
+        self.assertEqual(727, len(mirnas))
+
+        mirnas = self.reg2.get_mirnas_targetting_gene('HNF1B', min_confidence=1.0)
+        self.assertEqual(225, len(mirnas))
+        
 
     def tearDown(self):
         self.reg.teardown_registry()

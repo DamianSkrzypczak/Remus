@@ -152,7 +152,8 @@ def get_single_value_params():
     single_value_params += ["mirna-mirtarbase-used",
                             "mirna-mirwalk-used",
                             "mirna-targets-combine-mode",
-                            "mirna-mirtarbase-include-weak"]
+                            "mirna-mirtarbase-include-weak",
+                            "mirna-mirwalk-minimal-confidence"]
 
     params_map = {p: request.form.get(p, None) for p in single_value_params}
     return params_map

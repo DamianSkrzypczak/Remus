@@ -40,7 +40,7 @@ class MirTarBaseRegistry(GenericMiRNATargetRegistry):
 
     def __init__(self, db_file = os.path.join("data", "mirna", "targets.db")):
         self.conn = sqlite3.connect(db_file)
-        self.query = "SELECT mirna FROM mirtarbase " + \
+        self.query = "SELECT DISTINCT mirna FROM mirtarbase " + \
                      "WHERE target_gene=='{gene}' AND " + \
                      "(support_type=='Functional MTI' OR support_type=='{other_support_type}')"
         
@@ -64,13 +64,13 @@ class MirWalkRegistry(GenericMiRNATargetRegistry):
 
     def __init__(self, db_file = os.path.join("data", "mirna", "targets.db")):
         self.conn = sqlite3.connect(db_file)
-        self.query = "SELECT mirna FROM mirwalk " + \
+        self.query = "SELECT DISTINCT mirna FROM mirwalk_3UTR " + \
                      "WHERE target_gene=='{gene}' AND " + \
                      "(confidence>='{minimal_confidence}')"
         
             
             
-    def get_mirnas_targetting_gene(self, gene_symbol, min_confidence=0.5):
+    def get_mirnas_targetting_gene(self, gene_symbol, min_confidence=0.9):
         query = self.query.format(gene=gene_symbol, minimal_confidence=min_confidence)
         
         mirnas_df = pd.read_sql_query(query, self.conn)
