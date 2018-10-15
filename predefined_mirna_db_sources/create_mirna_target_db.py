@@ -6,7 +6,7 @@ import pandas as pd
 
 SEPARATOR = "\t"
 
-EXPECTED_FILE_EXTENSION = ".tsv"
+EXPECTED_FILE_EXTENSION = ".tsv.gz"
 
 DB_TABLE_NAME = 'mirna_targets'
 
@@ -70,7 +70,7 @@ def extract_data_frame_from_file(data_path, filename):
     :return: pandas dataframe with file content
     """
     file_path = os.path.join(data_path, filename)
-    return pd.read_csv(file_path, skiprows=0, sep=SEPARATOR)
+    return pd.read_csv(file_path, compression='gzip', skiprows=0, sep=SEPARATOR)
 
 
 def reformat_data_frame(data_frame, col_mapping_dict, drop_column_marker):
