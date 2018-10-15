@@ -46,6 +46,9 @@
                     <div class="card">
                         {% block accessible_chromatin %}{% endblock %}
                     </div>
+                    <div class="card">
+                        {% block mirna_targets %}{% endblock %}
+                    </div>
                     <div class="card-body">
                         {% block summary_panel %} {% endblock %}
                     </div>
@@ -87,14 +90,48 @@
                 $('#enhancers-encode-controls input').prop('disabled', true);
             }
         });
+        
         $("#accessible-chromatin-encode-checkbox").bind('click dblclick', function (evt) {
             if ($(this).is(":checked")) {
                 $('#accessible-chromatin-encode-controls').slideDown();
                 $('#accessible-chromatin-encode-controls input').prop('disabled', false);
             } else {
                 $('#accessible-chromatin-encode-controls').slideUp();
-                $('#accessible-chromatin-encode-controls input').prop('disabled', false);
+                $('#accessible-chromatin-encode-controls input').prop('disabled', true);
             }
         });
+        
+        $("#mirna-mirtarbase-checkbox").bind('click dblclick', function (evt) {
+            if ($(this).is(":checked")) {
+                $('#mirna-mirtarbase-controls').slideDown();
+                $('#mirna-mirtarbase-controls input').prop('disabled', false);
+                $('#mirna-targets-controls').slideDown();
+                $('#mirna-targets-controls input').prop('disabled', false);
+            } else {
+                $('#mirna-mirtarbase-controls').slideUp();
+                $('#mirna-mirtarbase-controls input').prop('disabled', true);
+                if (! $("#mirna-mirwalk-checkbox").is(":checked")) {
+                    $('#mirna-targets-controls').slideUp();
+                    $('#mirna-targets-controls input').prop('disabled', true);
+                }
+            }
+        });
+        
+        $("#mirna-mirwalk-checkbox").bind('click dblclick', function (evt) {
+            if ($(this).is(":checked")) {
+                $('#mirna-mirwalk-controls').slideDown();
+                $('#mirna-mirwalk-controls input').prop('disabled', false);
+                $('#mirna-targets-controls').slideDown();
+                $('#mirna-targets-controls input').prop('disabled', false);
+            } else {
+                $('#mirna-mirwalk-controls').slideUp();
+                $('#mirna-mirwalk-controls input').prop('disabled', true);
+                if (! $("#mirna-mirtarbase-checkbox").is(":checked")) {
+                    $('#mirna-targets-controls').slideUp();
+                    $('#mirna-targets-controls input').prop('disabled', true);
+                }
+            }
+        });
+
     </script>
 {% endblock %}

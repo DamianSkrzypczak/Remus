@@ -51,10 +51,13 @@ class RegulatoryRegionsFilesRegistry:
         return self._available_tissues[name][source_symbol]
 
     def get_bed(self, tissue, source_symbol):
+        # log.DEBUG('Requested tissue [%s] for source [%s]' % (tissue, source_symbol))
         try:
             tissue_path = self.get_tissue_path(tissue, source_symbol)
         except KeyError:
+            # log.DEBUG('No tissue [%s] for source [%s]' % (tissue, source_symbol))
             return None
+                
         return BedLoader(tissue_path).bed
 
     def get_matching_tissues(self, pattern, limit):

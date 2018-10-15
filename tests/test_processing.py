@@ -80,12 +80,12 @@ class TestRemusProcessing(unittest.TestCase):
             
             g.genes_registry = self.genes_reg
             
-            hnf1b = BedsProcessor.get_genes_bed([self.hnf1b], self.genome)           
+            hnf1b = BedsProcessor.get_genes_bed([self.hnf1b], self.genome)[0]           
             self.assertEqual(len(hnf1b), 6)
             self.assertEqual(''.join([str(i) for i in hnf1b]), self.hnf1b_bed)
 
             
-            two_genes = BedsProcessor.get_genes_bed([self.hnf1b, self.hnf4a], self.genome)
+            two_genes = BedsProcessor.get_genes_bed([self.hnf1b, self.hnf4a], self.genome)[0]
             self.assertEqual(len(two_genes), 14)
             self.assertEqual(''.join([str(i) for i in two_genes]), self.hnf1b_bed + self.hnf4a_bed)
 
@@ -99,7 +99,7 @@ class TestRemusProcessing(unittest.TestCase):
             
             g.genes_registry = self.genes_reg 
 
-            bed = BedsProcessor.get_genes_bed([self.unknown_gene], self.genome)
+            bed = BedsProcessor.get_genes_bed([self.unknown_gene], self.genome)[0]
 
             self.assertEqual(len(bed), 0)
             

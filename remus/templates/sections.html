@@ -291,6 +291,94 @@
     </div>
 {% endblock %}
 
+{% block mirna_targets %}
+    <a class="collapsed card-header bg-info card-link text-white" data-toggle="collapse"
+       href="#collapse-mirna-targets">
+        Micro RNA
+    </a>
+    <div id="collapse-mirna-targets" class="collapse show">
+        <div class="row">
+            <div class="card-body col-md-4">
+                <div class="form-group">
+
+                    <label for="mirna-mirtarbase-checkbox">
+                        <input id="mirna-mirtarbase-checkbox"
+                               name="mirna-mirtarbase-used"
+                               type="checkbox" value="yes">
+                        miRTarBase
+                    </label>
+
+                    <div id="mirna-mirtarbase-controls"
+                         class="collapse hiden-controls">
+                        <div class="col-md-12">
+                            
+                            <label for="mirna-mirtarbase-include-weak-checkbox">
+                                <input id="mirna-mirtarbase-include-weak-checkbox"
+                                        name="mirna-mirtarbase-include-weak"
+                                        type="checkbox" value="no">
+                                    Include weak interactions
+                            </label>
+                                                    
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body col-md-4">
+                <div class="form-group">
+              
+                    <label for="mirna-mirwalk-checkbox">
+                        <input id="mirna-mirwalk-checkbox"
+                               name="mirna-mirwalk-used"
+                               type="checkbox" value="yes">
+                        miRWalk
+                    </label>
+
+
+                    <div id="mirna-mirwalk-controls"
+                         class="collapse hiden-controls">
+                        <div class="col-md-12">
+                            <label for="mirna-mirwalk-minimal-confidence" class="col-form-label">
+                                Minimal confidence (0-1)
+                                <input name="mirna-mirwalk-minimal-confidence" class="form-control" type="float"
+                                       min="0" value="0.9" id="mirna-mirwalk-minimal-confidence" disabled>
+                            </label>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+            
+            <div class="card-body col-md-4">
+                <div class="form-group">
+                    
+                    <div id="mirna-targets-controls"
+                         class="collapse hiden-controls">
+                        <div class="col-md-12">
+                    
+                            <div class="form-check">
+                                <input class="form-check-input"
+                                       name="mirna-targets-combine-mode" type="radio"
+                                       id="mirna-targets-combine-mode-all" value="all" disabled>
+                                <label class="form-check-label" for="mirna-targets-combine-mode-all">
+                                    Active in all selected tissues</label>
+                            </div>
+
+                            <div class="form-check">
+                                <input class="form-check-input"
+                                       name="mirna-targets-combine-mode" type="radio"
+                                       id="mirna-targets-combine-mode-any" value="any" checked disabled>
+                                <label class="form-check-label" for="mirna-targets-combine-mode-any">
+                                    Active in any of selected tissues</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+
 {% block summary_panel %}
     <div class="row align-items-top">
         <div class="col-md-4 " style="padding-left: 0">

@@ -7,10 +7,11 @@ import pandas as pd
 from flask import Flask, render_template, jsonify, request, redirect, url_for, g, send_file, session, \
     render_template_string
 
-from remus.bio.bed.beds_operations import BedsMutualOperation
+from remus.bio.bed.beds_operations import BedOperations
 from remus.bio.genes.registry import GenesDBRegistry
 from remus.bio.regulatory_regions.registry import RegulatoryRegionsFilesRegistry
 from remus.bio.tss.registry import TranscriptionStartSitesRegistry
+from remus.bio.mirna.registry import MirTarBaseRegistry, MirWalkRegistry
 from remus.processing import get_matching_genes, get_matching_tissues, BedsCollector
 
 app = Flask(__name__)
@@ -22,12 +23,17 @@ pd.set_option('display.float_format', lambda x: '%.3f' % x)
 def setup_registries():
     g.genes_registry = GenesDBRegistry()
     g.tissues_registry = RegulatoryRegionsFilesRegistry()
+    g.mirna_target_registries = { "mirtarbase" : MirTarBaseRegistry(), 
+                                  "mirwalk"    : MirWalkRegistry() }
 #    g.tss_registry = TranscriptionStartSitesRegistry()
 
 
 @app.after_request
 def teardown_registries(response):
     g.genes_registry.teardown_registry()
+    for reg in g.mirna_target_registries.values():
+        reg.teardown_registry()
+        
     return response
 
 
@@ -62,7 +68,7 @@ def perform():
         collected_beds_without_categories = [bed for beds_list in collected_beds_map.values() for bed in beds_list]
         if len(collected_beds_without_categories) == 1:
             collected_beds_without_categories += collected_beds_without_categories
-        final_processor = BedsMutualOperation(collected_beds_without_categories, operation="union")
+        final_processor = BedOperations.union(collected_beds_without_categories, merge=True)
         tmp_file_path = save_as_tmp(final_processor.result)
         session["last_result"] = tmp_file_path.name
         end_time = (time.time() - start_time)
@@ -114,24 +120,40 @@ def get_perform_params():
 
 
 def get_single_value_params():
-    single_value_params = ["genome",
-                           "transcription-fantom5-used",
-                           "enhancers-fantom5-used",
-                           "enhancers-encode-used",
-                           "accessible-chromatin-encode-used",
-                           "transcription-fantom5-combine-mode",
+    
+    # genome build
+    single_value_params =  ["genome"]
+    
+    # TSS params
+    single_value_params += ["transcription-fantom5-used",
+                            "transcription-fantom5-combine-mode",
+                            "transcription-fantom5-kbs-upstream",
+                            "transcription-fantom5-kbs-downstream"]
+ 
+    # FANTOM5 enhancers
+    single_value_params += ["enhancers-fantom5-used",
                            "enhancers-fantom5-combine-mode",
-                           "enhancers-encode-combine-mode",
-                           "accessible-chromatin-encode-combine-mode",
-                           "transcription-fantom5-kbs-upstream",
-                           "transcription-fantom5-kbs-downstream",
                            "enhancers-fantom5-kbs-upstream",
-                           "enhancers-fantom5-kbs-downstream",
+                           "enhancers-fantom5-kbs-downstream"]
+    
+    # ENCODE enhancers
+    single_value_params += ["enhancers-encode-used",
+                           "enhancers-encode-combine-mode",
                            "enhancers-encode-kbs-upstream",
-                           "enhancers-encode-kbs-downstream",
-                           "accessible-chromatin-encode-kbs-upstream",
-                           "accessible-chromatin-encode-kbs-downstream"
-                           ]
+                           "enhancers-encode-kbs-downstream"]
+    
+    # ENCODE accessible chromatin
+    single_value_params += ["accessible-chromatin-encode-used",
+                            "accessible-chromatin-encode-combine-mode",                           
+                            "accessible-chromatin-encode-kbs-upstream",
+                            "accessible-chromatin-encode-kbs-downstream"]
+
+    # miRNA target interaction
+    single_value_params += ["mirna-mirtarbase-used",
+                            "mirna-mirwalk-used",
+                            "mirna-targets-combine-mode",
+                            "mirna-mirtarbase-include-weak",
+                            "mirna-mirwalk-minimal-confidence"]
 
     params_map = {p: request.form.get(p, None) for p in single_value_params}
     return params_map
