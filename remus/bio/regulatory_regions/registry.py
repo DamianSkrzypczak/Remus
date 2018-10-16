@@ -1,5 +1,6 @@
 import os
 import re
+import logging
 from collections import defaultdict
 
 from remus.bio.bed.beds_loading import BedLoader
@@ -17,8 +18,10 @@ class RegulatoryRegionsFilesRegistry:
     def __init__(self, root="data",
                  directories_and_symbols=DATA_DIRECTORIES_MAP,
                  extensions=(".bed", ".bed.gz")):
+        self.logger = logging.getLogger(self.__class__.__name__)
         sources_map = self.make_sources_map(directories_and_symbols, extensions, root)
         self._available_tissues = self._create_available_tissues_map(sources_map)
+        
 
     @staticmethod
     def _create_available_tissues_map(sources_map):
@@ -31,6 +34,10 @@ class RegulatoryRegionsFilesRegistry:
 
     @staticmethod
     def make_sources_map(directories_and_symbols, extensions, root):
+        
+        logging.getLogger('RegulatoryRegionsFilesRegistry').info(
+            "Making sources map for root: %s ; paths: %s ; and extensions: %s" % (root, str(directories_and_symbols), str(extensions)))
+        
         sources = defaultdict(dict)
         for path in directories_and_symbols:
             for bed in os.listdir(os.path.join(root, path)):
@@ -51,11 +58,12 @@ class RegulatoryRegionsFilesRegistry:
         return self._available_tissues[name][source_symbol]
 
     def get_bed(self, tissue, source_symbol):
-        # log.DEBUG('Requested tissue [%s] for source [%s]' % (tissue, source_symbol))
+        self.logger.info('Requested tissue [%s] for source [%s]' % (tissue, source_symbol))
         try:
             tissue_path = self.get_tissue_path(tissue, source_symbol)
+            self.logger.info('Found $s', tissue_path)
         except KeyError:
-            # log.DEBUG('No tissue [%s] for source [%s]' % (tissue, source_symbol))
+            self.logger.info('No tissue [%s] for source [%s]' % (tissue, source_symbol))
             return None
                 
         return BedLoader(tissue_path).bed
