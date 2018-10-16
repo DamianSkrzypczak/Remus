@@ -1,4 +1,3 @@
-import logging
 import os
 import time
 from tempfile import NamedTemporaryFile
@@ -13,6 +12,24 @@ from remus.bio.regulatory_regions.registry import RegulatoryRegionsFilesRegistry
 from remus.bio.tss.registry import TranscriptionStartSitesRegistry
 from remus.bio.mirna.registry import MirTarBaseRegistry, MirWalkRegistry
 from remus.processing import get_matching_genes, get_matching_tissues, BedsCollector
+
+from logging.config import dictConfig
+
+dictConfig({
+    'version': 1,
+    'formatters': {'default': {
+        'format': '[%(asctime)s] %(levelname)s %(name)s: %(message)s',
+    }},
+    'handlers': {'wsgi': {
+        'class': 'logging.StreamHandler',
+        'stream': 'ext://flask.logging.wsgi_errors_stream',
+        'formatter': 'default'
+    }},
+    'root': {
+        'level': 'INFO',
+        'handlers': ['wsgi']
+    }
+})
 
 app = Flask(__name__)
 app.secret_key = b'\xa9\xf8J\xad\x1bj\x02\x06\x12\xdf\xd9\xf2\xb1\xe9Zu'
@@ -74,7 +91,7 @@ def perform():
         end_time = (time.time() - start_time)
         return return_summary(final_processor, end_time)
     except Exception as e:
-        logging.exception("Error occurred, details:")
+        app.logger.exception("Error occurred, details:")
         return "Error occurred"
 
 

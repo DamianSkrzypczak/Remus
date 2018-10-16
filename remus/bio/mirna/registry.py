@@ -1,15 +1,21 @@
 import os
 import sqlite3
-
+import logging 
 import pandas as pd
 
 
 class GenericMiRNATargetRegistry:
     """ Interface for MiRNA target sources """
     
-    def get_mirnas_targetting_gene(self, gene_symbol, **args):
+    def __init__(self, db_file):
+        self.conn = sqlite3.connect(db_file)
+        self.logger = logging.getLogger(self.__class__.__name__)
+
+
+    def get_mirnas_targetting_gene(self, gene_symbol, **kwargs):
         """ abstract method to fill in in subclasses """
         raise NotImplementedError("Please implement method [get_mirnas_targetting_gene] in class [%s]" % type(self).__name__)
+
 
     @staticmethod
     def get_mirna_gene_symbols(mirnas):
@@ -31,54 +37,64 @@ class GenericMiRNATargetRegistry:
         
         suffix = ''.join(suffix.split('-'))
             
-        return 'MIR' + ('LET' if is_let else '') + suffix.upper()
-
+        mir_symbol = 'MIR' + ('LET' if is_let else '') + suffix.upper()
         
+        logging.getLogger("GenericMiRNATargetRegistry").info("Coverted %s to %s" % (mir, mir_symbol))
+        
+        return mir_symbol
+
+
+    def teardown_registry(self):
+        self.logger.info("Closing db connection")
+        self.conn.close()
+
+
 
 class MirTarBaseRegistry(GenericMiRNATargetRegistry):
     
 
     def __init__(self, db_file = os.path.join("data", "mirna", "targets.db")):
-        self.conn = sqlite3.connect(db_file)
+        super(MirTarBaseRegistry, self).__init__(db_file)
         self.query = "SELECT DISTINCT mirna FROM mirtarbase " + \
                      "WHERE target_gene=='{gene}' AND " + \
                      "(support_type=='Functional MTI' OR support_type=='{other_support_type}')"
-        
-            
             
     def get_mirnas_targetting_gene(self, gene_symbol, include_weak_support=False):
+        
+        self.logger.info("Querrying registry for [%s] (weak_support: %s)" % (gene_symbol, include_weak_support))
+
         other_support_type = 'Functional MTI (Weak)' if include_weak_support else 'Functional MTI'
         query = self.query.format(gene=gene_symbol, other_support_type=other_support_type)
         
         mirnas_df = pd.read_sql_query(query, self.conn)
+        mirna_list = mirnas_df['mirna'].values.tolist()
+                
+        self.logger.info("Returning %s mirna ids: [%s]..." % (len(mirna_list), mirna_list[:3]))
         
-        return mirnas_df['mirna'].values.tolist()
+        return mirna_list
         
         
-    def teardown_registry(self):
-        self.conn.close()
 
         
 class MirWalkRegistry(GenericMiRNATargetRegistry):
     
-
     def __init__(self, db_file = os.path.join("data", "mirna", "targets.db")):
-        self.conn = sqlite3.connect(db_file)
+        super(MirWalkRegistry, self).__init__(db_file)
         self.query = "SELECT DISTINCT mirna FROM mirwalk_3UTR " + \
                      "WHERE target_gene=='{gene}' AND " + \
                      "(confidence>='{minimal_confidence}')"
         
-            
-            
     def get_mirnas_targetting_gene(self, gene_symbol, min_confidence=0.9):
-        query = self.query.format(gene=gene_symbol, minimal_confidence=min_confidence)
         
+        self.logger.info("Querrying registry for [%s] (min_confidence: %s)" % (gene_symbol, min_confidence))
+
+        query = self.query.format(gene=gene_symbol, minimal_confidence=min_confidence)        
         mirnas_df = pd.read_sql_query(query, self.conn)
+        mirna_list = mirnas_df['mirna'].values.tolist()
         
-        return mirnas_df['mirna'].values.tolist()
+        self.logger.info("Returning %s mirna ids: [%s]..." % (len(mirna_list), mirna_list[:3]))
+
+        return mirna_list
         
-        
-    def teardown_registry(self):
-        self.conn.close()
         
         
