@@ -9,7 +9,6 @@ from flask import Flask, render_template, jsonify, request, redirect, url_for, g
 from remus.bio.bed.beds_operations import BedOperations
 from remus.bio.genes.registry import GenesDBRegistry
 from remus.bio.regulatory_regions.registry import RegulatoryRegionsFilesRegistry
-from remus.bio.tss.registry import TranscriptionStartSitesRegistry
 from remus.bio.mirna.registry import MirTarBaseRegistry, MirWalkRegistry
 from remus.processing import get_matching_genes, get_matching_tissues, BedsCollector
 
@@ -42,8 +41,6 @@ def setup_registries():
     g.tissues_registry = RegulatoryRegionsFilesRegistry()
     g.mirna_target_registries = { "mirtarbase" : MirTarBaseRegistry(), 
                                   "mirwalk"    : MirWalkRegistry() }
-#    g.tss_registry = TranscriptionStartSitesRegistry()
-
 
 @app.after_request
 def teardown_registries(response):
