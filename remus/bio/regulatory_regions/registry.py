@@ -31,26 +31,37 @@ class RegulatoryRegionsFilesRegistry:
         self.logger.info("Making sources map for root: %s ; paths: %s ; and extensions: %s" \
                             % (root, str(directories_and_symbols), str(extensions)))
         
+        pattern = re.compile(r"(\w+:\d+)_(.+?)(|_embryonic|_other)\.")
+        
         sources = defaultdict(dict)
         for path in directories_and_symbols:
             for bed in os.listdir(os.path.join(root, path)):
-                ontology_and_name = re.match(r"(\w+:\d+)_([^.]+)", bed)
-                if ontology_and_name and any([bed.endswith(ext) for ext in extensions]):
-                    ontology = ontology_and_name.group(1)
-                    name = ontology_and_name.group(2)
+                
+                termid_and_name = pattern.match(bed)
+                
+                if not termid_and_name and any([bed.endswith(ext) for ext in extensions]):
+                    self.logger.warn("File %s not matching expected file name format" % bed)
+                    continue
+                    
+                if any([bed.endswith(ext) for ext in extensions]):
+                    termid = termid_and_name.group(1)
+                    name = termid_and_name.group(2)
+                    life_stage = termid_and_name.group(3)
+                    self.logger.debug("%s was split into [%s],[%s],[%s]" % (bed, termid, name, life_stage))
+                    
                     symbol = directories_and_symbols[path]
-                    sources[ontology][symbol] = os.path.join(root, path, bed)
-                    sources[ontology]["name"] = name.replace("_expressed_enhancers", "").replace("_promoters", "").replace("_", " ")
+                    
+                    sources[termid, life_stage][symbol] = os.path.join(root, path, bed)
+                    sources[termid, life_stage]["name"] = name.replace("_expressed_enhancers", "").replace("_promoters", "").replace("_", " ")
         
         self.logger.debug("Sources map:\n%s" % str(sources))
-        
         return sources
 
     def _create_available_tissues_map(self, sources_map):
         tissues_map = {}
-        for onto_num, files_data in sources_map.items():
+        for (_, life_stage), files_data in sources_map.items():
             source_name = files_data.pop("name")
-            name = "{} ({})".format(source_name, ", ".join(sorted(files_data.keys())))
+            name = "{}{} ({})".format(source_name, life_stage, ", ".join(sorted(files_data.keys())))
             tissues_map[name] = files_data
         
         self.logger.debug("Tissues map:\n%s" % str(tissues_map))

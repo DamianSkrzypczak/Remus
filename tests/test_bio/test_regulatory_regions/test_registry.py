@@ -1,4 +1,5 @@
 
+import re
 import unittest
 
 from remus.bio.regulatory_regions.registry import RegulatoryRegionsFilesRegistry
@@ -10,15 +11,18 @@ class RegulatoryRegionsFilesRegistryTest(unittest.TestCase):
        self.reg = RegulatoryRegionsFilesRegistry()
        
        self.dummy_sources_map = \
-                        {'ONTO1': {'src1.1' : 'path1.1', 
+                        {('ONTO1',''): 
+                                  {'src1.1' : 'path1.1', 
                                    'src1.2' : 'path1.2', 
                                    'name'   : 'ONTO1_name',
                                    'src1.3' : 'path1.3'},
-                         'aONTO2': {'src2.3': 'path2.3', 
+                         ('aONTO2','_embryonic'): 
+                                  {'src2.3': 'path2.3', 
                                    'src2.1' : 'path2.1', 
                                    'name'   : 'aONTO2_name', 
                                    'src2.2' : 'path2.2'},
-                         'ONTO0': {'src3.3' : 'path3.3', 
+                         ('ONTO0','_other'): 
+                                  {'src3.3' : 'path3.3', 
                                    'name'   : 'ONTO0_name'}
                          }
 
@@ -26,11 +30,11 @@ class RegulatoryRegionsFilesRegistryTest(unittest.TestCase):
                                         {'src1.1': 'path1.1', 
                                          'src1.2': 'path1.2', 
                                          'src1.3': 'path1.3'},
-                                 'aONTO2_name (src2.1, src2.2, src2.3)' : 
+                                 'aONTO2_name_embryonic (src2.1, src2.2, src2.3)' : 
                                         {'src2.3': 'path2.3', 
                                          'src2.1' : 'path2.1', 
                                          'src2.2' : 'path2.2'},
-                                 'ONTO0_name (src3.3)' : 
+                                 'ONTO0_name_other (src3.3)' : 
                                         {'src3.3' : 'path3.3'}
                                 }
 
@@ -45,5 +49,16 @@ class RegulatoryRegionsFilesRegistryTest(unittest.TestCase):
         for k in self.dummy_tissue_map:
             self.assertEqual(self.dummy_tissue_map[k], tm[k])
             
+    def test_get_matching_tissues(self):
+        """ TODO to use files in data/ instead of reg._available_tissues """
+        limit=100
+        text = 'eMbryonic'
+        matching = self.reg.get_matching_tissues(text, limit)
+    
+        pattern = re.compile(text, re.IGNORECASE)
+        matching_test = sorted([k for k in self.reg._available_tissues.keys() if pattern.search(k) ])
+        
+        self.assertEqual(matching, matching_test[:limit])
+        
     def tearDown(self):
         pass
