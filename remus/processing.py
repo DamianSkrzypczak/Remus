@@ -14,12 +14,10 @@ class BedsProcessor:
     
     def log_count(msg, bed):
         BedsProcessor.logger().info(msg +" had [%s] records." % len(bed))
+        #BedsProcessor.logger().debug(msg +" had [%s] records." % len(bed))
         
-    def log_bed(bed, level='debug'):
-        if level=='debug':
-            BedsProcessor.logger().debug(":\n%s" % str(bed))
-        else:
-            BedsProcessor.logger().info("\n%s" % str(bed))
+    def log_bed(bed):
+        BedsProcessor.logger().debug(":\n%s" % str(bed))
 
     
     @staticmethod
