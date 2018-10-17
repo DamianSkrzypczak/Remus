@@ -87,9 +87,9 @@ for assembly in assemblies:
         for l in tissue.values():
             accessions.extend(l)
 
-        collapse_beds(" ".join([tissue_ids[t], t]), accessions, raw_bed_dir, collapsed_bed_dir)
+        collapse_beds(" ".join([tissue_ids[t], t]), accessions, assembly)
         
         if EMBRYO in tissue:
-            collapse_beds(" ".join([tissue_ids[t], t, "embryonic"]), tissue[EMBRYO], raw_bed_dir, collapsed_bed_dir)
+            collapse_beds(" ".join([tissue_ids[t], t, "embryonic"]), tissue[EMBRYO], assembly)
 
 
