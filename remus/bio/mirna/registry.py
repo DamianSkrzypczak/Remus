@@ -8,9 +8,9 @@ class GenericMiRNATargetRegistry:
     """ Interface for MiRNA target sources """
     
     def __init__(self, db_file):
-        self.conn = sqlite3.connect(db_file)
         self.logger = logging.getLogger(self.__class__.__name__)
-
+        self.logger.info("Opening db connection")
+        self.conn = sqlite3.connect(db_file)
 
     def get_mirnas_targetting_gene(self, gene_symbol, **kwargs):
         """ abstract method to fill in in subclasses """

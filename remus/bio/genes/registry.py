@@ -1,5 +1,6 @@
 import os
 import sqlite3
+import logging
 
 import pandas as pd
 
@@ -17,6 +18,8 @@ class GenesDBRegistry:
                             ORDER BY chrom,txStart,txEnd"""
 
     def __init__(self, genes_db=os.path.join("data", "genes", "genes.db")):
+        self.logger = logging.getLogger(self.__class__.__name__)
+        self.logger.info("Opening db connection")
         self.conn = sqlite3.connect(genes_db)
 
     @property
@@ -31,9 +34,11 @@ class GenesDBRegistry:
         return matching_genes_df["geneSymbol"].tolist()
 
     def get_bed(self, genome, gene_name):
+        self.logger.info("Querring genome %s for gene %s" % (genome, gene_name))
         query = self.query_gene_sources.format(genome=genome, gene=gene_name)
         genes_df = pd.read_sql_query(query, self.conn)
         sources = self._extract_sources(genes_df)
+        self.logger.info("Returned %s records" % len(sources))
         loader = BedLoader(src="\n".join(sources), from_string=True)
         return loader.bed
 
@@ -48,4 +53,5 @@ class GenesDBRegistry:
         return genes_df.iloc[:, -1]
 
     def teardown_registry(self):
+        self.logger.info("Closing db connection")
         self.conn.close()
