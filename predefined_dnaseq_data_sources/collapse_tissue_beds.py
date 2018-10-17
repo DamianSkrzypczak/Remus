@@ -56,7 +56,7 @@ with open(metadatafile) as md:
 
             bed_groups[tissue][lifestage].append(ls[cols['accession']])
 
-            tissue_ids[ls[cols['tissue']]] = ls[cols['tissue_id']]
+            tissue_ids[tissue] = ls[cols['tissue_id']]
 
 # bed_groups = hg19_bed_groups
 # for t in bed_groups.keys():
@@ -67,9 +67,10 @@ with open(metadatafile) as md:
 
 #
 # Analysis of gene regulation in embryonic life stages can be critical to finding causes for developmental disorders.
-# Hence, we extracted data for embrionic lifestage (where available) and make it available separately. 
-# When data from other lifestages (e.g. adult, child, newborn, unknown) is available for a given tissue/celltype, it is collapsed into "other", e.g. fibroblast of lung (embryonic), fibroblast of lung (other)
-# If no embryonic data is available, we make no distinction, e.g. pancreas.
+# Hence, we extracted data for embryonic lifestage (where available) and make it available separately. 
+# Data from all lifestages (e.g. adult, child, newborn, unknown and embryonic) is collapsed into one bed file without suffix, e.g. 
+#  - fibroblast of lung (embryonic) - contains only embryonic peaks
+#  - fibroblast of lung             - contains merged peaks for all life stages
 #
 
 EMBRYO = 'embryonic'
@@ -81,17 +82,16 @@ for assembly in assemblies:
 
     bed_groups = hg19_bed_groups if assembly == 'hg19' else hg38_bed_groups
 
-    for t in bed_groups.keys():
+    for t, tissue in bed_groups.items():
 
-        tissue = bed_groups[t]
         accessions = []
+        for l in tissue.values():
+            accessions.extend(l)
 
-        for s in tissue.keys():
-            if s is not EMBRYO:
-                accessions.extend(tissue[s])
-
+        collapse_beds(" ".join([tissue_ids[t], t]), accessions, raw_bed_dir, collapsed_bed_dir)
+        
         if EMBRYO in tissue:
             collapse_beds(" ".join([tissue_ids[t], t, "embryonic"]), tissue[EMBRYO], raw_bed_dir, collapsed_bed_dir)
-            collapse_beds(" ".join([tissue_ids[t], t, "other"]), accessions, raw_bed_dir, collapsed_bed_dir)
-        else:
-            collapse_beds(" ".join([tissue_ids[t], t]), accessions, raw_bed_dir, collapsed_bed_dir)
+            
+
+

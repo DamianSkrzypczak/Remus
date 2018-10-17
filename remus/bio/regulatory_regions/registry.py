@@ -31,7 +31,7 @@ class RegulatoryRegionsFilesRegistry:
         self.logger.info("Making sources map for root: %s ; paths: %s ; and extensions: %s" \
                             % (root, str(directories_and_symbols), str(extensions)))
         
-        pattern = re.compile(r"(\w+:\d+)_(.+?)(|_embryonic|_other)\.")
+        pattern = re.compile(r"(\w+:\d+)_(.+?)(|_embryonic)\.")
         
         sources = defaultdict(dict)
         for path in directories_and_symbols:
