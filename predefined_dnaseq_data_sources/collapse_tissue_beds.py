@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# Usage: collapse_tissue_beds.py METADATA_FILE RAW_BED_DIR COLLAPSED_BED_DIR [hg19|hg38]
+# Usage: collapse_tissue_beds.py METADATA_FILE RAW_BED_DIR COLLAPSED_BED_DIR [hg19|GRCh38]
 #
 
 import os, sys
@@ -23,16 +23,19 @@ if len(sys.argv) > 4:
     
 
 # map names of raw BED files to tissue term_id, life_stage, and genome build
-tissue_ids, hg19_bed_groups, hg38_bed_groups = map_raw_bed_files_to_tissues(metadatafile)
+tissue_ids, bed_groups = map_raw_bed_files_to_tissues(metadatafile)
 
 EMBRYO = 'embryonic'
 
-genome_build_groups = [hg19_bed_groups, hg38_bed_groups] 
-if genome_build=='hg19': genome_build_groups = [hg19_bed_groups]
-if genome_build=='hg38': genome_build_groups = [hg38_bed_groups] 
-script = get_collapse_beds_script(raw_bed_dir, collapsed_bed_dir, 
-                                    genome_build_groups, tissue_ids, 
-                                    special_life_stages=[EMBRYO])
+collapsed_bed_dirs = {b : os.path.join(collapsed_bed_dir,b) for b in SUPPORTED_GENOMES}
+
+script = get_collapse_beds_script(raw_bed_dir, collapsed_bed_dirs, 
+                                    bed_groups, tissue_ids, special_life_stages=[EMBRYO],
+                                    liftoverTo={SUPPORTED_GENOMES[0]: SUPPORTED_GENOMES[1],
+                                                SUPPORTED_GENOMES[1]: SUPPORTED_GENOMES[0]},
+                                    liftover_chain_files={SUPPORTED_GENOMES[0]:"external_resources/hg19ToHg38.over.chain.gz",
+                                                          SUPPORTED_GENOMES[1]:"external_resources/hg38ToHg19.over.chain.gz"}
+                                  )
 
 print(script)
     
