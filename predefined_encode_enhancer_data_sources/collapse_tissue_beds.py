@@ -1,95 +1,41 @@
 #!/usr/bin/env python
 #
-# Usage: collapse_tissue_beds.py METADATA_FILE [hg19|hg38|all]
+# Usage: collapse_tissue_beds.py METADATA_FILE RAW_BED_DIR COLLAPSED_BED_DIR [hg19|hg38]
 #
 
+import os, sys
+sys.path.append(os.getcwd())
 
-import os
-import sys
-
-
-def is_header(line):
-    return line.find('File accession\t') == 0
-
-
-def collapse_beds(name, accessions, assembly):
-    bednames = [os.path.join(assembly, 'raw', acc + '.bed.gz') for acc in accessions]
-    output_name = os.path.join(assembly, name.replace(" ", "_") + '.bed.gz')
-    if not "NTR:0004647" in output_name:
-        print(" ".join(["zcat",
-                        " ".join(bednames),
-                        "| bedtools sort -i -",
-                        "| bedtools merge -i -",
-                        "| gzip -c >",
-                        "\"{}\"".format(output_name)
-                        ]))
-        print(r'printf "File {} generated\n"'.format(output_name))
-
+from remus.data_import.encode_data_import import map_raw_bed_files_to_tissues, get_collapse_beds_script, SUPPORTED_GENOMES
 
 metadatafile = sys.argv[1]
+raw_bed_dir = sys.argv[2]
+collapsed_bed_dir = sys.argv[3]
 
-hg19_bed_groups = {}
-hg38_bed_groups = {}
-tissue_ids = {}
 
-with open(metadatafile) as md:
-    cols = {}
+genome_build = 'both'
+if len(sys.argv) > 4:
+    
+    genome_build = sys.argv[4]
+    
+    if genome_build not in SUPPORTED_GENOMES:
+        exit('Last (4th) argument must be empty (include both available genome builds) or one of '+ str(SUPPORTED_GENOMES))
+    
 
-    for line in md.readlines():
-        ls = line.split('\t')
-        if is_header(line):
-            cols['accession'] = ls.index('File accession')
-            cols['tissue'] = ls.index('Biosample term name')
-            cols['tissue_id'] = ls.index('Biosample term id')
-            cols['lifestage'] = ls.index('Biosample life stage')
-            cols['assembly'] = ls.index('Assembly')
-        else:
-            tissue = ls[cols['tissue']]
-            lifestage = ls[cols['lifestage']]
-
-            bed_groups = hg19_bed_groups if ls[cols['assembly']] == 'hg19' else hg38_bed_groups
-
-            if not tissue in bed_groups:
-                bed_groups[tissue] = {}
-            if not lifestage in bed_groups[tissue]:
-                bed_groups[tissue][lifestage] = []
-
-            bed_groups[tissue][lifestage].append(ls[cols['accession']])
-
-            tissue_ids[tissue] = ls[cols['tissue_id']]
-
-# bed_groups = hg19_bed_groups
-# for t in bed_groups.keys():
-#    counts = ["\n\t"+ls+"("+str(len(bed_groups[t][ls]))+")" for ls in bed_groups[t].keys()]
-#    print t, "".join(counts)
-
-# print bed_groups
-
-#
-# Analysis of gene regulation in embryonic life stages can be critical to finding causes for developmental disorders.
-# Hence, we extracted data for embryonic lifestage (where available) and make it available separately. 
-# Data from all lifestages (e.g. adult, child, newborn, unknown and embryonic) is collapsed into one bed file without suffix, e.g. 
-#  - fibroblast of lung (embryonic) - contains only embryonic peaks
-#  - fibroblast of lung             - contains merged peaks for all life stages
-#
+# map names of raw BED files to tissue term_id, life_stage, and genome build
+tissue_ids, hg19_bed_groups, hg38_bed_groups = map_raw_bed_files_to_tissues(metadatafile)
 
 EMBRYO = 'embryonic'
+EXCLUDES = ["NTR:0004647"]
 
-assemblies = ['hg19', 'hg38'] if sys.argv[2] == 'all' else [sys.argv[2]]
+genome_build_groups = [hg19_bed_groups, hg38_bed_groups] 
+if genome_build=='hg19': genome_build_groups = [hg19_bed_groups]
+if genome_build=='hg38': genome_build_groups = [hg38_bed_groups] 
+script = get_collapse_beds_script(raw_bed_dir, collapsed_bed_dir, 
+                                    genome_build_groups, tissue_ids, 
+                                    special_life_stages=[EMBRYO], exclude_terms=EXCLUDES)
 
-for assembly in assemblies:
-
-    bed_groups = hg19_bed_groups if assembly == 'hg19' else hg38_bed_groups
-
-    for t, tissue in bed_groups.items():
-
-        accessions = []
-        for l in tissue.values():
-            accessions.extend(l)
-
-        collapse_beds(" ".join([tissue_ids[t], t]), accessions, assembly)
-        
-        if EMBRYO in tissue:
-            collapse_beds(" ".join([tissue_ids[t], t, "embryonic"]), tissue[EMBRYO], assembly)
+print(script)
+    
 
 
