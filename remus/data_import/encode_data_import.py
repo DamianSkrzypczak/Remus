@@ -1,7 +1,42 @@
 
 import os
 
-SUPPORTED_GENOMES = ['hg19', 'GRCh38']
+SUPPORTED_GENOME_BUILDS = {'hg19':'hg19', 'hg38':'GRCh38'}
+
+LIFTOVER_EXECUTABLE = 'external_resources/liftOver'
+
+LIFTOVER_BOTH = {SUPPORTED_GENOME_BUILDS['hg19']: [SUPPORTED_GENOME_BUILDS['hg38']],
+                 SUPPORTED_GENOME_BUILDS['hg38']: [SUPPORTED_GENOME_BUILDS['hg19']]}
+
+LIFTOVER_CHAINS = {(SUPPORTED_GENOME_BUILDS['hg19'], SUPPORTED_GENOME_BUILDS['hg38']) : "external_resources/hg19ToHg38.over.chain.gz",
+                   (SUPPORTED_GENOME_BUILDS['hg38'], SUPPORTED_GENOME_BUILDS['hg19']) : "external_resources/hg38ToHg19.over.chain.gz"}
+
+
+def get_collapsed_bed_dir_map(collapsed_bed_dir_prefix, liftover_to):
+    """
+    liftover_to: dict mapping genome build to lift over genome build list
+    collapsed_bed_dir_prefix: path prefix to use
+    """
+    collapsed_bed_dirs = {b : os.path.join(collapsed_bed_dir_prefix, b) for b in SUPPORTED_GENOME_BUILDS.values()}
+    
+    if liftover_to:
+        for b, lo_builds in liftover_to.items():
+            lo_names = [get_liftover_name(b, lo_build) for lo_build in lo_builds]
+            for lo_name in lo_names:
+                collapsed_bed_dirs[lo_name] = os.path.join(collapsed_bed_dir_prefix, lo_name)
+
+    return(collapsed_bed_dirs)
+
+def get_liftover_name(from_build, to_build):
+    return to_build+"_loFrom_"+from_build
+
+def format_cmd(cmd_echo_tuple, print_echo):
+    cmd, echo = cmd_echo_tuple
+    return '\n'.join([cmd, echo if print_echo else ""])+"\n\n"
+
+def make_path(directory, name, extension='.bed.gz'):
+    return os.path.join(directory, name.replace(" ", "_") + extension)
+
 
 #
 # Analysis of gene regulation in some (e.g. embryonic) life stages can be critical to finding causes for developmental disorders.
@@ -11,77 +46,76 @@ SUPPORTED_GENOMES = ['hg19', 'GRCh38']
 #  - fibroblast_of_lung           - contains merged peaks for all life stages
 #
 
-def format_cmd(cmd_echo_tuple, print_echo):
-    cmd, echo = cmd_echo_tuple
-    return '\n'.join([cmd, echo if print_echo else ""])+"\n\n"
-
-def make_path(directory, name, extension='.bed.gz'):
-    return os.path.join(directory, name.replace(" ", "_") + extension)
-
-def get_collapse_beds_script(raw_bed_dir, collapsed_bed_dirs, 
+def get_collapse_beds_script(raw_bed_dir, collapsed_bed_dir, 
                              bed_groups, tissue_ids, special_life_stages=[], exclude_terms=[], 
-                             liftover_chain_files=None, liftoverTo=None, print_echo = True):
+                             liftover_to=LIFTOVER_BOTH, liftover_chain_files=LIFTOVER_CHAINS, print_echo = True):
     """
     raw_bed_dir:
-    collapsed_bed_dirs:
+    collapsed_bed_dir:
     genome_bed_groups: dictionary of bed_groups. top level is genome build, next tissue, and lifestage
     tissue_ids: dictionary mapping term_ids and term_names for tissues/celltypes
     special_life_stages: life stages that should be collapsed and stored separately
     exclude_terms: tissues/celltypes with the term_id from this list will be skipped
-    liftover_chain_files: a dict mapping genome build with liftover chain file to use, if None no liftover is performed
-    liftoverTo: dict mapping genome build to lift over
+    liftover_to: dict mapping genome build to lift over genome build list
+    liftover_chains: a dict mapping pairs of genome builds with liftover chain file to use
     print_echo: should status messages be included in the script
     return: string with the script content
     """
 
-    script = ""
+    collapsed_bed_dirs = get_collapsed_bed_dir_map(collapsed_bed_dir, liftover_to)
+
+    script = "\n".join(["mkdir -v -p %s" % d for d in collapsed_bed_dirs.values()]) + "\n\n"
     
     for genome_build, build_bed_groups in bed_groups.items():
-        
-        #for build_bed_groups in bed_groups[genome_build].values():
-        
-            for t, tissue in build_bed_groups.items():
                 
-                group_name = " ".join([tissue_ids[t], t])
-                
-                # skip excluded tissues
-                if any([t in group_name for t in exclude_terms]):
-                    script += "echo Based on exclusion list file for tissue/celltype [%s] was not created.\n\n" % group_name 
-                    continue
-        
-                # aggregate accession ids from all life stages in this tissue
-                accessions = []
-                for l in tissue.values():
-                    accessions.extend(l)
-        
-                # create file paths
-                raw_bed_paths = [make_path(raw_bed_dir, acc) for acc in accessions]
-                collapsed_bed_path = make_path(collapsed_bed_dirs[genome_build], group_name)
-                
-                # aggregate all BEDs in the tissue
-                script += format_cmd(get_collapse_beds_command(raw_bed_paths, collapsed_bed_path), print_echo)
-                
-                # and optionally liftover
-                if liftover_chain_files:
-                    liftover_bed_path = make_path(collapsed_bed_dirs[liftoverTo[genome_build]], group_name)
-                    script += format_cmd(get_liftover_command(liftover_chain_files[genome_build], collapsed_bed_path , liftover_bed_path ), print_echo)
-                   
-                # process special lifestage groups in similar fashion
-                for sls in special_life_stages:
-                    if sls in tissue:
-                        collapsed_bed_path = make_path(collapsed_bed_dirs[genome_build], " ".join([group_name, sls]))
-                        raw_bed_paths = [make_path(raw_bed_dir, acc) for acc in tissue[sls]]
-                        script +=  format_cmd(get_collapse_beds_command(raw_bed_paths, collapsed_bed_path), print_echo)
-
-                        if liftover_chain_files:
-                            liftover_bed_path = make_path(collapsed_bed_dirs[liftoverTo[genome_build]], " ".join([group_name, sls]))
-                            script += format_cmd(get_liftover_command(liftover_chain_files[genome_build], collapsed_bed_path, liftover_bed_path ), print_echo)
+        for t, tissue in build_bed_groups.items():
+            
+            group_name = " ".join([tissue_ids[t], t])
+            
+            # skip excluded tissues
+            if any([t in group_name for t in exclude_terms]):
+                script += "echo Based on exclusion list file for tissue/celltype [%s] was not created.\n\n" % group_name 
+                continue
     
+            # aggregate accession ids from all life stages in this tissue
+            accessions = []
+            for l in tissue.values():
+                accessions.extend(l)
+    
+            # create file paths
+            raw_bed_paths = [make_path(raw_bed_dir, acc) for acc in accessions]
+            collapsed_bed_path = make_path(collapsed_bed_dirs[genome_build], group_name)
+            
+            # aggregate all BEDs in the tissue
+            script += format_cmd(get_collapse_beds_command(raw_bed_paths, collapsed_bed_path), print_echo)
+            
+            # and optionally liftover
+            if liftover_to and genome_build in liftover_to:
+                for lo_build in liftover_to[genome_build]:
+                    liftover_bed_path = make_path(collapsed_bed_dirs[get_liftover_name(genome_build, lo_build)], group_name)
+                    cmd = get_liftover_command(liftover_chain_files[(genome_build, lo_build)], 
+                                                collapsed_bed_path, liftover_bed_path, liftover_bed_path+'.unmapped')
+                    script += format_cmd(cmd, print_echo)
+               
+            # process special lifestage groups in similar fashion
+            for sls in special_life_stages:
+                if sls in tissue:
+                    collapsed_bed_path = make_path(collapsed_bed_dirs[genome_build], " ".join([group_name, sls]))
+                    raw_bed_paths = [make_path(raw_bed_dir, acc) for acc in tissue[sls]]
+                    script +=  format_cmd(get_collapse_beds_command(raw_bed_paths, collapsed_bed_path), print_echo)
+
+                    if liftover_to and genome_build in liftover_to:
+                        for lo_build in liftover_to[genome_build]:
+                            liftover_bed_path = make_path(collapsed_bed_dirs[get_liftover_name(genome_build, lo_build)], " ".join([group_name, sls]))
+                            cmd = get_liftover_command(liftover_chain_files[(genome_build, lo_build)], 
+                                                        collapsed_bed_path, liftover_bed_path)
+                            script += format_cmd(cmd, print_echo)
+
     
     return script
 
 
-def get_liftover_command(chain_file, input_bed, output_bed, unmapped_file='/dev/null', liftover_exec='external_resources/liftOver'):
+def get_liftover_command(chain_file, input_bed, output_bed, unmapped_file='/dev/null', liftover_exec=LIFTOVER_EXECUTABLE):
     """
     chain_file: liftover chainfile to use for liftover
     input_bed: input BED file (gzipped)
@@ -90,8 +124,8 @@ def get_liftover_command(chain_file, input_bed, output_bed, unmapped_file='/dev/
     liftover_exec:
     """
     not_compressed_bed_name = output_bed[:-len('.gz')]
-    liftover = " ".join([liftover_exec, input_bed, chain_file, not_compressed_bed_name, unmapped_file])
-    gzip     = "gzip %s" % not_compressed_bed_name
+    liftover = "%s \"%s\" %s \"%s\" \"%s\"" % (liftover_exec, input_bed, chain_file, not_compressed_bed_name, unmapped_file)
+    gzip     = "gzip \"%s\"" % not_compressed_bed_name
     cmd = "\n".join([liftover, gzip])
     
     echo = "echo Lifted over \"%s\" to \"%s\" using chain %s" % (input_bed, output_bed, chain_file)
