@@ -6,10 +6,9 @@
 #
 
 import os, sys
-sys.path.append(os.getcwd())
 
-from remus.data_import.encode_data_import import map_raw_bed_files_to_tissues, get_collapse_beds_script, get_collapsed_bed_dir_map
-from remus.data_import.encode_data_import import SUPPORTED_GENOME_BUILDS, LIFTOVER_BOTH
+from encode_data_import import map_raw_bed_files_to_tissues, get_collapse_beds_script, get_collapsed_bed_dir_map
+from encode_data_import import SUPPORTED_GENOME_BUILDS, LIFTOVER_BOTH
 
 metadatafile = sys.argv[1]
 raw_bed_dir = sys.argv[2]
