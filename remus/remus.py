@@ -8,9 +8,9 @@ from flask import Flask, render_template, jsonify, request, redirect, url_for, g
 
 from remus.bio.bed.beds_operations import BedOperations
 from remus.bio.genes.registry import GenesDBRegistry
-from remus.bio.regulatory_regions.registry import RegulatoryRegionsFilesRegistry
+#from remus.bio.regulatory_regions.registry import RegulatoryRegionsFilesRegistry
 from remus.bio.mirna.registry import MirTarBaseRegistry, MirWalkRegistry
-from remus.processing import get_matching_genes, get_matching_tissues, BedsCollector, convert_genome_name
+from remus.processing import get_matching_genes, get_matching_tissues, BedsCollector
 
 from logging.config import dictConfig
 
@@ -42,8 +42,8 @@ def setup_registries():
     g.mirna_target_registries = { "mirtarbase" : MirTarBaseRegistry(), 
                                   "mirwalk"    : MirWalkRegistry() }
     # file-based registry
-    g.tissues_registries = {"hg19"   : RegulatoryRegionsFilesRegistry.get_registry('hg19'),
-                            "GRCh38" : RegulatoryRegionsFilesRegistry.get_registry('GRCh38') }
+#    g.tissues_registries = {"hg19"   : RegulatoryRegionsFilesRegistry.get_registry('hg19'),
+#                            "GRCh38" : RegulatoryRegionsFilesRegistry.get_registry('GRCh38') }
 
 
 @app.after_request
