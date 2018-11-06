@@ -3,6 +3,7 @@ import re
 from collections import OrderedDict
 
 from flask import g
+from remus.bio.regulatory_regions.registry import RegulatoryRegionsFilesRegistry
 
 from remus.bio.bed.beds_operations import BedOperations, BedOperationResult
    
@@ -46,7 +47,7 @@ class BedsProcessor:
         BedsProcessor.logger().info("Extracting F5 TSS for genes (%s): %s; tissues: %s; and combine_mode: %s" % (genome, genes, tissues, combine_mode))
                 
         flanked_genes = BedsProcessor._get_gene_promoter_sites(genes, genome, upstream, downstream)
-        beds = BedsProcessor._get_tss_fantom5_beds(tissues, genome)  
+        beds = BedsProcessor._get_regulatory_regions_bed(genome, tissues, RegulatoryRegionsFilesRegistry.FANTOM5_TSS_KEY)
         
         BedsProcessor.log_count("Flanked genes' promoters BED", flanked_genes)
         BedsProcessor.log_bed(flanked_genes)
@@ -75,7 +76,7 @@ class BedsProcessor:
         flanked_genes = BedsProcessor._get_gene_promoter_sites(genes, genome,
                                                             int(float(upstream) * 1000),
                                                             int(float(downstream) * 1000))
-        beds = BedsProcessor._get_enhancers_fantom5_beds(tissues, genome)
+        beds = BedsProcessor._get_regulatory_regions_bed(genome, tissues, RegulatoryRegionsFilesRegistry.FANTOM5_ENHANCERS_KEY)
         
         BedsProcessor.log_count("Flanked genes' promoters BED", flanked_genes)
         BedsProcessor.log_bed(flanked_genes)
@@ -103,7 +104,7 @@ class BedsProcessor:
         flanked_genes = BedsProcessor._get_gene_promoter_sites(genes, genome,
                                                             int(float(upstream) * 1000),
                                                             int(float(downstream) * 1000))
-        beds = BedsProcessor._get_enhancers_encode_beds(tissues, genome)
+        beds = BedsProcessor._get_regulatory_regions_bed(genome, tissues, RegulatoryRegionsFilesRegistry.ENCODE_ENHANCERS_KEY)
         
         BedsProcessor.log_count("Flanked genes' promoters BED", flanked_genes)
         BedsProcessor.log_bed(flanked_genes)
@@ -131,7 +132,7 @@ class BedsProcessor:
         flanked_genes = BedsProcessor._get_gene_promoter_sites(genes, genome,
                                                             int(float(upstream) * 1000),
                                                             int(float(downstream) * 1000))
-        beds = BedsProcessor._get_accessible_chromatin_encode_beds(tissues, genome)
+        beds = BedsProcessor._get_regulatory_regions_bed(genome, tissues, RegulatoryRegionsFilesRegistry.ENCODE_CHROMATIN_KEY)
         
         BedsProcessor.log_count("Flanked genes' promoters BED", flanked_genes)
         BedsProcessor.log_bed(flanked_genes)
@@ -215,31 +216,15 @@ class BedsProcessor:
             return []
 
     def _get_gene_promoter_sites(genes, genome, upstream, downstream):
-        genome = convert_genome_name(genome)
         genes_bed = BedsProcessor.get_genes_bed(genes, genome)[0]
-        promoters = BedOperations.get_promoter_region(genes_bed, upstream, downstream, genome)
+        promoters = BedOperations.get_promoter_region(genes_bed, upstream, downstream)
         return promoters.result
 
-    def _get_enhancers_fantom5_beds(tissues, genome):
-        genome = convert_genome_name(genome)
-        results = [g.tissues_registries[genome].get_bed(tissue, "ENH_F5") for tissue in tissues]
+    def _get_regulatory_regions_bed(genome, tissues, reg_feature_type):
+        registry = RegulatoryRegionsFilesRegistry.get_registry(genome)
+        results = [registry.get_bed(tissue, reg_feature_type) for tissue in tissues]
         return [i for i in results if i]
 
-    def _get_tss_fantom5_beds(tissues, genome):
-        genome = convert_genome_name(genome)
-        results = [g.tissues_registries[genome].get_bed(tissue, "TSS_F5") for tissue in tissues]
-        return [i for i in results if i]
-        
-        
-    def _get_enhancers_encode_beds(tissues, genome):
-        genome = convert_genome_name(genome)
-        results = [g.tissues_registries[genome].get_bed(tissue, "ENH_EN") for tissue in tissues]
-        return [i for i in results if i]
-
-    def _get_accessible_chromatin_encode_beds(tissues, genome):
-        genome = convert_genome_name(genome)
-        results = [g.tissues_registries[genome].get_bed(tissue, "CHRM") for tissue in tissues]
-        return [i for i in results if i]
 
 
 class BedsCollector:
@@ -354,8 +339,8 @@ def get_matching_genes(pattern, genome_build, limit):
 
 
 def get_matching_tissues(pattern, genome_build, limit):
-    genome = convert_genome_name(genome_build)
-    return g.tissues_registries[genome].get_matching_tissues(pattern, limit)
+    registry = RegulatoryRegionsFilesRegistry.get_registry(genome_build)
+    return registry.get_matching_tissues(pattern, limit)
 
 
 def convert_genome_name(genome, desirable_older_format="hg19", desirable_newer_format="GRCh38"):

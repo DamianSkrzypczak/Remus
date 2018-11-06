@@ -6,17 +6,43 @@ from collections import defaultdict
 from remus.bio.bed.beds_loading import BedLoader
 
 
-DATA_DIRECTORIES_MAP = {
-    "enhancers/encode": "ENH_EN",
-    "enhancers/fantom5": "ENH_F5",
-    "chromatin": "CHRM",
-    "tss/fantom5": "TSS_F5"
-}
+def convert_genome_build(genome, hg19_expected="hg19", hg38_expected="GRCh38"):
+    if re.match("(hg37|hg19|b37)", genome, re.IGNORECASE):
+        return hg19_expected
+    elif re.match("(hg38|grch38|b38)", genome, re.IGNORECASE):
+        return hg38_expected
+    raise InvalidGenomeBuildException(genome)
 
 
 class RegulatoryRegionsFilesRegistry:
     
-    def __init__(self, genome_build='hg19', root="data",
+    instances = None      # dictionary of singleton objects
+    
+    FANTOM5_TSS_KEY = "TSS_F5"
+    FANTOM5_ENHANCERS_KEY = "ENH_F5"
+    ENCODE_ENHANCERS_KEY = "ENH_ENC"
+    ENCODE_CHROMATIN_KEY = "CHRM"
+    
+    DATA_DIRECTORIES_MAP = {
+        "enhancers/encode": ENCODE_ENHANCERS_KEY,
+        "enhancers/fantom5": FANTOM5_ENHANCERS_KEY,
+        "chromatin": ENCODE_CHROMATIN_KEY,
+        "tss/fantom5": FANTOM5_TSS_KEY
+    }
+    
+    @staticmethod
+    def get_registry(genome_build='hg19'):
+
+        genome_build = convert_genome_build(genome_build)
+
+        if RegulatoryRegionsFilesRegistry.instances == None:
+            RegulatoryRegionsFilesRegistry.instances = {}
+        if genome_build not in RegulatoryRegionsFilesRegistry.instances:
+            RegulatoryRegionsFilesRegistry.instances[genome_build] = RegulatoryRegionsFilesRegistry(genome_build)
+        return RegulatoryRegionsFilesRegistry.instances[genome_build]
+    
+    
+    def __init__(self, genome_build, root="data",
                  directories_and_symbols=DATA_DIRECTORIES_MAP,
                  extensions=(".bed", ".bed.gz")):
         self.logger = logging.getLogger(self.__class__.__name__)
@@ -107,3 +133,7 @@ class RegulatoryRegionsFilesRegistry:
 
 class InvalidTissueNameException(Exception):
     pass
+    
+class InvalidGenomeBuildException(Exception):
+    pass
+

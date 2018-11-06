@@ -8,9 +8,9 @@ from flask import Flask, render_template, jsonify, request, redirect, url_for, g
 
 from remus.bio.bed.beds_operations import BedOperations
 from remus.bio.genes.registry import GenesDBRegistry
-from remus.bio.regulatory_regions.registry import RegulatoryRegionsFilesRegistry
+#from remus.bio.regulatory_regions.registry import RegulatoryRegionsFilesRegistry
 from remus.bio.mirna.registry import MirTarBaseRegistry, MirWalkRegistry
-from remus.processing import get_matching_genes, get_matching_tissues, BedsCollector, convert_genome_name
+from remus.processing import get_matching_genes, get_matching_tissues, BedsCollector
 
 from logging.config import dictConfig
 
@@ -37,20 +37,21 @@ pd.set_option('display.float_format', lambda x: '%.3f' % x)
 
 @app.before_request
 def setup_registries():
+    # db registries
     g.genes_registry = GenesDBRegistry()
-    g.tissues_registries = {"hg19"   : RegulatoryRegionsFilesRegistry('hg19'),
-                            "GRCh38" : RegulatoryRegionsFilesRegistry('GRCh38') }
     g.mirna_target_registries = { "mirtarbase" : MirTarBaseRegistry(), 
                                   "mirwalk"    : MirWalkRegistry() }
+    # file-based registry
+#    g.tissues_registries = {"hg19"   : RegulatoryRegionsFilesRegistry.get_registry('hg19'),
+#                            "GRCh38" : RegulatoryRegionsFilesRegistry.get_registry('GRCh38') }
+
 
 @app.after_request
 def teardown_registries(response):
     g.genes_registry.teardown_registry()
     for reg in g.mirna_target_registries.values():
         reg.teardown_registry()
-        
     return response
-
 
 @app.route("/")
 def index():
@@ -70,7 +71,6 @@ def genes():
 @app.route("/api/tissues")
 def tissues():
     genome_name = request.args.get("genome", None)
-    #g.tissues_registry = RegulatoryRegionsFilesRegistry(convert_genome_name(genome_name, desirable_older_format="hg19"))
     pattern = request.args.get("pattern", None)
     limit = request.args.get("limit", default=0, type=int)
     tissues_names = get_matching_tissues(pattern, genome_name, limit)
