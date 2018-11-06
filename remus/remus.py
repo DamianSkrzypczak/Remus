@@ -8,9 +8,8 @@ from flask import Flask, render_template, jsonify, request, redirect, url_for, g
 
 from remus.bio.bed.beds_operations import BedOperations
 from remus.bio.genes.registry import GenesDBRegistry
-#from remus.bio.regulatory_regions.registry import RegulatoryRegionsFilesRegistry
-from remus.bio.mirna.registry import MirTarBaseRegistry, MirWalkRegistry
-from remus.processing import get_matching_genes, get_matching_tissues, BedsCollector
+from remus.bio.regulatory_regions.registry import RegulatoryRegionsFilesRegistry
+from remus.processing import BedsCollector
 
 from logging.config import dictConfig
 
@@ -36,21 +35,15 @@ pd.set_option('display.float_format', lambda x: '%.3f' % x)
 
 
 @app.before_request
-def setup_registries():
-    # db registries
-    g.genes_registry = GenesDBRegistry()
-    g.mirna_target_registries = { "mirtarbase" : MirTarBaseRegistry(), 
-                                  "mirwalk"    : MirWalkRegistry() }
-    # file-based registry
-#    g.tissues_registries = {"hg19"   : RegulatoryRegionsFilesRegistry.get_registry('hg19'),
-#                            "GRCh38" : RegulatoryRegionsFilesRegistry.get_registry('GRCh38') }
-
+def setup():
+    # anything to do here ?
+    pass
 
 @app.after_request
-def teardown_registries(response):
-    g.genes_registry.teardown_registry()
-    for reg in g.mirna_target_registries.values():
-        reg.teardown_registry()
+def cleanup(response):
+    #
+    # anything to do here?
+    #
     return response
 
 @app.route("/")
@@ -64,8 +57,9 @@ def genes():
     print("genes", genome_name)
     pattern = request.args.get("pattern", None)
     limit = request.args.get("limit", default=10, type=int)
-    genes_names = get_matching_genes(pattern, genome_name, limit)
-    return jsonify(genes_names)
+    gene_names = GenesDBRegistry.get_instance() \
+                                .get_matching_genes(genome_name, pattern, limit)
+    return jsonify(gene_names)
 
 
 @app.route("/api/tissues")
@@ -73,7 +67,8 @@ def tissues():
     genome_name = request.args.get("genome", None)
     pattern = request.args.get("pattern", None)
     limit = request.args.get("limit", default=0, type=int)
-    tissues_names = get_matching_tissues(pattern, genome_name, limit)
+    tissues_names = RegulatoryRegionsFilesRegistry.get_registry(genome_name) \
+                                                  .get_matching_tissues(pattern, limit)
     return jsonify(tissues_names)
 
 

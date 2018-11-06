@@ -2,7 +2,7 @@
 
 import unittest
 
-from remus.bio.mirna.registry import MirTarBaseRegistry, MirWalkRegistry
+from remus.bio.mirna.registry import MirTarBaseRegistry, MirWalkRegistry, MiRNATargetRegistryFactory
 
 class MiRNATargetRegistryTest(unittest.TestCase):
 
@@ -14,9 +14,10 @@ class MiRNATargetRegistryTest(unittest.TestCase):
                             
         self.mirna_genes = ['MIRLET7A2', 'MIRLET7C', 'MIR105', 'MIR1179', \
                             'MIR103B', 'MIR1255B2', 'MIR548AQ']
-                            
-        self.reg = MirTarBaseRegistry()
-        self.reg2 = MirWalkRegistry()
+                
+        
+        self.reg = MiRNATargetRegistryFactory.get_instance(MiRNATargetRegistryFactory.MIRTARBASE_KEY)
+        self.reg2 = MiRNATargetRegistryFactory.get_instance(MiRNATargetRegistryFactory.MIRWALK_KEY)
 
     def test_get_mirna_gene_symbols(self):
         mir_genes = self.reg.get_mirna_gene_symbols(self.mir_symbols)
@@ -49,4 +50,4 @@ class MiRNATargetRegistryTest(unittest.TestCase):
         
 
     def tearDown(self):
-        self.reg.teardown_registry()
+        pass

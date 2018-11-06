@@ -1,9 +1,9 @@
 import logging
-import re
 from collections import OrderedDict
 
-from flask import g
 from remus.bio.regulatory_regions.registry import RegulatoryRegionsFilesRegistry
+from remus.bio.genes.registry import GenesDBRegistry
+from remus.bio.mirna.registry import MiRNATargetRegistryFactory
 
 from remus.bio.bed.beds_operations import BedOperations, BedOperationResult
    
@@ -23,12 +23,11 @@ class BedsProcessor:
     
     @staticmethod
     def get_genes_bed(genes, genome, *args):
-
-        genome = convert_genome_name(genome, desirable_older_format="hg37", desirable_newer_format="hg38")
         
         BedsProcessor.logger().info("Querying gene database for %s" % genes)
         
-        gene_beds = [g.genes_registry.get_bed(genome, gene) for gene in genes]
+        registry = GenesDBRegistry.get_instance()
+        gene_beds = [registry.get_bed(genome, gene) for gene in genes]
         
         BedsProcessor.logger().info("Got [%s] non-empty BED files" % len([b for b in gene_beds if b]))
         BedsProcessor.log_bed(gene_beds)
@@ -158,7 +157,8 @@ class BedsProcessor:
         """ """
         BedsProcessor.logger().info("Extracting miRTarBase miRNAs targetting genes (%s): %s ; in tissues: %s ; and combine_mode: %s" % (genome, genes, tissues, combine_mode))
         
-        mirna_symbols = BedsProcessor._get_mirnas_targetting_genes(genes, g.mirna_target_registries['mirtarbase'], include_weak_support=include_weak_support)
+        mirtarbase_registry = MiRNATargetRegistryFactory.get_instance(MiRNATargetRegistryFactory.MIRTARBASE_KEY)
+        mirna_symbols = BedsProcessor._get_mirnas_targetting_genes(genes, mirtarbase_registry, include_weak_support=include_weak_support)
         BedsProcessor.log_count("miRNA symbol list", mirna_symbols)
 
         accessible_mirna = BedsProcessor._get_accessible_mirnas(mirna_symbols, tissues, genome, combine_mode)
@@ -172,7 +172,8 @@ class BedsProcessor:
         """ """
         BedsProcessor.logger().info("Extracting miRWalk miRNAs targetting genes (%s): %s ; in tissues: %s ; and combine_mode: %s" % (genome, genes, tissues, combine_mode))
 
-        mirna_symbols = BedsProcessor._get_mirnas_targetting_genes(genes, g.mirna_target_registries['mirwalk'], min_confidence=min_confidence)
+        mirwalk_registry = MiRNATargetRegistryFactory.get_instance(MiRNATargetRegistryFactory.MIRWALK_KEY)
+        mirna_symbols = BedsProcessor._get_mirnas_targetting_genes(genes, mirwalk_registry, min_confidence=min_confidence)
         BedsProcessor.log_count("miRNA symbol list", mirna_symbols)
         
         accessible_mirna = BedsProcessor._get_accessible_mirnas(mirna_symbols, tissues, genome, combine_mode)
@@ -328,26 +329,3 @@ class BedsCollector:
         else:
             self._logger.info("NOT all values provided for {} => values:{}".format(getter_method.__name__, params_values))
             return []
-
-
-def get_matching_genes(pattern, genome_build, limit):
-    genome_name = convert_genome_name(genome_build, desirable_older_format='hg37', desirable_newer_format='hg38')
-    if pattern and genome_name and (genome_name in g.genes_registry.available_genomes):
-        return g.genes_registry.get_matching_genes(genome_name, pattern, limit)
-    else:
-        return []
-
-
-def get_matching_tissues(pattern, genome_build, limit):
-    registry = RegulatoryRegionsFilesRegistry.get_registry(genome_build)
-    return registry.get_matching_tissues(pattern, limit)
-
-
-def convert_genome_name(genome, desirable_older_format="hg19", desirable_newer_format="GRCh38"):
-    if re.match("(hg37|hg19)", genome, re.IGNORECASE):
-        return desirable_older_format
-    elif re.match("(hg38)", genome, re.IGNORECASE):
-        return desirable_newer_format
-    else:
-        return genome.lower()
-

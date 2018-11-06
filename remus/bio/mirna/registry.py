@@ -9,13 +9,20 @@ class GenericMiRNATargetRegistry:
     
     def __init__(self, db_file):
         self.logger = logging.getLogger(self.__class__.__name__)
-        self.logger.info("Opening db connection")
-        self.conn = sqlite3.connect(db_file)
+        self.logger.info("Created miRNA target registry")
+        self.db_url = db_file
 
+
+    
     def get_mirnas_targetting_gene(self, gene_symbol, **kwargs):
         """ abstract method to fill in in subclasses """
         raise NotImplementedError("Please implement method [get_mirnas_targetting_gene] in class [%s]" % type(self).__name__)
 
+   
+    def _query_db(self, query):
+        with sqlite3.connect(self.db_url) as conn:
+            return pd.read_sql_query(query, conn)
+ 
 
     @staticmethod
     def get_mirna_gene_symbols(mirnas):
@@ -44,11 +51,6 @@ class GenericMiRNATargetRegistry:
         return mir_symbol
 
 
-    def teardown_registry(self):
-        self.logger.info("Closing db connection")
-        self.conn.close()
-
-
 
 class MirTarBaseRegistry(GenericMiRNATargetRegistry):
     
@@ -66,7 +68,7 @@ class MirTarBaseRegistry(GenericMiRNATargetRegistry):
         other_support_type = 'Functional MTI (Weak)' if include_weak_support else 'Functional MTI'
         query = self.query.format(gene=gene_symbol, other_support_type=other_support_type)
         
-        mirnas_df = pd.read_sql_query(query, self.conn)
+        mirnas_df = self._query_db(query)
         mirna_list = mirnas_df['mirna'].values.tolist()
                 
         self.logger.info("Returning %s mirna ids: [%s]..." % (len(mirna_list), mirna_list[:3]))
@@ -89,7 +91,7 @@ class MirWalkRegistry(GenericMiRNATargetRegistry):
         self.logger.info("Querrying registry for [%s] (min_confidence: %s)" % (gene_symbol, min_confidence))
 
         query = self.query.format(gene=gene_symbol, minimal_confidence=min_confidence)        
-        mirnas_df = pd.read_sql_query(query, self.conn)
+        mirnas_df = self._query_db(query)
         mirna_list = mirnas_df['mirna'].values.tolist()
         
         self.logger.info("Returning %s mirna ids: [%s]..." % (len(mirna_list), mirna_list[:3]))
@@ -97,4 +99,26 @@ class MirWalkRegistry(GenericMiRNATargetRegistry):
         return mirna_list
         
         
-        
+class MiRNATargetRegistryFactory:
+    
+    MIRTARBASE_KEY = 'mirtarbase'
+    MIRWALK_KEY = 'mirwalk'
+    
+    AVAILABLE_REGISTRIES = {MIRTARBASE_KEY: MirTarBaseRegistry, 
+                            MIRWALK_KEY: MirWalkRegistry}
+                            
+    instances = None
+    
+    @staticmethod
+    def get_instance(name):
+        if name not in MiRNATargetRegistryFactory.AVAILABLE_REGISTRIES:
+            raise InvalidMiRNATargetRegistryException(name)
+        if not MiRNATargetRegistryFactory.instances: 
+            MiRNATargetRegistryFactory.instances = {}
+        if name not in MiRNATargetRegistryFactory.instances:
+            MiRNATargetRegistryFactory.instances[name] = MiRNATargetRegistryFactory.AVAILABLE_REGISTRIES[name]()
+        return MiRNATargetRegistryFactory.instances[name]
+    
+
+class InvalidMiRNATargetRegistryException(Exception):
+    pass
