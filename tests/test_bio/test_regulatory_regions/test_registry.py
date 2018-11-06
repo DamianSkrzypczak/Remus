@@ -8,7 +8,7 @@ class RegulatoryRegionsFilesRegistryTest(unittest.TestCase):
 
 
     def setUp(self):
-       self.reg = RegulatoryRegionsFilesRegistry()
+       self.reg = RegulatoryRegionsFilesRegistry.get_registry('hg19')
        
        self.dummy_sources_map = \
                         {('ONTO1',''): 
@@ -39,8 +39,9 @@ class RegulatoryRegionsFilesRegistryTest(unittest.TestCase):
                                 }
 
 
+    ## not really needed any more since the registry is a singleton
     def test_reproducibility_of_tissue_map(self):
-        new_reg = RegulatoryRegionsFilesRegistry()        
+        new_reg = RegulatoryRegionsFilesRegistry.get_registry('hg19')        
         self.assertEqual(self.reg.available_tissues, new_reg.available_tissues)
         
     def test__create_available_tissues_map(self):
