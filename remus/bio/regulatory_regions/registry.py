@@ -16,26 +16,31 @@ DATA_DIRECTORIES_MAP = {
 
 class RegulatoryRegionsFilesRegistry:
     
-    def __init__(self, root="data",
+    def __init__(self, genome_build='hg19', root="data",
                  directories_and_symbols=DATA_DIRECTORIES_MAP,
                  extensions=(".bed", ".bed.gz")):
         self.logger = logging.getLogger(self.__class__.__name__)
         
-        sources_map = self._make_sources_map(directories_and_symbols, extensions, root)
+        sources_map = self._make_sources_map(directories_and_symbols, genome_build, extensions, root)
         
         self._available_tissues = self._create_available_tissues_map(sources_map)
         
 
-    def _make_sources_map(self, directories_and_symbols, extensions, root):
+    def _make_sources_map(self, directories_and_symbols, genome_build, extensions, root):
         
-        self.logger.info("Making sources map for root: %s ; paths: %s ; and extensions: %s" \
-                            % (root, str(directories_and_symbols), str(extensions)))
+        self.logger.info("Making sources map for root: %s ; paths: %s ; genome: %s ; and extensions: %s" \
+                            % (root, str(directories_and_symbols), genome_build, str(extensions)))
         
         pattern = re.compile(r"(\w+:\d+)_(.+?)(|_embryonic)\.")
         
         sources = defaultdict(dict)
         for path in directories_and_symbols:
-            for bed in os.listdir(os.path.join(root, path)):
+            
+            if not os.path.isdir(os.path.join(root, path, genome_build)):
+                self.logger.warn("BED dir for path [%s] and genome [%s] does not exist. Skipping." % (path, genome_build))
+                continue 
+                
+            for bed in os.listdir(os.path.join(root, path, genome_build)):
                 
                 termid_and_name = pattern.match(bed)
                 
@@ -51,7 +56,7 @@ class RegulatoryRegionsFilesRegistry:
                     
                     symbol = directories_and_symbols[path]
                     
-                    sources[termid, life_stage][symbol] = os.path.join(root, path, bed)
+                    sources[termid, life_stage][symbol] = os.path.join(root, path, genome_build, bed)
                     sources[termid, life_stage]["name"] = name.replace("_expressed_enhancers", "").replace("_promoters", "").replace("_", " ")
         
         self.logger.debug("Sources map:\n%s" % str(sources))
@@ -82,9 +87,9 @@ class RegulatoryRegionsFilesRegistry:
                     (tissue, str(self._available_tissues.keys())))
         
         try:
-            tissue_path = self._available_tissues[tissue][source_symbol]
-            self.logger.info('Found %s' % tissue_path)
-            return BedLoader(tissue_path).bed
+            bed_path = self._available_tissues[tissue][source_symbol]
+            self.logger.info('Found %s' % bed_path)
+            return BedLoader(bed_path).bed
         except KeyError:
             self.logger.info('No tissue [%s] in source [%s]' % (tissue, source_symbol))
             return None
