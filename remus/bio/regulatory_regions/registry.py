@@ -16,7 +16,18 @@ DATA_DIRECTORIES_MAP = {
 
 class RegulatoryRegionsFilesRegistry:
     
-    def __init__(self, genome_build='hg19', root="data",
+    instances = None      # dictionary of singleton objects
+    
+    @staticmethod
+    def get_registry(genome_build='hg19'):
+        if RegulatoryRegionsFilesRegistry.instances == None:
+            RegulatoryRegionsFilesRegistry.instances = {}
+        if genome_build not in RegulatoryRegionsFilesRegistry.instances:
+            RegulatoryRegionsFilesRegistry.instances[genome_build] = RegulatoryRegionsFilesRegistry(genome_build)
+        return RegulatoryRegionsFilesRegistry.instances[genome_build]
+    
+    
+    def __init__(self, genome_build, root="data",
                  directories_and_symbols=DATA_DIRECTORIES_MAP,
                  extensions=(".bed", ".bed.gz")):
         self.logger = logging.getLogger(self.__class__.__name__)
