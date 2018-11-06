@@ -76,8 +76,8 @@ printf "Acquiring ENCODE enhancers data\n"
 # download raw BED files
 awk -F '\t' '$43 ~ hg19 {print $42}' ${PREDEFINED_ENC_ENH_SOURCES}/ENCODE_enhancers_ChipSeq.metadata.tsv | wget -i - -P ${ENC_ENH_RAW}
 # generate collapsing script & run it
-python3 ${PREDEFINED_ENC_ENH_SOURCES}/collapse_tissue_beds.py ${PREDEFINED_ENC_ENH_SOURCES}/ENCODE_enhancers_ChipSeq.metadata.tsv ${ENC_ENH} ${ENC_ENH} > ${ENC_ENH}/collapse_hg19.sh
-chmod u+x ${ENC_ENH}/collapse_hg19.sh && ${ENC_ENH}/collapse_hg19.sh
+python3 remus/data_import/collapse_encode_enhancer_beds.py ${PREDEFINED_ENC_ENH_SOURCES}/ENCODE_enhancers_ChipSeq.metadata.tsv ${ENC_ENH_RAW} ${ENC_ENH} > ${ENC_ENH}/collapse_and_liftover.sh
+chmod u+x ${ENC_ENH}/collapse_and_liftover.sh && ${ENC_ENH}/collapse_and_liftover.sh
 # delete raw BEDs to save space
 # rm -r ${ENC_ENH}
 
@@ -88,9 +88,8 @@ printf "Acquiring ENCODE accessible chromatin data\n"
 # download raw BED files
 awk -F '\t' '$43 ~ hg19 {print $42}' ${PREDEFINED_DNASEQ_SOURCES}/ENCODE_DNase_seq.metadata.tsv | wget -i - -P ${CHROMATIN_RAW}
 # generate collapsing script & run it
-
-python3 ${PREDEFINED_DNASEQ_SOURCES}/collapse_tissue_beds.py ${PREDEFINED_DNASEQ_SOURCES}/ENCODE_DNase_seq.metadata.tsv ${CHROMATIN_RAW} ${CHROMATIN}> ${CHROMATIN}/collapse_hg19.sh
-chmod u+x ${CHROMATIN}/collapse_hg19.sh && ${CHROMATIN}/collapse_hg19.sh
+python3 remus/data_import/collapse_encode_chromatin_beds.py ${PREDEFINED_DNASEQ_SOURCES}/ENCODE_DNase_seq.metadata.tsv ${CHROMATIN_RAW} ${CHROMATIN} > ${CHROMATIN}/collapse_and_liftover.sh
+chmod u+x ${CHROMATIN}/collapse_and_liftover.sh && ${CHROMATIN}/collapse_and_liftover.sh
 # delete raw BEDs to save space
 # rm -r ${CHROMATIN_RAW}
 

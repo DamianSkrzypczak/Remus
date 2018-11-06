@@ -57,8 +57,9 @@
         </div>
     </div>
     <script>
-        $("#genome-switch-button").bind('click', function (evt) {
-            $("#select-genes").empty()
+        $("#genome-switch-button").bind('click dblclick', function (evt) {
+            $('#select-genes').empty();
+            $('#select-tissues').empty();
         });
 
         $("#transcription-start-sites-fantom5-checkbox").bind('click dblclick', function (evt) {
