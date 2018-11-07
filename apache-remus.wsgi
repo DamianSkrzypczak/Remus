@@ -1,6 +1,6 @@
 #! /usr/bin/python3
 
-import sys
-sys.path.insert(0, "/var/www/remus")
+import os
+os.chdir('/var/www/remus')
 
-from remus.remus import app as application
+from remus import app as application

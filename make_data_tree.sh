@@ -46,7 +46,7 @@ python3 ${PREDEFINED_GENES_DB_SOURCES}/create_genes_db.py -i ${GENES_RAW} -o ${G
 # Create miRNA targets.db
 printf "Creating miRNA targets db\n"
 PREDEFINED_MIRNA_DB_SOURCES=predefined_mirna_db_sources
-cp ${PREDEFINED_MIRNA_DB_SOURCES}/*.tsv ${MIRNA_RAW}/
+cp ${PREDEFINED_MIRNA_DB_SOURCES}/*.tsv.gz ${MIRNA_RAW}/
 wget -O ${PREDEFINED_MIRNA_DB_SOURCES}/hsa_miRWalk_3UTR.7z http://mirwalk.umm.uni-heidelberg.de/download/hsa_miRWalk_3UTR.7z
 7zr x -so ${PREDEFINED_MIRNA_DB_SOURCES}/hsa_miRWalk_3UTR.7z | gzip -c > ${MIRNA_RAW}/mirwalk_3UTR.tsv.gz
 python3 ${PREDEFINED_MIRNA_DB_SOURCES}/create_mirna_target_db.py -i ${MIRNA_RAW} -o ${MIRNA}/targets.db
