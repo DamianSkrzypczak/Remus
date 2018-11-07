@@ -3,4 +3,4 @@
 import os
 os.chdir('/var/www/remus')
 
-from remus import app as application
+from remus.remus import app as application
