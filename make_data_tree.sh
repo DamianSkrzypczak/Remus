@@ -10,9 +10,9 @@ GENES_RAW=${GENES}/raw
 MIRNA=${DATA_ROOT}/mirna
 MIRNA_RAW=${MIRNA}/raw
 
-F5_TSS=${DATA_ROOT}/tss/fantom5
+F5_TSS=${DATA_ROOT}/tss/fantom5/hg19
 
-F5_ENH=${DATA_ROOT}/enhancers/fantom5
+F5_ENH=${DATA_ROOT}/enhancers/fantom5/hg19
 F5_ENH_RAW=${F5_ENH}/raw
 
 ENC_ENH=${DATA_ROOT}/enhancers/encode
