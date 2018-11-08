@@ -2,7 +2,7 @@
 
 import unittest
 import warnings
-from unittest.mock import patch, patch
+#from unittest.mock import patch, patch
 
 from pybedtools import BedTool
 from remus.processing import BedsProcessor
@@ -19,7 +19,7 @@ class TestRemusProcessing(unittest.TestCase):
 
     def setUp(self):
         
-        self.genes_reg = GenesDBRegistry()
+        self.genes_reg = GenesDBRegistry.get_instance()
         
         self.genome = 'hg19'
                
@@ -76,32 +76,22 @@ class TestRemusProcessing(unittest.TestCase):
         # ignore them!        
         warnings.simplefilter("ignore", ResourceWarning)
 
-        with patch("remus.processing.g") as g:
-            
-            g.genes_registry = self.genes_reg
-            
-            hnf1b = BedsProcessor.get_genes_bed([self.hnf1b], self.genome)[0]           
-            self.assertEqual(len(hnf1b), 6)
-            self.assertEqual(''.join([str(i) for i in hnf1b]), self.hnf1b_bed)
+        hnf1b = BedsProcessor.get_genes_bed([self.hnf1b], self.genome)[0]           
+        self.assertEqual(len(hnf1b), 6)
+        self.assertEqual(''.join([str(i) for i in hnf1b]), self.hnf1b_bed)
 
-            
-            two_genes = BedsProcessor.get_genes_bed([self.hnf1b, self.hnf4a], self.genome)[0]
-            self.assertEqual(len(two_genes), 14)
-            self.assertEqual(''.join([str(i) for i in two_genes]), self.hnf1b_bed + self.hnf4a_bed)
+        
+        two_genes = BedsProcessor.get_genes_bed([self.hnf1b, self.hnf4a], self.genome)[0]
+        self.assertEqual(len(two_genes), 14)
+        self.assertEqual(''.join([str(i) for i in two_genes]), self.hnf1b_bed + self.hnf4a_bed)
 
 
 
                 
            
     def test_get_genes_bed_unknown_gene(self):
-        
-        with patch("remus.processing.g") as g:
-            
-            g.genes_registry = self.genes_reg 
-
-            bed = BedsProcessor.get_genes_bed([self.unknown_gene], self.genome)[0]
-
-            self.assertEqual(len(bed), 0)
+        bed = BedsProcessor.get_genes_bed([self.unknown_gene], self.genome)[0]
+        self.assertEqual(len(bed), 0)
             
         
         
@@ -121,21 +111,17 @@ class TestRemusProcessing(unittest.TestCase):
         
         upstreams, downstreams = [0,1,10,200], [0,1,10,200]
     
-        with patch("remus.processing.g") as g:
-            
-            g.genes_registry = self.genes_reg 
-            
-            for upstream in upstreams:
-                for downstream in downstreams:
-            
-                    bed = BedsProcessor._get_gene_promoter_sites(genes, self.genome, upstream, downstream)
-            
-                    self.assertEqual(len(bed), len((expected_bed.strip()).split('\n')))
-                    
-                    intervals = [str(i).split("\t") for i in bed]
-                    for i in intervals:
-                        self.assertEqual(upstream + downstream, int(i[2])-int(i[1]))
-                        self.assertEqual(6, len(i))
+        for upstream in upstreams:
+            for downstream in downstreams:
+        
+                bed = BedsProcessor._get_gene_promoter_sites(genes, self.genome, upstream, downstream)
+        
+                self.assertEqual(len(bed), len((expected_bed.strip()).split('\n')))
+                
+                intervals = [str(i).split("\t") for i in bed]
+                for i in intervals:
+                    self.assertEqual(upstream + downstream, int(i[2])-int(i[1]))
+                    self.assertEqual(6, len(i))
             
     #
     # throws IndexError. Handle it as exception?

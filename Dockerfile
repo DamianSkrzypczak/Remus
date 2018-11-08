@@ -17,9 +17,12 @@ RUN apt update \
 	libbz2-dev \
 	libssl-dev \
 	liblzma-dev \
+        p7zip-full \
 	samtools \
 	vim \
 	git \
+        locales \
+ && locale-gen en_US.UTF-8 \
  && wget https://github.com/arq5x/bedtools2/releases/download/v2.27.1/bedtools-2.27.1.tar.gz \
  && tar -xzf bedtools-2.27.1.tar.gz \
  && cd bedtools2 \
@@ -29,25 +32,23 @@ RUN apt update \
  && apt-get autoremove \
  && rm -rf /var/lib/apt/lists/*
 
+ENV LANG en_US.UTF-8
 
-COPY ./requirements.txt /var/www/remus/requirements.txt
-RUN pip3 install -r /var/www/remus/requirements.txt
+COPY ./ /var/www/remus
+WORKDIR /var/www/remus
+
+RUN pip3 install -r requirements.txt
 
 COPY apache-remus.conf /etc/apache2/sites-available/apache-remus.conf
 RUN a2ensite apache-remus
 RUN a2enmod headers
-
-COPY apache-remus.wsgi /var/www/remus/apache-remus.wsgi
-
-COPY ./ /var/www/remus/
 
 RUN a2dissite 000-default.conf
 RUN a2ensite apache-remus.conf
 
 EXPOSE 80
 
-WORKDIR /var/www/remus
+#RUN bash external_resources/download.sh \
+# && bash make_data_tree.sh
 
-RUN bash make_data_tree.sh
-
-CMD  /usr/sbin/apache2ctl -D FOREGROUND
+#CMD  /usr/sbin/apache2ctl -D BACKGROUND

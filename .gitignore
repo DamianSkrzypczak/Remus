@@ -112,3 +112,6 @@ venv.bak/
 
 #custom
 data/*
+external_resources/hg19ToHg38.over.chain.gz
+external_resources/hg38ToHg19.over.chain.gz
+external_resources/liftOver

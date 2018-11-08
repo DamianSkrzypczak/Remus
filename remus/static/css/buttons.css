@@ -5,7 +5,7 @@
 
 .ask-btn {
     color: black;
-    outline: none "
+    outline: none;
 }
 
 button.switch {
@@ -63,7 +63,7 @@ input.switch + label:before {
 }
 
 input.switch + label:after {
-    content: 'HG19';
+    content: 'hg19';
     padding: 5px 0;
     text-align: center;
     color: grey;
@@ -85,7 +85,7 @@ input.switch:checked + label:before {
 }
 
 input.switch:checked + label:after {
-    content: 'HG38';
+    content: 'hg38';
     padding: 5px 0;
     text-align: center;
     color: grey;

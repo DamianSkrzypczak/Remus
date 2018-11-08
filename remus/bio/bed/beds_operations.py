@@ -32,8 +32,8 @@ class BedOperations:
         return BedOperationResult(result, time)
         
     @staticmethod
-    def get_promoter_region(bed, upstream, downstream, genome):
-        result, time  = BedOperations._get_promoter_region(bed, upstream, downstream, genome)
+    def get_promoter_region(bed, upstream, downstream):
+        result, time  = BedOperations._get_promoter_region(bed, upstream, downstream)
         return BedOperationResult(result, time)
         
     
@@ -76,7 +76,7 @@ class BedOperations:
 
     @staticmethod
     @time_it
-    def _get_promoter_region(bed, upstream, downstream, genome):
+    def _get_promoter_region(bed, upstream, downstream):
         """ gets promoter region for each feature in a BED file """
         from pybedtools.featurefuncs import TSS
         return bed.each(TSS, upstream=int(upstream), downstream=int(downstream)).saveas()

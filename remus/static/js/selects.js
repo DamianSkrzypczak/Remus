@@ -52,6 +52,7 @@ $(document).ready(function () {
                     return {};
                 } else {
                     return {
+                        "genome": get_genome(),
                         "pattern": params.term,
                         "limit": 0
                     }
