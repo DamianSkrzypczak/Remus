@@ -195,17 +195,11 @@ class BedsProcessor:
         return registry.get_mirna_gene_symbols(list(mirs))
 
     def _get_accessible_mirnas(mirna_symbols, tissues, genome, combine_mode):
-        
         mirna_bed = BedsProcessor.get_genes_bed(mirna_symbols, genome)
-                
         # intersect beds with accessible chromatin in tissues
         accessible_chromatin = BedsProcessor._get_regulatory_regions_bed(genome, tissues, RegulatoryRegionsFilesRegistry.ENCODE_CHROMATIN_KEY)
         accessible_chromatin_aggregate = BedsProcessor._combine_beds(accessible_chromatin, combine_mode)
-        print(mirna_bed)
-        accessible_mirna = BedOperations.intersect(mirna_bed + [accessible_chromatin_aggregate], merge=False).result
-        #print(accessible_mirna)
-        #accessible_mirna=mirna_bed
-        
+        accessible_mirna = BedOperations.intersect(mirna_bed + [accessible_chromatin_aggregate], merge=False).result        
         return accessible_mirna
         
      

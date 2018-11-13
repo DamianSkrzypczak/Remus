@@ -5,7 +5,7 @@ import warnings
 #from unittest.mock import patch, patch
 
 from pybedtools import BedTool
-from remus.processing import BedsProcessor
+from remus.processing import BedsProcessor, InvalidCombineOperationException
 from remus.bio.genes.registry import GenesDBRegistry
 
 #
@@ -216,6 +216,6 @@ class TestRemusProcessing(unittest.TestCase):
     #
     def test_process_with_overlapping_unknown_combine_mode(self):
         mode = 'unknown'
-        self.assertEqual([], BedsProcessor._combine_beds(None, mode))
+        self.assertRaises(InvalidCombineOperationException, BedsProcessor._combine_beds, None, mode)
     
 
