@@ -4,6 +4,7 @@ import logging
 from collections import defaultdict
 
 from remus.bio.bed.beds_loading import BedLoader
+from remus.bio.bed.beds_operations import BedOperations
 
 
 def convert_genome_build(genome, hg19_expected="hg19", hg38_expected="GRCh38"):
@@ -104,22 +105,44 @@ class RegulatoryRegionsFilesRegistry:
         self.logger.debug("Available tissues:\n%s" % str(self._available_tissues.keys()))
         return list(self._available_tissues.keys())
 
-
+    # not used any more. Substituted by get_bed_fragment
     def get_bed(self, tissue, source_symbol):
-        self.logger.info('Requested tissue [%s] from source [%s]' % (tissue, source_symbol))
+        return self.get_bed_fragment(tissue, source_symbol, None)
+
+
+    def get_bed_fragment(self, tissue, source_symbol, regions):
+        """ 
+        Get slice of a BED. Filtering on non-tabixed BED files is not supported.
+        If regions is None, entire BED is returned
+        """
         
+        self.logger.info('Requested {}tissue [{}] from source [{}]'
+                        .format("fragment [%s] from " % regions if regions else "", 
+                        tissue, 
+                        source_symbol))
+
         if tissue not in self._available_tissues:
             raise InvalidTissueNameException("Querried tissue [%s] was not among available tissue keys:\n%s" % 
                     (tissue, str(self._available_tissues.keys())))
-        
+       
         try:
             bed_path = self._available_tissues[tissue][source_symbol]
             self.logger.info('Found %s' % bed_path)
-            return BedLoader(bed_path).bed
+            full_bed = BedLoader(bed_path)
+            
+            if regions is None:
+                return full_bed.bed
+            else:
+                beds = [ full_bed.filter_by(i) for i in regions ]
+                if any(beds):
+                    return BedOperations.union([e for e in beds if e], merge=False).result
+                    
         except KeyError:
             self.logger.info('No tissue [%s] in source [%s]' % (tissue, source_symbol))
-            return None
-                
+
+        return None
+       
+
 
     def get_matching_tissues(self, pattern, limit):
         limit = limit if limit else -1
@@ -129,6 +152,7 @@ class RegulatoryRegionsFilesRegistry:
             return sorted([i for i in self.available_tissues if re.search(pattern, i, re.IGNORECASE)])[:limit]
         except LookupError:
             return []
+            
 
 
 class InvalidTissueNameException(Exception):

@@ -19,6 +19,7 @@ RUN apt update \
 	liblzma-dev \
         p7zip-full \
 	samtools \
+    tabix \
 	vim \
 	git \
         locales \
