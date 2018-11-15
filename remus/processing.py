@@ -103,7 +103,11 @@ class BedsProcessor:
         flanked_genes = BedsProcessor._get_gene_promoter_sites(genes, genome,
                                                             int(float(upstream) * 1000),
                                                             int(float(downstream) * 1000))
-        beds = BedsProcessor._get_regulatory_regions_bed(genome, tissues, RegulatoryRegionsFilesRegistry.ENCODE_ENHANCERS_KEY)
+                                                            
+        beds = BedsProcessor._get_regulatory_regions_bed(genome, 
+                                                         tissues, 
+                                                         RegulatoryRegionsFilesRegistry.ENCODE_ENHANCERS_KEY,
+                                                         flanked_genes.sort().merge())
         
         BedsProcessor.log_count("Flanked genes' promoters BED", flanked_genes)
         BedsProcessor.log_bed(flanked_genes)
@@ -131,7 +135,11 @@ class BedsProcessor:
         flanked_genes = BedsProcessor._get_gene_promoter_sites(genes, genome,
                                                             int(float(upstream) * 1000),
                                                             int(float(downstream) * 1000))
-        beds = BedsProcessor._get_regulatory_regions_bed(genome, tissues, RegulatoryRegionsFilesRegistry.ENCODE_CHROMATIN_KEY)
+                                                            
+        beds = BedsProcessor._get_regulatory_regions_bed(genome, 
+                                                        tissues, 
+                                                        RegulatoryRegionsFilesRegistry.ENCODE_CHROMATIN_KEY, 
+                                                        flanked_genes.sort().merge())
         
         BedsProcessor.log_count("Flanked genes' promoters BED", flanked_genes)
         BedsProcessor.log_bed(flanked_genes)
@@ -197,12 +205,23 @@ class BedsProcessor:
     def _get_accessible_mirnas(mirna_symbols, tissues, genome, combine_mode):
         mirna_bed = BedsProcessor.get_genes_bed(mirna_symbols, genome)
         # intersect beds with accessible chromatin in tissues
-        accessible_chromatin = BedsProcessor._get_regulatory_regions_bed(genome, tissues, RegulatoryRegionsFilesRegistry.ENCODE_CHROMATIN_KEY)
+        accessible_chromatin = BedsProcessor._get_regulatory_regions_bed(genome, tissues, 
+                                                                         RegulatoryRegionsFilesRegistry.ENCODE_CHROMATIN_KEY,
+                                                                         mirna_bed.sort().merge())
         accessible_chromatin_aggregate = BedsProcessor._combine_beds(accessible_chromatin, combine_mode)
         accessible_mirna = BedOperations.intersect(mirna_bed + [accessible_chromatin_aggregate], merge=False).result        
         return accessible_mirna
         
-     
+    def _get_gene_promoter_sites(genes, genome, upstream, downstream):
+        genes_bed = BedsProcessor.get_genes_bed(genes, genome)[0]
+        promoters = BedOperations.get_promoter_region(genes_bed, upstream, downstream)
+        return promoters.result
+
+    def _get_regulatory_regions_bed(genome, tissues, reg_feature_type, region=None):
+        registry = RegulatoryRegionsFilesRegistry.get_registry(genome)
+        results = [registry.get_bed_fragment(tissue, reg_feature_type, region) for tissue in tissues]
+        return [i for i in results if i]
+
     def _combine_beds(beds, combine_mode, merge=False):
         if combine_mode == "all":
             return BedOperations.intersect(beds, merge=merge).result
@@ -210,17 +229,6 @@ class BedsProcessor:
             return BedOperations.union(beds, merge=merge).result
         else: 
             raise InvalidCombineOperationException
-
-    def _get_gene_promoter_sites(genes, genome, upstream, downstream):
-        genes_bed = BedsProcessor.get_genes_bed(genes, genome)[0]
-        promoters = BedOperations.get_promoter_region(genes_bed, upstream, downstream)
-        return promoters.result
-
-    def _get_regulatory_regions_bed(genome, tissues, reg_feature_type):
-        registry = RegulatoryRegionsFilesRegistry.get_registry(genome)
-        results = [registry.get_bed(tissue, reg_feature_type) for tissue in tissues]
-        return [i for i in results if i]
-
 
 
 class InvalidCombineOperationException(Exception):

@@ -125,8 +125,9 @@ def get_liftover_command(chain_file, input_bed, output_bed, unmapped_file='/dev/
     """
     not_compressed_bed_name = output_bed[:-len('.gz')]
     liftover = "%s \"%s\" %s \"%s\" \"%s\"" % (liftover_exec, input_bed, chain_file, not_compressed_bed_name, unmapped_file)
-    gzip     = "gzip \"%s\"" % not_compressed_bed_name
-    cmd = "\n".join([liftover, gzip])
+    bgzip     = "bgzip \"%s\"" % not_compressed_bed_name
+    tabix     = "tabix -p bed \"%s\"" % output_bed
+    cmd = "\n".join([liftover, bgzip, tabix])
     
     echo = "echo Lifted over \"%s\" to \"%s\" using chain %s" % (input_bed, output_bed, chain_file)
     
@@ -141,11 +142,17 @@ def get_collapse_beds_command(raw_beds, collapsed_bed):
             and the second is echo message stating what file was generated
     """
     
-    cmd = " ".join(["zcat",
+    not_compressed_bed_name = collapsed_bed[:-len('.gz')]
+    bedt = " ".join(["zcat",
                     " ".join(raw_beds),
                     "| bedtools sort -i -",
                     "| bedtools merge -i -",
-                    "| gzip -c > \"{}\"".format(collapsed_bed)])
+                    "> \"{}\"".format(not_compressed_bed_name)])
+                    
+    bgzip = "bgzip \"%s\"" % not_compressed_bed_name               
+    tabix = "tabix -p bed \"%s\"" % collapsed_bed
+    cmd = "\n".join([bedt, bgzip, tabix])
+    
     echo = "echo \"Generated %s\"" % collapsed_bed
         
     return cmd, echo
