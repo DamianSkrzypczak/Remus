@@ -59,7 +59,7 @@ wget -O ${PREDEFINED_F5_TSS_SOURCES}/hg19.cage_peak_phase1and2combined_tpm.osc.t
 wget -O ${PREDEFINED_F5_TSS_SOURCES}/ff-phase2-170801.obo.txt http://fantom.gsc.riken.jp/5/datafiles/latest/extra/Ontology/ff-phase2-170801.obo.txt
 # aggregate samples by organs, tissues and cell-types and store location of TSSs in BED files
 python3 ${PREDEFINED_F5_TSS_SOURCES}/aggregate_CAGE_peaks.py ${PREDEFINED_F5_TSS_SOURCES}/ff-phase2-170801.obo.txt ${PREDEFINED_F5_TSS_SOURCES}/hg19.cage_peak_phase1and2combined_tpm.osc.txt.gz ${F5_TSS}
-for b in ${F5_TSS}; do
+for b in ${F5_TSS}/*.bed; do
     bedtools sort -i ${b} > ${b}.sbed && mv ${b}.sbed ${b} && bgzip ${b} && tabix -p bed ${b}.gz
 done
 
@@ -72,7 +72,7 @@ tar -xzf ${F5_ENH_RAW}/facet_expressed_enhancers.tgz -C ${F5_ENH} --wildcards CL
 printf "... extracting organ data"
 tar -xzf ${F5_ENH_RAW}/facet_expressed_enhancers.tgz -C ${F5_ENH} --wildcards UBERON*
 # compress and index BED files
-for b in ${F5_ENH}; do
+for b in ${F5_ENH}/*.bed; do
     bgzip ${b} && tabix -p bed ${b}.gz
 done
 
