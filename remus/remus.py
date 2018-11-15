@@ -53,8 +53,7 @@ def index():
 
 @app.route("/api/genes")
 def genes():
-    genome_name = request.args.get("genome", None)
-    print("genes", genome_name)
+    genome_name = request.args.get("genome", 'hg19')
     pattern = request.args.get("pattern", None)
     limit = request.args.get("limit", default=10, type=int)
     gene_names = GenesDBRegistry.get_instance() \
@@ -64,7 +63,7 @@ def genes():
 
 @app.route("/api/tissues")
 def tissues():
-    genome_name = request.args.get("genome", None)
+    genome_name = request.args.get("genome", 'hg19')
     pattern = request.args.get("pattern", None)
     limit = request.args.get("limit", default=0, type=int)
     tissues_names = RegulatoryRegionsFilesRegistry.get_registry(genome_name) \
