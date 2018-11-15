@@ -46,7 +46,11 @@ class BedsProcessor:
         BedsProcessor.logger().info("Extracting F5 TSS for genes (%s): %s; tissues: %s; and combine_mode: %s" % (genome, genes, tissues, combine_mode))
                 
         flanked_genes = BedsProcessor._get_gene_promoter_sites(genes, genome, upstream, downstream)
-        beds = BedsProcessor._get_regulatory_regions_bed(genome, tissues, RegulatoryRegionsFilesRegistry.FANTOM5_TSS_KEY)
+        
+        beds = BedsProcessor._get_regulatory_regions_bed(genome, 
+                                                         tissues, 
+                                                         RegulatoryRegionsFilesRegistry.FANTOM5_TSS_KEY,
+                                                         flanked_genes.sort().merge())
         
         BedsProcessor.log_count("Flanked genes' promoters BED", flanked_genes)
         BedsProcessor.log_bed(flanked_genes)
@@ -75,7 +79,11 @@ class BedsProcessor:
         flanked_genes = BedsProcessor._get_gene_promoter_sites(genes, genome,
                                                             int(float(upstream) * 1000),
                                                             int(float(downstream) * 1000))
-        beds = BedsProcessor._get_regulatory_regions_bed(genome, tissues, RegulatoryRegionsFilesRegistry.FANTOM5_ENHANCERS_KEY)
+        
+        beds = BedsProcessor._get_regulatory_regions_bed(genome, 
+                                                        tissues, 
+                                                        RegulatoryRegionsFilesRegistry.FANTOM5_ENHANCERS_KEY,
+                                                        flanked_genes.sort().merge())
         
         BedsProcessor.log_count("Flanked genes' promoters BED", flanked_genes)
         BedsProcessor.log_bed(flanked_genes)
@@ -170,10 +178,13 @@ class BedsProcessor:
         BedsProcessor.log_count("miRNA symbol list", mirna_symbols)
 
         accessible_mirna = BedsProcessor._get_accessible_mirnas(mirna_symbols, tissues, genome, combine_mode)
-        BedsProcessor.log_count("Accessible miRNA", accessible_mirna)
-        BedsProcessor.log_bed(accessible_mirna)
-
-        return [ accessible_mirna ]
+        if accessible_mirna:
+            BedsProcessor.log_count("Accessible miRNA", accessible_mirna)
+            BedsProcessor.log_bed(accessible_mirna)
+            return [ accessible_mirna ]
+        else:
+            BedsProcessor.logger().info("Returning empty miRNA list")
+            return []
 
     @staticmethod
     def get_mirnas_targetting_genes_from_mirwalk(genes, tissues, genome, combine_mode, min_confidence, *args):
@@ -185,10 +196,13 @@ class BedsProcessor:
         BedsProcessor.log_count("miRNA symbol list", mirna_symbols)
         
         accessible_mirna = BedsProcessor._get_accessible_mirnas(mirna_symbols, tissues, genome, combine_mode)
-        BedsProcessor.log_count("Accessible miRNA", accessible_mirna)
-        BedsProcessor.log_bed(accessible_mirna)
-
-        return [ accessible_mirna ]
+        if accessible_mirna:
+            BedsProcessor.log_count("Accessible miRNA", accessible_mirna)
+            BedsProcessor.log_bed(accessible_mirna)
+            return [ accessible_mirna ]
+        else:
+            BedsProcessor.logger().info("Returning empty miRNA list")
+            return []
 
   
 
@@ -213,9 +227,12 @@ class BedsProcessor:
         accessible_chromatin = BedsProcessor._get_regulatory_regions_bed(genome, tissues, 
                                                                          RegulatoryRegionsFilesRegistry.ENCODE_CHROMATIN_KEY,
                                                                          mirna_bed[0].sort().merge())
-        accessible_chromatin_aggregate = BedsProcessor._combine_beds(accessible_chromatin, combine_mode)
-        accessible_mirna = BedOperations.intersect(mirna_bed + [accessible_chromatin_aggregate], merge=False).result        
-        return accessible_mirna
+        if any(accessible_chromatin):
+            accessible_chromatin_aggregate = BedsProcessor._combine_beds(accessible_chromatin, combine_mode)
+            accessible_mirna = BedOperations.intersect(mirna_bed + [accessible_chromatin_aggregate], merge=False).result        
+            return accessible_mirna
+            
+        return None
         
     def _get_gene_promoter_sites(genes, genome, upstream, downstream):
         genes_bed = BedsProcessor.get_genes_bed(genes, genome)[0]
