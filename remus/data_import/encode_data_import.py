@@ -64,7 +64,10 @@ def get_collapse_beds_script(raw_bed_dir, collapsed_bed_dir,
 
     collapsed_bed_dirs = get_collapsed_bed_dir_map(collapsed_bed_dir, liftover_to)
 
+    separator = "##########################\n\n"
     script = "\n".join(["mkdir -v -p %s" % d for d in collapsed_bed_dirs.values()]) + "\n\n"
+    script += "\n".join(["mkdir -v -p %s" % os.path.join(collapsed_bed_dir, build+"_with_liftover") for build in SUPPORTED_GENOME_BUILDS.values()]) + "\n\n"
+    script += separator
     
     for genome_build, build_bed_groups in bed_groups.items():
                 
@@ -91,11 +94,17 @@ def get_collapse_beds_script(raw_bed_dir, collapsed_bed_dir,
             
             # and optionally liftover
             if liftover_to and genome_build in liftover_to:
+                
+                beds_to_merge_paths = [collapsed_bed_path]
                 for lo_build in liftover_to[genome_build]:
-                    liftover_bed_path = make_path(collapsed_bed_dirs[get_liftover_name(genome_build, lo_build)], group_name)
+                    liftover_bed_path = make_path(collapsed_bed_dirs[get_liftover_name(genome_build, lo_build)], group_name, '.liftover.bed')
+                    beds_to_merge_paths.append(liftover_bed_path)
                     cmd = get_liftover_command(liftover_chain_files[(genome_build, lo_build)], 
                                                 collapsed_bed_path, liftover_bed_path, liftover_bed_path+'.unmapped')
                     script += format_cmd(cmd, print_echo)
+                
+                collapsed_with_liftover_bed_path = make_path(collapsed_bed_dirs[genome_build]+"_with_liftover", group_name)
+                script += format_cmd(get_collapse_beds_command(beds_to_merge_paths, collapsed_with_liftover_bed_path), print_echo)
                
             # process special lifestage groups in similar fashion
             for sls in special_life_stages:
@@ -105,12 +114,19 @@ def get_collapse_beds_script(raw_bed_dir, collapsed_bed_dir,
                     script +=  format_cmd(get_collapse_beds_command(raw_bed_paths, collapsed_bed_path), print_echo)
 
                     if liftover_to and genome_build in liftover_to:
+                        
+                        beds_to_merge_paths = [collapsed_bed_path]
                         for lo_build in liftover_to[genome_build]:
-                            liftover_bed_path = make_path(collapsed_bed_dirs[get_liftover_name(genome_build, lo_build)], " ".join([group_name, sls]))
+                            liftover_bed_path = make_path(collapsed_bed_dirs[get_liftover_name(genome_build, lo_build)], " ".join([group_name, sls]), '.liftover.bed')
                             cmd = get_liftover_command(liftover_chain_files[(genome_build, lo_build)], 
                                                         collapsed_bed_path, liftover_bed_path)
                             script += format_cmd(cmd, print_echo)
+                    
+                    collapsed_with_liftover_bed_path = make_path(collapsed_bed_dirs[genome_build]+"_with_liftover", group_name)
+                    script += format_cmd(get_collapse_beds_command(beds_to_merge_paths, collapsed_with_liftover_bed_path), print_echo)
 
+
+            script += separator
     
     return script
 
@@ -123,14 +139,8 @@ def get_liftover_command(chain_file, input_bed, output_bed, unmapped_file='/dev/
     unmapped_file
     liftover_exec:
     """
-    not_compressed_bed_name = output_bed[:-len('.gz')]
-    liftover = "%s \"%s\" %s \"%s\" \"%s\"" % (liftover_exec, input_bed, chain_file, not_compressed_bed_name, unmapped_file)
-    bgzip     = "bgzip \"%s\"" % not_compressed_bed_name
-    tabix     = "tabix -p bed \"%s\"" % output_bed
-    cmd = "\n".join([liftover, bgzip, tabix])
-    
-    echo = "echo Lifted over \"%s\" to \"%s\" using chain %s" % (input_bed, output_bed, chain_file)
-    
+    cmd = "%s \"%s\" %s \"%s\" \"%s\"" % (liftover_exec, input_bed, chain_file, output_bed, unmapped_file)
+    echo = "echo Lifted over \"%s\" to \"%s\" using chain \"%s\"" % (input_bed, output_bed, chain_file)
     return cmd, echo
 
 
@@ -143,7 +153,7 @@ def get_collapse_beds_command(raw_beds, collapsed_bed):
     """
     
     not_compressed_bed_name = collapsed_bed[:-len('.gz')]
-    bedt = " ".join(["zcat",
+    bedt = " ".join(["zcat -f ",
                     " ".join(raw_beds),
                     "| bedtools sort -i -",
                     "| bedtools merge -i -",
