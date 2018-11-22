@@ -381,11 +381,16 @@
 {% block summary_panel %}
     <div class="row align-items-top">
         <div class="col-md-4 " style="padding-left: 0">
+            <div>
             <input type="submit" href="#footer" value="Query" id="submit-all" class="btn btn-success btn-lg"
                    role="button"
                    aria-disabled="true">
             <input type="button" id="download-result" class="btn btn-success btn-lg"
-                   role="button" aria-disabled="true" value="Download result" disabled>
+                   role="button" aria-disabled="true" value="Download result BED" disabled>
+            </div><br><div>
+            <input type="file" id="filter-vcf" accept="appliation/gzip, .vcf.gz, .vcf" 
+                   role="button" aria-disabled="true" value="Filter VCF using result BED" disabled>
+            </div>
         </div>
         <div class="col-md-8" style="">
             <div id="results-loading" class="text-center" style="border: dashed 1px; display:none">
@@ -398,4 +403,124 @@
             </div>
         </div>
     </div>
+    
+    <script>
+        
+        
+        function trim_chr(chr){
+            return chr;
+        }
+                    
+        function trim_chr(chr) {
+            return new String(chr).toLowerCase().replace('chr','');
+        }
+        
+        function filterVcf(input_vcf_content, bed_content) {
+                       
+            //console.log('in_filter:'+input_vcf_content);
+            //console.log('in_filter:'+bed_content);
+                       
+            var filtered_vcf_content="";
+            var vcfLines = input_vcf_content.split(/\r\n|\n/);
+            var intervals = bed_content.split(/\r\n|\n/);
+            
+            var vcf_index=0;
+            var interval_index=0;
+            while ( interval_index < intervals.length && vcf_index < vcfLines.length) {
+            
+                line = vcfLines[vcf_index];
+                interval = intervals[interval_index].split('\t');
+            
+                if (line.trim()=="" || interval.length<3) {
+                   break;
+                }
+
+                i_chr = parseInt(trim_chr(interval[0]));
+                i_start = parseInt(interval[1]);
+                i_end = parseInt(interval[2]);
+                
+                if (line.startsWith("#")) {
+                    filtered_vcf_content += line+"\n";
+                    vcf_index++;
+                } else {
+                    vcf_records = line.split('\t');
+                    pos = parseInt(vcf_records[1]);
+                    vcf_chr = parseInt(trim_chr(vcf_records[0]));
+                    
+                    if (vcf_chr < i_chr || 
+                        (vcf_chr == i_chr && pos < i_start)) {
+                        // vcf record < interval    =>    move to the next record
+                        vcf_index++;
+
+                    } else if ((vcf_chr == i_chr && pos >= i_end) ||
+                               vcf_chr > i_chr) {
+                        // vcf_record > interval    =>    move to the next interval
+                        interval_index++;
+                    } else {
+                        // console.log(line + "\n" + interval + "\n" + vcf_chr+" "+pos + "\n" + i_chr+" "+i_start+" "+i_end +"\n" + (pos < i_end) + " " + (pos>=i_start))
+                        
+                        // variant in interval boundary
+                        filtered_vcf_content += line+"\n";
+                        vcf_index++;
+                    }
+                }
+            }
+                    
+            return filtered_vcf_content;
+        }
+        
+        function download(filename, text) {
+            var element = document.createElement('a');
+            element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+            element.setAttribute('download', filename);
+
+            element.style.display = 'none';
+            document.body.appendChild(element);
+
+            element.click();
+
+            document.body.removeChild(element);
+        }
+        
+        function handleFilterVcf(evt) {
+
+            // download the result BED first
+            var xhr = new XMLHttpRequest(); 
+            xhr.open("GET", $SCRIPT_ROOT + "/api/download_last"); 
+            xhr.responseType = "text";
+            xhr.onload = function() {
+                
+                // skip if no file was selected
+                if (evt.target.files.length < 1) {
+                    return; 
+                }
+                
+                var bed = xhr.response;
+                //console.log('bed1: ' + bed);
+
+                // then, load user's VCF
+                var file = evt.target.files[0];
+                var reader = new FileReader();
+                reader.onload = function(f) {
+                    
+                    var vcf_content = f.target.result;
+                    //console.log('bed2: ' + bed);
+                    //console.log('vcf: '+vcf_content);
+
+                    // do the filtering (intersection)
+                    var filtered_vcf_content = filterVcf(vcf_content, bed);
+                    //console.log('fvcf: '+filtered_vcf_content);
+                    // and download result
+                    download('filtered.vcf', filtered_vcf_content);
+                };
+                reader.readAsText(file);
+            }
+            xhr.send();
+            
+        }
+    
+        document.getElementById('filter-vcf').addEventListener('change', handleFilterVcf, false);
+        
+    </script>
+    
 {% endblock %}

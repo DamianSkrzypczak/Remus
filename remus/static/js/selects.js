@@ -40,7 +40,6 @@ $(document).ready(function () {
         multiple: true,
         width: '100%',
         minimumInputLength: -1,
-
         placeholder: "Select organs/tissues/cell types",
         // closeOnSelect: false,
         // allowClear: true,
@@ -72,7 +71,6 @@ $(document).ready(function () {
         e.preventDefault();
         $('#results-table').hide();
         $('#results-loading').show();
-        // $('#submit-all').attr("disabled", true);
         $('#download-result').attr("disabled", true);
         $.ajax({
             type: "POST",
@@ -82,8 +80,9 @@ $(document).ready(function () {
                 $("#results-table").html("<h3>Summary table</h3>" + result);
                 $('#results-loading').hide();
                 $('#results-table').show();
-                // $('#submit-all').attr("disabled", false);
                 $('#download-result').attr("disabled", false);
+                $('#filter-vcf').attr("disabled", false);
+                $('#filter-vcf').val('');
             }
             // error: function (result) {
             //     alert('error');
@@ -98,6 +97,7 @@ $(document).ready(function () {
         window.location.href = $SCRIPT_ROOT + "/api/download_last";
         return false
     }));
+
 
     $(function () {
         $('[data-toggle="popover"]').popover()
