@@ -20,6 +20,7 @@ In upcoming releases Remus will also enable inclusion of other regulatory featur
 
 Remus is developed at [BTM](https://biostat.umed.pl), Medical Univeristy of Lodz, Poland. 
 
+Code for in-browser filtering of tabixed VCF files was adopted from [js-local-vcf](https://github.com/jsa-aerial/js-local-vcf) written by [Jon Anthony](https://github.com/jsa-aerial).
 
 ### Installation of local instance of Remus
 

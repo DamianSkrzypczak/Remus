@@ -388,8 +388,8 @@
             <input type="button" id="download-result" class="btn btn-success btn-lg"
                    role="button" aria-disabled="true" value="Download result BED" disabled>
             </div><br><div>
-            <input type="file" id="filter-vcf" accept="appliation/gzip, .vcf.gz, .vcf" 
-                   role="button" aria-disabled="true" value="Filter VCF using result BED" disabled>
+            <input type="file" id="filter-vcf" accept=".vcf.gz, .tbi, .vcf" 
+                   role="button" aria-disabled="true" value="Filter VCF using result BED" multiple disabled>
             </div>
         </div>
         <div class="col-md-8" style="">
@@ -404,38 +404,45 @@
         </div>
     </div>
     
+
     <script>
-        
-        
-        function trim_chr(chr){
-            return chr;
+     
+        function download(filename, text) {
+            var element = document.createElement('a');
+            element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+            element.setAttribute('download', filename);
+
+            element.style.display = 'none';
+            document.body.appendChild(element);
+
+            element.click();
+
+            document.body.removeChild(element);
         }
-                    
-        function trim_chr(chr) {
-            return new String(chr).toLowerCase().replace('chr','');
-        }
         
-        function filterVcf(input_vcf_content, bed_content) {
+        
+        function filterPlainTextVcf(input_vcf_content, intervals) {
                        
             //console.log('in_filter:'+input_vcf_content);
             //console.log('in_filter:'+bed_content);
-                       
+            
+            var trimChr = function(chr) { return new String(chr).toLowerCase().replace('chr',''); }
+            
             var filtered_vcf_content="";
             var vcfLines = input_vcf_content.split(/\r\n|\n/);
-            var intervals = bed_content.split(/\r\n|\n/);
             
             var vcf_index=0;
             var interval_index=0;
             while ( interval_index < intervals.length && vcf_index < vcfLines.length) {
             
                 line = vcfLines[vcf_index];
-                interval = intervals[interval_index].split('\t');
+                interval = intervals[interval_index];
             
                 if (line.trim()=="" || interval.length<3) {
                    break;
                 }
 
-                i_chr = parseInt(trim_chr(interval[0]));
+                i_chr = parseInt(trimChr(interval[0]));
                 i_start = parseInt(interval[1]);
                 i_end = parseInt(interval[2]);
                 
@@ -445,7 +452,7 @@
                 } else {
                     vcf_records = line.split('\t');
                     pos = parseInt(vcf_records[1]);
-                    vcf_chr = parseInt(trim_chr(vcf_records[0]));
+                    vcf_chr = parseInt(trimChr(vcf_records[0]));
                     
                     if (vcf_chr < i_chr || 
                         (vcf_chr == i_chr && pos < i_start)) {
@@ -469,56 +476,121 @@
             return filtered_vcf_content;
         }
         
-        function download(filename, text) {
-            var element = document.createElement('a');
-            element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
-            element.setAttribute('download', filename);
+        
+        
+        function makeVcfString(list) {
+            var result = [];
+            list.forEach(function(e) {
+                result = result.concat(e);
+            });
+            return result.join('\n');
+        }
 
-            element.style.display = 'none';
-            document.body.appendChild(element);
+        function filterTabixedVcfCallbackMerger(reader, bed) {
+    
+            var filteredVcfName = reader.theFile.name + ".remus_filtered.vcf"
+            var filteredRecords = [];        
+            var callbackCnt = 0;         
+            
+            reader.getHeader(function(x) {
+                                filteredRecords[0] = x;
+                                ++callbackCnt;
+                                if (callbackCnt == bed.length+1) {
+                                    download(filteredVcfName, makeVcfString(filteredRecords));
+                                }
+                            });
+                 
+            for (i=0; i<bed.length; i++) {
+                reg = bed[i];
+                reader.getRecords(reg[0], reg[1], reg[2], 
+                                  (function () {
+                                        var j = i;
+                                        return function(x) {
+                                            filteredRecords[j+1] = x;
+                                            ++callbackCnt;
+                                            if (callbackCnt == bed.length+1) {
+                                                download(filteredVcfName, makeVcfString(filteredRecords));
+                                            }
+                                        }
+                                   })() );
+            }
+        }
 
-            element.click();
+        
+        function loadAndFilterTabixedVcf(files, bed) {
+            
+            var isTabi = function(f) {return f.name.split(".").slice(-1)[0] == "tbi";};                   
+            var tabixFile = isTabi(files[0]) ? files[0] : files[1];
+            var vcfFile = isTabi(files[1]) ? files[0] : files[1];
 
-            document.body.removeChild(element);
+            // console.log("Tabix: " +tabixFile.name + "\nVCF: " + vcfFile.name);
+            vcfR = new readBinaryVCF(tabixFile, vcfFile, 
+                                    (function() {
+                                        return function(vcfReader) {
+                                                    return filterTabixedVcfCallbackMerger(vcfReader, bedRecords);
+                                                }
+                                    })());
+        }
+        
+        function loadAndFilterPlainTextVcf(vcf, bedRecords) {
+            
+            var reader = new FileReader();
+            reader.onload = function(f) {         
+                // get file content     
+                var vcf_content = f.target.result;
+                // do the filtering 
+                var filtered_vcf_content = filterPlainTextVcf(vcf_content, bedRecords);
+                // and download result
+                download(vcf.name+'.remus_filtered.vcf', filtered_vcf_content);
+            };
+            reader.readAsText(vcf);
         }
         
         function handleFilterVcf(evt) {
 
-            // download the result BED first
+            // skip if no file was selected
+            var files = evt.target.files;
+            if (files.length < 1) {
+                alert("Please select single uncompressed VCF file, or a pair of files: BGZipped VCF and its Tabix index.");
+                return; 
+            }
+                
+            // download the result BED first (while user selects VCF files)
             var xhr = new XMLHttpRequest(); 
             xhr.open("GET", $SCRIPT_ROOT + "/api/download_last"); 
             xhr.responseType = "text";
             xhr.onload = function() {
                 
-                // skip if no file was selected
-                if (evt.target.files.length < 1) {
-                    return; 
-                }
-                
                 var bed = xhr.response;
                 //console.log('bed1: ' + bed);
 
-                // then, load user's VCF
-                var file = evt.target.files[0];
-                var reader = new FileReader();
-                reader.onload = function(f) {
-                    
-                    var vcf_content = f.target.result;
-                    //console.log('bed2: ' + bed);
-                    //console.log('vcf: '+vcf_content);
+                // parse bed file into matrix of coordinates
+                bedRecords = [];
+                bed.split(/\r\n|\n/).forEach(function(x) {
+                                                r = x.split("\t")
+                                                if (r.length>=3) {
+                                                    bedRecords.push(r)
+                                                } 
+                                            });
+                //console.log(bedRecords);
 
-                    // do the filtering (intersection)
-                    var filtered_vcf_content = filterVcf(vcf_content, bed);
-                    //console.log('fvcf: '+filtered_vcf_content);
-                    // and download result
-                    download('filtered.vcf', filtered_vcf_content);
-                };
-                reader.readAsText(file);
+
+                // load and filter user's VCF
+                if (files.length == 1) {   // single not-compressed VCF
+                
+                    loadAndFilterPlainTextVcf(files[0], bedRecords);
+                
+                } else if (files.length > 1) {  // filter BGZipped and Tabix indexed VCF
+                    
+                    loadAndFilterTabixedVcf(files, bed);
+                    
+                }
             }
             xhr.send();
             
         }
-    
+
+     
         document.getElementById('filter-vcf').addEventListener('change', handleFilterVcf, false);
         
     </script>
