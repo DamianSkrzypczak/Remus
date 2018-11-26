@@ -57,7 +57,7 @@
                 <h5><label for="select-tissues">Select organs/tissues/cell types:<br/>
                 </label></h5>
                 <div>
-                    <select class="form-control" name="tissues" id="select-tissues"></select>
+                    <select class="form-control" name="tissues" id="select-tissues" required></select>
                 </div>
                 <a class="ask-btn small text-success"
                    tabindex="0"
@@ -388,8 +388,17 @@
             <input type="button" id="download-result" class="btn btn-success btn-lg"
                    role="button" aria-disabled="true" value="Download result BED" disabled>
             </div><br><div>
-            <input type="file" id="filter-vcf" accept=".vcf.gz, .tbi, .vcf" 
+                
+            
+             <label id="filter-vcf-label" class="btn btn-success btn-lg disabled" for="filter-vcf">
+                <input type="file" id="filter-vcf" accept=".gz, .tbi, .vcf"  multiple disabled hidden>
+                 Filter VCF using result BED 
+              </label>
+            
+            <!--
+            <input type="file" id="filter-vcf" accept=".gz, .tbi, .vcf" class="btn btn-success" 
                    role="button" aria-disabled="true" value="Filter VCF using result BED" multiple disabled>
+            -->
             </div>
         </div>
         <div class="col-md-8" style="">

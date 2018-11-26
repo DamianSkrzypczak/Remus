@@ -81,6 +81,7 @@ $(document).ready(function () {
                 $('#results-loading').hide();
                 $('#results-table').show();
                 $('#download-result').attr("disabled", false);
+                $('#filter-vcf-label').removeClass('disabled');
                 $('#filter-vcf').attr("disabled", false);
                 $('#filter-vcf').val('');
             }
