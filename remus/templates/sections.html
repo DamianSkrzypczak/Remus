@@ -416,6 +416,7 @@
 
     <script>
      
+     /*
         function download(filename, text) {
             var element = document.createElement('a');
             element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
@@ -526,40 +527,51 @@
         }
 
         
-        function loadAndFilterTabixedVcf(files, bed) {
+        function loadAndFilterTabixedVcf(files, bedRecords) {
             
-            var isTabi = function(f) {return f.name.split(".").slice(-1)[0] == "tbi";};                   
+            var isTabi = function(f) {return f.name.endsWith(".tbi");};                   
             var tabixFile = isTabi(files[0]) ? files[0] : files[1];
             var vcfFile = isTabi(files[1]) ? files[0] : files[1];
 
-            // console.log("Tabix: " +tabixFile.name + "\nVCF: " + vcfFile.name);
-            vcfR = new readBinaryVCF(tabixFile, vcfFile, 
+            if (tabixFile == vcfFile || !vcfFile.name.endsWith(".gz")) {
+                alert("Please select single uncompressed VCF file, or a pair of files: BGZipped VCF and its Tabix index.");
+            } else {
+                // console.log("Tabix: " +tabixFile.name + "\nVCF: " + vcfFile.name);
+                vcfR = new readBinaryVCF(tabixFile, vcfFile, 
                                     (function() {
                                         return function(vcfReader) {
                                                     return filterTabixedVcfCallbackMerger(vcfReader, bedRecords);
                                                 }
                                     })());
+            }
         }
         
         function loadAndFilterPlainTextVcf(vcf, bedRecords) {
             
-            var reader = new FileReader();
-            reader.onload = function(f) {         
-                // get file content     
-                var vcf_content = f.target.result;
-                // do the filtering 
-                var filtered_vcf_content = filterPlainTextVcf(vcf_content, bedRecords);
-                // and download result
-                download(vcf.name+'.remus_filtered.vcf', filtered_vcf_content);
-            };
-            reader.readAsText(vcf);
+            if (vcf.name.endsWith(".gz")) {
+                alert("GZipped VCF selected - please select also its Tabix index file (.tbi).");
+            } else if (!vcf.name.endsWith(".vcf")) {
+                alert("Selected file does not have a .vcf extension. If it is a VCF file, please rename it.");
+            } else {
+            
+                var reader = new FileReader();
+                reader.onload = function(f) {         
+                    // get file content     
+                    var vcf_content = f.target.result;
+                    // do the filtering 
+                    var filtered_vcf_content = filterPlainTextVcf(vcf_content, bedRecords);
+                    // and download result
+                    download(vcf.name+'.remus_filtered.vcf', filtered_vcf_content);
+                };
+                reader.readAsText(vcf);
+            }
         }
         
         function handleFilterVcf(evt) {
 
             // skip if no file was selected
             var files = evt.target.files;
-            if (files.length < 1) {
+            if (files.length < 1 || files.length > 2) {
                 alert("Please select single uncompressed VCF file, or a pair of files: BGZipped VCF and its Tabix index.");
                 return; 
             }
@@ -591,7 +603,7 @@
                 
                 } else if (files.length > 1) {  // filter BGZipped and Tabix indexed VCF
                     
-                    loadAndFilterTabixedVcf(files, bed);
+                    loadAndFilterTabixedVcf(files, bedRecords);
                     
                 }
             }
@@ -600,7 +612,9 @@
         }
 
      
-        document.getElementById('filter-vcf').addEventListener('change', handleFilterVcf, false);
+        document.getElementById('filter-vcf').addEventListener('change', handleFilterVcf, false); 
+        
+        */
         
     </script>
     
