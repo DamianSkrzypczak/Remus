@@ -29,7 +29,7 @@ coming soon
 
 Remus allows for in-browser filtering of a VCF file using the regions-of-interest BED file.
 Variants falling into the regions-of-interest are selected and returned in plain text VCF file.
-Input must be provided as sorted plain-text VCF, and filtering large files takes a few seconds.
+Input must be provided as sorted plain-text VCF, and filtering large files takes only a few seconds (~5s on 500M VCF).
 Filtering BGZipped & Tabix'ed files was considerably slower in tests and although implemented, has been disabled for the time being.
 
 In-browser filtering means that the variant file does not leave your computer, which is great for sensitive data.

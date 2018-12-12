@@ -400,10 +400,18 @@
         <div class="col-md-8" style="">
             <div id="results-loading" class="text-center" style="border: dashed 1px; display:none">
                 <img src="{{ url_for('static', filename='img/loading.gif') }}" class="w-25"/>
-                <p>Computing...
-                    <br>
-                    (Please don't close page until finished)</p>
+                <p> Computing...<br>               
+                    (Please don't close page until finished)
+                </p>
             </div>
+            <div id="results-loading2" class="text-center" style="border: dashed 1px; display:none">
+                <img src="{{ url_for('static', filename='img/loading.gif') }}" class="w-25"/>
+                <p> Filtering VCF...<br>
+                    Please don't close page until finished. <br>
+                    The result will appear as a download file
+                </p>
+            </div>
+
             <div id="results-table" class="text-center" style="display:none">
             </div>
         </div>
