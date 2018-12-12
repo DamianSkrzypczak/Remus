@@ -21,6 +21,24 @@ In upcoming releases Remus will also enable inclusion of other regulatory featur
 Remus is developed at [BTM](https://biostat.umed.pl), Medical Univeristy of Lodz, Poland. 
 
 Code for in-browser filtering of tabixed VCF files was adopted from [js-local-vcf](https://github.com/jsa-aerial/js-local-vcf) written by [Jon Anthony](https://github.com/jsa-aerial).
+### Usage
+
+coming soon
+
+##### VCF filtering
+
+Remus allows for in-browser filtering of a VCF file using the regions-of-interest BED file.
+Variants falling into the regions-of-interest are selected and returned in plain text VCF file.
+Input must be provided as sorted plain-text VCF, and filtering large files takes a few seconds.
+Filtering BGZipped & Tabix'ed files was considerably slower in tests and although implemented, has been disabled for the time being.
+
+In-browser filtering means that the variant file does not leave your computer, which is great for sensitive data.
+The downside is that the functionality can be somewhat limited.
+Currently the VCF file is read in one piece ([to be changed](https://github.com/seru71/Remus/issues/15)), and empirically tested size limitations were following:
+
+ - plain text VCF in Chrome 68 can be upto 1GB,
+ - plain text VCF limit in Firefox 64.0 was ~250MB
+
 
 ### Installation of local instance of Remus
 

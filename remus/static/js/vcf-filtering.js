@@ -33,10 +33,17 @@ $(document).ready(function () {
                 line = vcfLines[vcf_index];
                 interval = intervals[interval_index];
             
-                if (line.trim()=="" || interval.length<3) {
-                   break;
-                }
+                // if (vcf_index % 100 == 0) {  console.log(vcf_index); }
+                
+                if (line.trim()=="") {
+                    // end of file
+                    break;
+                } 
 
+                if (interval.length<3) {
+                    alert("Incorrect interval: ", interval);
+                    break;
+                }
                 i_chr = parseInt(trimChr(interval[0]));
                 i_start = parseInt(interval[1]);
                 i_end = parseInt(interval[2]);
@@ -90,6 +97,7 @@ $(document).ready(function () {
             reader.getHeader(function(x) {
                                 filteredRecords[0] = x;
                                 ++callbackCnt;
+                                // console.log("Got header. Cbckcnt:", callbackCnt);
                                 if (callbackCnt == bed.length+1) {
                                     download(filteredVcfName, makeVcfString(filteredRecords));
                                 }
@@ -101,8 +109,12 @@ $(document).ready(function () {
                                   (function () {
                                         var j = i;
                                         return function(x) {
+                                            if (x.length > 0) {
+                                                console.log('x=[',x,']');
+                                            }
                                             filteredRecords[j+1] = x;
                                             ++callbackCnt;
+                                            //console.log("Got ", j, ". Cbckcnt:", callbackCnt);
                                             if (callbackCnt == bed.length+1) {
                                                 download(filteredVcfName, makeVcfString(filteredRecords));
                                             }
@@ -134,7 +146,8 @@ $(document).ready(function () {
         function loadAndFilterPlainTextVcf(vcf, bedRecords) {
             
             if (vcf.name.endsWith(".gz")) {
-                alert("GZipped VCF selected - please select also its Tabix index file (.tbi).");
+                //alert("GZipped VCF selected - please select also its Tabix index file (.tbi).");
+                alert("Seems like you selected GZipped VCF file. Please decompress it and try again.");
             } else if (!vcf.name.endsWith(".vcf")) {
                 alert("Selected file does not have a .vcf extension. If it is a VCF file, please rename it.");
             } else {
@@ -157,7 +170,8 @@ $(document).ready(function () {
             // skip if no file was selected
             var files = evt.target.files;
             if (files.length < 1 || files.length > 2) {
-                alert("Please select single uncompressed VCF file, or a pair of files: BGZipped VCF and its Tabix index.");
+                //alert("Please select single uncompressed VCF file, or a pair of files: BGZipped VCF and its Tabix index.");
+                alert("Please select single uncompressed VCF file.");
                 return; 
             }
                 
@@ -188,7 +202,8 @@ $(document).ready(function () {
                 
                 } else if (files.length > 1) {  // filter BGZipped and Tabix indexed VCF
                     
-                    loadAndFilterTabixedVcf(files, bedRecords);
+                    alert("Filtering BGZipped VCF files is currently performing suboptimally. Please use plain-text VCF file instead.");
+                    // loadAndFilterTabixedVcf(files, bedRecords);
                     
                 }
             }
