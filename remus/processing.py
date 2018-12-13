@@ -27,9 +27,9 @@ class BedsProcessor:
         BedsProcessor.logger().info("Querying gene database for %s" % genes)
         
         registry = GenesDBRegistry.get_instance()
-        gene_beds = [registry.get_bed(genome, gene) for gene in genes]
+        gene_beds = [ registry.get_bed(genome, genes) ]
         
-        BedsProcessor.logger().info("Got [%s] non-empty BED files" % len([b for b in gene_beds if b]))
+        BedsProcessor.log_count("Result BED file", gene_beds)
         BedsProcessor.log_bed(gene_beds)
         
         result = BedOperations.union(gene_beds).result
