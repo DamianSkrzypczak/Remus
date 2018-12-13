@@ -36,10 +36,18 @@ class MiRNATargetRegistryTest(unittest.TestCase):
         self.assertEqual(['hsa-miR-23a-3p'], mirnas)
         
         hnf1b_all = set(['hsa-miR-215-5p', 'hsa-miR-192-5p', 'hsa-miR-23a-3p'])
-        mirnas = self.reg.get_mirnas_targetting_gene('HNF1B', True)
+        mirnas = self.reg.get_mirnas_targetting_gene('HNF1B', include_weak_support=True)
         self.assertEqual(len(hnf1b_all), len(mirnas))
         for m in mirnas:
             self.assertTrue(m in hnf1b_all)
+
+    def test_3gene_query_mirtarbase(self):
+        genes = ['HNF1B', 'HNF1A', 'PKD1']
+        mirnas = self.reg.get_mirnas_targetting_genes(genes)
+        three_genes_mirnas = ['hsa-miR-15b-5p', 'hsa-miR-20a-5p', 'hsa-miR-23a-3p']
+        self.assertEqual(len(three_genes_mirnas), len(mirnas))
+        for m in mirnas:
+            self.assertTrue(m in three_genes_mirnas)
             
     def test_HNF1B_gene_query_mirwalk(self):
         mirnas = self.reg2.get_mirnas_targetting_gene('HNF1B', min_confidence=0.5)
@@ -48,6 +56,14 @@ class MiRNATargetRegistryTest(unittest.TestCase):
         mirnas = self.reg2.get_mirnas_targetting_gene('HNF1B', min_confidence=1.0)
         self.assertEqual(225, len(mirnas))
         
+
+    def test_3genes_query_mirwalk(self):
+        genes = ['HNF1B', 'HNF1A', 'PKD1']
+        mirnas = self.reg2.get_mirnas_targetting_genes(genes, min_confidence=0.5)
+        self.assertEqual(1440, len(mirnas))
+
+        mirnas = self.reg2.get_mirnas_targetting_genes(genes, min_confidence=1.0)
+        self.assertEqual(547, len(mirnas))
 
     def tearDown(self):
         pass

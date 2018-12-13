@@ -211,10 +211,8 @@ class BedsProcessor:
     #
 
     def _get_mirnas_targetting_genes(genes, registry, **args):
-        mirs = set()
-        for gene in genes:
-            mirs.update(registry.get_mirnas_targetting_gene(gene, **args))
-        return registry.get_mirna_gene_symbols(list(mirs))
+        mirs = registry.get_mirnas_targetting_genes(genes, **args)
+        return registry.get_mirna_gene_symbols(mirs)
 
     def _get_accessible_mirnas(mirna_symbols, tissues, genome, combine_mode):
         mirna_bed = BedsProcessor.get_genes_bed(mirna_symbols, genome)
