@@ -23,10 +23,6 @@ class GenesDBRegistry:
                      ORDER BY geneSymbol
                      LIMIT '{limit_to}'"""
     query_gene_sources = """SELECT DISTINCT * FROM genes 
-                            WHERE genome=='{genome}' AND geneSymbol=='{gene}'
-                            ORDER BY chrom,txStart,txEnd"""
-
-    query_gene_sources = """SELECT DISTINCT * FROM genes 
                             WHERE genome=='{genome}' AND geneSymbol IN ({genes})
                             ORDER BY chrom,txStart,txEnd"""
 
