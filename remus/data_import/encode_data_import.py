@@ -117,12 +117,13 @@ def get_collapse_beds_script(raw_bed_dir, collapsed_bed_dir,
                         
                         beds_to_merge_paths = [collapsed_bed_path]
                         for lo_build in liftover_to[genome_build]:
-                            liftover_bed_path = make_path(collapsed_bed_dirs[get_liftover_name(genome_build, lo_build)], " ".join([group_name, sls]), '.liftover.bed')
+                            liftover_bed_path = make_path(collapsed_bed_dirs[get_liftover_name(genome_build, lo_build)], "_".join([group_name, sls]), '.liftover.bed')
+                            beds_to_merge_paths.append(liftover_bed_path)
                             cmd = get_liftover_command(liftover_chain_files[(genome_build, lo_build)], 
                                                         collapsed_bed_path, liftover_bed_path)
                             script += format_cmd(cmd, print_echo)
                     
-                    collapsed_with_liftover_bed_path = make_path(collapsed_bed_dirs[genome_build]+"_with_liftover", group_name)
+                    collapsed_with_liftover_bed_path = make_path(collapsed_bed_dirs[genome_build]+"_with_liftover", "_".join([group_name, sls]))
                     script += format_cmd(get_collapse_beds_command(beds_to_merge_paths, collapsed_with_liftover_bed_path), print_echo)
 
 
