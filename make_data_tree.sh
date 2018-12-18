@@ -12,7 +12,9 @@ MIRNA_RAW=${MIRNA}/raw
 
 F5_TSS=${DATA_ROOT}/tss/fantom5/hg19
 
-F5_ENH=${DATA_ROOT}/enhancers/fantom5/hg19
+F5_ENH=${DATA_ROOT}/enhancers/fantom5
+F5_ENH_HG19=${F5_ENH}/hg19
+F5_ENH_HG38=${F5_ENH}/GRCh38
 F5_ENH_RAW=${F5_ENH}/raw
 
 ENC_ENH=${DATA_ROOT}/enhancers/encode
@@ -21,6 +23,8 @@ ENC_ENH_RAW=${ENC_ENH}/raw
 CHROMATIN=${DATA_ROOT}/chromatin
 CHROMATIN_RAW=${CHROMATIN}/raw
 
+LIFTOVER_EXEC=external_resources/liftOver
+LIFTOVER_HG19_HG38_CHAIN=external_resources/hg19ToHg38.over.chain.gz
 
 # Make tree
 printf "Making directories tree under %s\n" ${DATA_ROOT}
@@ -29,6 +33,7 @@ mkdir -p ${GENES_RAW} -v
 mkdir -p ${MIRNA} -v
 mkdir -p ${MIRNA_RAW} -v
 mkdir -p ${F5_ENH} -v
+mkdir -p ${F5_ENH_HG38} -v
 mkdir -p ${F5_ENH_RAW} -v
 mkdir -p ${F5_TSS} -v
 mkdir -p ${ENC_ENH} -v
@@ -68,12 +73,20 @@ done
 printf "Acquiring enhancers fantom5 data\n"
 wget http://enhancer.binf.ku.dk/presets/facet_expressed_enhancers.tgz -P ${F5_ENH_RAW}
 printf "... extracting celltype data"
-tar -xzf ${F5_ENH_RAW}/facet_expressed_enhancers.tgz -C ${F5_ENH} --wildcards CL:*
+tar -xzf ${F5_ENH_RAW}/facet_expressed_enhancers.tgz -C ${F5_ENH_HG19} --wildcards CL:*
 printf "... extracting organ data"
-tar -xzf ${F5_ENH_RAW}/facet_expressed_enhancers.tgz -C ${F5_ENH} --wildcards UBERON*
+tar -xzf ${F5_ENH_RAW}/facet_expressed_enhancers.tgz -C ${F5_ENH_HG19} --wildcards UBERON*
 # compress and index BED files
-for b in ${F5_ENH}/*.bed; do
+for b in ${F5_ENH_HG19}/*.bed; do
     bgzip ${b} && tabix -p bed ${b}.gz
+done
+# liftover to hg38
+for b in ${F5_ENH_HG19}/*.bed.gz; do
+    hg38_bed=${F5_ENH_HG38}/`basename ${b%.gz}`
+    ${LIFTOVER_EXEC} ${b} ${LIFTOVER_HG19_HG38_CHAIN} ${hg38_bed} ${hg38_bed}.unmapped
+    bedtools sort -i ${hg38_bed} > ${hg38_bed}.sorted && mv ${hg38_bed}.sorted ${hg38_bed}
+    bgzip ${hg38_bed} && tabix -p bed ${hg38_bed}.gz
+    echo "Lifted over ${b} to ${hg38_bed}.gz"
 done
 
 
