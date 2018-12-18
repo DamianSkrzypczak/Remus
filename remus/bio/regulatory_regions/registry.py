@@ -93,7 +93,7 @@ class RegulatoryRegionsFilesRegistry:
         tissues_map = {}
         for (_, life_stage), files_data in sources_map.items():
             source_name = files_data.pop("name")
-            name = "{}{} ({})".format(source_name, life_stage, ", ".join(sorted(files_data.keys())))
+            name = "{}{} ({})".format(source_name, life_stage.replace("_"," "), ", ".join(sorted(files_data.keys())))
             tissues_map[name] = files_data
         
         self.logger.debug("Tissues map:\n%s" % str(tissues_map))
