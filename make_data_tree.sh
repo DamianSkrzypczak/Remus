@@ -10,7 +10,8 @@ GENES_RAW=${GENES}/raw
 MIRNA=${DATA_ROOT}/mirna
 MIRNA_RAW=${MIRNA}/raw
 
-F5_TSS=${DATA_ROOT}/tss/fantom5/hg19
+F5_TSS_HG19=${DATA_ROOT}/tss/fantom5/hg19
+F5_TSS_HG38=${DATA_ROOT}/tss/fantom5/GRCh38
 
 F5_ENH=${DATA_ROOT}/enhancers/fantom5
 F5_ENH_HG19=${F5_ENH}/hg19
@@ -28,18 +29,12 @@ LIFTOVER_HG19_HG38_CHAIN=external_resources/hg19ToHg38.over.chain.gz
 
 # Make tree
 printf "Making directories tree under %s\n" ${DATA_ROOT}
-mkdir -p ${GENES} -v
-mkdir -p ${GENES_RAW} -v
-mkdir -p ${MIRNA} -v
-mkdir -p ${MIRNA_RAW} -v
-mkdir -p ${F5_ENH} -v
-mkdir -p ${F5_ENH_HG38} -v
-mkdir -p ${F5_ENH_RAW} -v
-mkdir -p ${F5_TSS} -v
-mkdir -p ${ENC_ENH} -v
-mkdir -p ${ENC_ENH_RAW} -v
-mkdir -p ${CHROMATIN} -v
-mkdir -p ${CHROMATIN_RAW} -v
+mkdir -p ${GENES_RAW} ${GENES} -v
+mkdir -p ${MIRNA_RAW} ${MIRNA} -v
+mkdir -p ${F5_ENH_RAW} ${F5_ENH_HG19} ${F5_ENH_HG38} -v
+mkdir -p ${F5_TSS_HG19} ${F5_TSS_HG38} -v
+mkdir -p ${ENC_ENH_RAW} ${ENC_ENH} -v
+mkdir -p ${CHROMATIN_RAW} ${CHROMATIN} -v
 
 
 # Create genes.db
@@ -63,10 +58,21 @@ printf "Acquiring transcription start sites FANTOM5 data\n"
 wget -O ${PREDEFINED_F5_TSS_SOURCES}/hg19.cage_peak_phase1and2combined_tpm.osc.txt.gz 'http://fantom.gsc.riken.jp/5/datafiles/latest/extra/CAGE_peaks/hg19.cage_peak_phase1and2combined_tpm.osc.txt.gz'
 wget -O ${PREDEFINED_F5_TSS_SOURCES}/ff-phase2-170801.obo.txt http://fantom.gsc.riken.jp/5/datafiles/latest/extra/Ontology/ff-phase2-170801.obo.txt
 # aggregate samples by organs, tissues and cell-types and store location of TSSs in BED files
-python3 ${PREDEFINED_F5_TSS_SOURCES}/aggregate_CAGE_peaks.py ${PREDEFINED_F5_TSS_SOURCES}/ff-phase2-170801.obo.txt ${PREDEFINED_F5_TSS_SOURCES}/hg19.cage_peak_phase1and2combined_tpm.osc.txt.gz ${F5_TSS}
-for b in ${F5_TSS}/*.bed; do
+python3 ${PREDEFINED_F5_TSS_SOURCES}/aggregate_CAGE_peaks.py ${PREDEFINED_F5_TSS_SOURCES}/ff-phase2-170801.obo.txt ${PREDEFINED_F5_TSS_SOURCES}/hg19.cage_peak_phase1and2combined_tpm.osc.txt.gz ${F5_TSS_HG19}
+# compress and index BED files
+for b in ${F5_TSS_HG19}/*.bed; do
     bedtools sort -i ${b} > ${b}.sbed && mv ${b}.sbed ${b} && bgzip ${b} && tabix -p bed ${b}.gz
 done
+# liftover to hg38
+for b in ${F5_TSS_HG19}/*.bed.gz; do
+    hg38_bed=${F5_TSS_HG38}/`basename ${b%.gz}`
+    ${LIFTOVER_EXEC} ${b} ${LIFTOVER_HG19_HG38_CHAIN} ${hg38_bed} ${hg38_bed}.unmapped
+    bedtools sort -i ${hg38_bed} > ${hg38_bed}.sorted && mv ${hg38_bed}.sorted ${hg38_bed}
+    bgzip ${hg38_bed} && tabix -p bed ${hg38_bed}.gz
+    echo "Lifted over ${b} to ${hg38_bed}.gz"
+done
+
+
 
 
 # Download FANTOM5 enhancers 
