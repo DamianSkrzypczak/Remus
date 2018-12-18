@@ -145,12 +145,12 @@ class RegulatoryRegionsFilesRegistry:
 
 
     def get_matching_tissues(self, pattern, limit):
-        limit = limit if limit else -1
         pattern = pattern if pattern else " "
         try:
             pattern = re.sub("\s+", ".*", pattern, re.IGNORECASE)
-            return sorted([i for i in self.available_tissues if re.search(pattern, i, re.IGNORECASE)])[:limit]
-        except LookupError:
+            matches = sorted([i for i in self.available_tissues if re.search(pattern, i, re.IGNORECASE)])
+            return matches[:limit] if limit else matches
+        except re.error:
             return []
             
 
