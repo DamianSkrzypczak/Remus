@@ -18,9 +18,6 @@ the moment includes coordinates of:
   
 In upcoming releases Remus will also enable inclusion of other regulatory features.
 
-Remus is developed at [BTM](https://biostat.umed.pl), Medical Univeristy of Lodz, Poland. 
-
-
 ### Installation of local instance of Remus
 
 ##### Installing dependencies:
@@ -84,5 +81,15 @@ After reading `exterenal_resources/README.md`, download liftOver and chains, run
 ##### Accessing Remus website
 
 If whole process of building and configuring the container succeded, exit the container. Remus website should be accessible under `127.0.0.1:LOCAL_PORT_1`
+
+### Credits
+
+Remus is developed at [BTM](https://biostat.umed.pl), Medical Univeristy of Lodz, Poland. 
+
+This project has received funding from the European Union’s Horizon 2020 research and innovation programme under the Marie Skłodowska-Curie grant agreement No 665778.
+
+![eu](https://seru71.github.io/polonez-project/img/eu_logo.jpg)
+![ncn](https://seru71.github.io/polonez-project/img/ncn_logo.png)
+
     
     
