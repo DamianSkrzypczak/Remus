@@ -14,6 +14,10 @@ def convert_genome_build(genome, hg19_expected="hg19", hg38_expected="GRCh38"):
     raise InvalidGenomeBuildException(genome)
 
 
+def get_dirname_for_merged_with_liftover(genome_build):
+    return genome_build + "_with_liftover";
+
+
 class RegulatoryRegionsFilesRegistry:
     
     instances = None      # dictionary of singleton objects
@@ -35,38 +39,46 @@ class RegulatoryRegionsFilesRegistry:
 
         genome_build = convert_genome_build(genome_build)
 
-        if RegulatoryRegionsFilesRegistry.instances == None:
+        if RegulatoryRegionsFilesRegistry.instances is None:
             RegulatoryRegionsFilesRegistry.instances = {}
         if genome_build not in RegulatoryRegionsFilesRegistry.instances:
             RegulatoryRegionsFilesRegistry.instances[genome_build] = RegulatoryRegionsFilesRegistry(genome_build)
         return RegulatoryRegionsFilesRegistry.instances[genome_build]
-    
-    
-    def __init__(self, genome_build, root="data",
+
+    def __init__(self, genome_build, merge_lifted_over=True, root="data",
                  directories_and_symbols=DATA_DIRECTORIES_MAP,
                  extensions=(".bed", ".bed.gz")):
         self.logger = logging.getLogger(self.__class__.__name__)
-        
-        sources_map = self._make_sources_map(directories_and_symbols, genome_build, extensions, root)
-        
+        sources_map = self._make_sources_map(directories_and_symbols, genome_build, merge_lifted_over, extensions, root)
         self._available_tissues = self._create_available_tissues_map(sources_map)
-        
 
-    def _make_sources_map(self, directories_and_symbols, genome_build, extensions, root):
+    def _make_sources_map(self, directories_and_symbols, genome_build, merge_lifted_over, extensions, root):
         
-        self.logger.info("Making sources map for root: %s ; paths: %s ; genome: %s ; and extensions: %s" \
-                            % (root, str(directories_and_symbols), genome_build, str(extensions)))
+        merge_with_liftover_genome_build = get_dirname_for_merged_with_liftover(genome_build)
+        
+        self.logger.info("Making sources map for root: %s ; paths: %s ; genome: %s (%smerging with lifted over coordinates); and extensions: %s" \
+                         % (root, str(directories_and_symbols),
+                            genome_build, "" if merge_lifted_over else "not ",
+                            str(extensions)))
         
         pattern = re.compile(r"(\w+:\d+)_(.+?)(|_embryonic)\.")
         
         sources = defaultdict(dict)
         for path in directories_and_symbols:
-            
-            if not os.path.isdir(os.path.join(root, path, genome_build)):
-                self.logger.warn("BED dir for path [%s] and genome [%s] does not exist. Skipping." % (path, genome_build))
+                       
+            genome_build_dir = genome_build
+            if merge_lifted_over and not os.path.isdir(os.path.join(root, path, merge_with_liftover_genome_build)):
+                self.logger.warning("BED dir for path [%s] and genome [%s] (merged with lifted over) does not exist. Using defult genome build dir: [%s]" \
+                                    % (path, merge_with_liftover_genome_build, genome_build))
+            else:
+                genome_build_dir = merge_with_liftover_genome_build
+        
+                
+            if not os.path.isdir(os.path.join(root, path, genome_build_dir)):
+                self.logger.warning("BED dir for path [%s] and genome [%s] does not exist. Skipping." % (path, genome_build))
                 continue 
                 
-            for bed in os.listdir(os.path.join(root, path, genome_build)):
+            for bed in os.listdir(os.path.join(root, path, genome_build_dir)):
                 
                 termid_and_name = pattern.match(bed)
                 
@@ -82,7 +94,7 @@ class RegulatoryRegionsFilesRegistry:
                     
                     symbol = directories_and_symbols[path]
                     
-                    sources[termid, life_stage][symbol] = os.path.join(root, path, genome_build, bed)
+                    sources[termid, life_stage][symbol] = os.path.join(root, path, genome_build_dir, bed)
                     sources[termid, life_stage]["name"] = name.replace("_expressed_enhancers", "").replace("_promoters", "").replace("_", " ")
         
         self.logger.debug("Sources map:\n%s" % str(sources))
@@ -98,12 +110,10 @@ class RegulatoryRegionsFilesRegistry:
         self.logger.debug("Tissues map:\n%s" % str(tissues_map))
         return tissues_map
 
-
     @property
     def available_tissues(self):
         self.logger.debug("Available tissues:\n%s" % str(self._available_tissues.keys()))
         return list(self._available_tissues.keys())
-
 
     def get_bed(self, tissue, source_symbol):
         self.logger.info('Requested tissue [%s] from source [%s]' % (tissue, source_symbol))
@@ -119,7 +129,6 @@ class RegulatoryRegionsFilesRegistry:
         except KeyError:
             self.logger.info('No tissue [%s] in source [%s]' % (tissue, source_symbol))
             return None
-                
 
     def get_matching_tissues(self, pattern, limit):
         limit = limit if limit else -1
@@ -133,7 +142,8 @@ class RegulatoryRegionsFilesRegistry:
 
 class InvalidTissueNameException(Exception):
     pass
-    
+
+
 class InvalidGenomeBuildException(Exception):
     pass
 

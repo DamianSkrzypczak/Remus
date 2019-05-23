@@ -44,7 +44,7 @@ class RegulatoryRegionsFilesRegistryTest(unittest.TestCase):
         new_reg = RegulatoryRegionsFilesRegistry.get_registry('hg19')        
         self.assertEqual(self.reg.available_tissues, new_reg.available_tissues)
         
-    def test__create_available_tissues_map(self):
+    def test_create_available_tissues_map(self):
         tm = self.reg._create_available_tissues_map(self.dummy_sources_map)
         self.assertEqual(sorted(self.dummy_tissue_map.keys()), sorted(tm.keys()))
         for k in self.dummy_tissue_map:
