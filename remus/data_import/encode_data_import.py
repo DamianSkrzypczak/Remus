@@ -290,14 +290,31 @@ def get_collapse_beds_command(raw_beds, collapsed_bed):
             and the second is echo message stating what file was generated
     """
     not_compressed_bed_name = collapsed_bed[:-len('.gz')]
-    zcat = " ".join(["zcat",
-                    " ".join(["\""+b+"\"" for b in raw_beds]),
-                    "| bedtools sort -i -",
-                    "| bedtools merge -i -",
-                    " > \"{}\"".format(not_compressed_bed_name)])
+    tmp_bed_name = not_compressed_bed_name+".chunks"
+
+    cmd = ""
+
+    # long lists of input BED files must be processed in chunks
+    chunk_size = 20
+    for i in range(0, len(raw_beds), chunk_size):
+        beds_chunk = raw_beds[i:(i+chunk_size)]
+
+        zcat = " ".join(["zcat",
+                         " ".join(["\""+b+"\"" for b in beds_chunk]),
+                         "| bedtools sort -i -",
+                         "| bedtools merge -i -",
+                         " {}> \"{}\"".format("" if i == 0 else ">", tmp_bed_name)])
+        cmd += '\n'+zcat
+
+    if len(raw_beds) > chunk_size:  # if the bed list was chunked, sort and merge the tmp_bed
+        cmd += "\nbedtools sort -i \"{}\"| bedtools merge -i - > \"{}\"".format(tmp_bed_name, not_compressed_bed_name)
+        cmd += "\nrm \"{}\"\n".format(tmp_bed_name)
+    else:
+        cmd += "\nmv \"{}\" \"{}\"\n".format(tmp_bed_name, not_compressed_bed_name)
+
     bgzip = "bgzip -f \"%s\"" % not_compressed_bed_name
     tabix = "tabix -p bed \"%s\"" % collapsed_bed
-    cmd = '\n'.join([zcat, bgzip, tabix])
+    cmd = '\n'.join([cmd, bgzip, tabix])
 
     echo = "echo \"Generated %s\"" % collapsed_bed
 
