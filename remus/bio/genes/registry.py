@@ -23,7 +23,7 @@ class GenesDBRegistry:
                      ORDER BY geneSymbol
                      LIMIT '{limit_to}'"""
     query_gene_sources = """SELECT DISTINCT * FROM genes 
-                            WHERE genome=='{genome}' AND geneSymbol=='{gene}'
+                            WHERE genome=='{genome}' AND geneSymbol IN ({genes})
                             ORDER BY chrom,txStart,txEnd"""
 
     instance = None
@@ -50,10 +50,11 @@ class GenesDBRegistry:
         matching_genes_df = self._query_db(query)
         return matching_genes_df["geneSymbol"].tolist()
 
-    def get_bed(self, genome, gene_name):
+    def get_bed(self, genome, gene_names):
         genome = convert_genome_build(genome)
-        self.logger.info("Querring genome %s for gene %s" % (genome, gene_name))
-        query = self.query_gene_sources.format(genome=genome, gene=gene_name)
+        self.logger.info("Querring genome %s for genes: %s" % (genome, gene_names))
+        genes_list = ','.join(["'"+g+"'" for g in gene_names])
+        query = self.query_gene_sources.format(genome=genome, genes=genes_list)
         genes_df = self._query_db(query)
         sources = self._extract_sources(genes_df)
         self.logger.info("Returned %s records" % len(sources))

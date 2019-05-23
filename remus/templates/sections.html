@@ -57,7 +57,7 @@
                 <h5><label for="select-tissues">Select organs/tissues/cell types:<br/>
                 </label></h5>
                 <div>
-                    <select class="form-control" name="tissues" id="select-tissues"></select>
+                    <select class="form-control" name="tissues" id="select-tissues" required></select>
                 </div>
                 <a class="ask-btn small text-success"
                    tabindex="0"
@@ -381,21 +381,41 @@
 {% block summary_panel %}
     <div class="row align-items-top">
         <div class="col-md-4 " style="padding-left: 0">
-            <input type="submit" href="#footer" value="Query" id="submit-all" class="btn btn-success btn-lg"
-                   role="button"
-                   aria-disabled="true">
-            <input type="button" id="download-result" class="btn btn-success btn-lg"
-                   role="button" aria-disabled="true" value="Download result" disabled>
+            <div>
+                <input type="submit" href="#footer" value="Query" id="submit-all" class="btn btn-success btn-lg"
+                    role="button" aria-disabled="true">
+                <input type="button" id="download-result" class="btn btn-success btn-lg"
+                    role="button" aria-disabled="true" value="Download result BED" disabled>
+            </div><br>
+            <div>
+            
+                <label id="filter-vcf-label" class="btn btn-success btn-lg disabled" for="filter-vcf">
+                    <input type="file" id="filter-vcf" accept=".vcf" disabled hidden>
+                    <!--<input type="file" id="filter-vcf" accept=".gz, .tbi, .vcf"  multiple disabled hidden> -->
+                    Filter VCF using result BED 
+                </label>
+            
+            </div>
         </div>
         <div class="col-md-8" style="">
             <div id="results-loading" class="text-center" style="border: dashed 1px; display:none">
                 <img src="{{ url_for('static', filename='img/loading.gif') }}" class="w-25"/>
-                <p>Computing...
-                    <br>
-                    (Please don't close page until finished)</p>
+                <p> Computing...<br>               
+                    (Please don't close page until finished)
+                </p>
             </div>
+            <div id="results-loading2" class="text-center" style="border: dashed 1px; display:none">
+                <img src="{{ url_for('static', filename='img/loading.gif') }}" class="w-25"/>
+                <p> Filtering VCF...<br>
+                    Please don't close page until finished. <br>
+                    The result will appear as a download file
+                </p>
+            </div>
+
             <div id="results-table" class="text-center" style="display:none">
             </div>
         </div>
     </div>
+    
+    
 {% endblock %}

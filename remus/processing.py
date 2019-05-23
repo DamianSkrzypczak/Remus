@@ -27,9 +27,9 @@ class BedsProcessor:
         BedsProcessor.logger().info("Querying gene database for %s" % genes)
         
         registry = GenesDBRegistry.get_instance()
-        gene_beds = [registry.get_bed(genome, gene) for gene in genes]
+        gene_beds = [ registry.get_bed(genome, genes) ]
         
-        BedsProcessor.logger().info("Got [%s] non-empty BED files" % len([b for b in gene_beds if b]))
+        BedsProcessor.log_count("Result BED file", gene_beds)
         BedsProcessor.log_bed(gene_beds)
         
         result = BedOperations.union(gene_beds).result
@@ -211,10 +211,8 @@ class BedsProcessor:
     #
 
     def _get_mirnas_targetting_genes(genes, registry, **args):
-        mirs = set()
-        for gene in genes:
-            mirs.update(registry.get_mirnas_targetting_gene(gene, **args))
-        return registry.get_mirna_gene_symbols(list(mirs))
+        mirs = registry.get_mirnas_targetting_genes(genes, **args)
+        return registry.get_mirna_gene_symbols(mirs)
 
     def _get_accessible_mirnas(mirna_symbols, tissues, genome, combine_mode):
         mirna_bed = BedsProcessor.get_genes_bed(mirna_symbols, genome)
