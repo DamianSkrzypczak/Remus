@@ -27,6 +27,22 @@
 <body>
 {% block content %}
 {% endblock %}
+
+<footer class="container content">
+    <div class="row align-items-center">
+        <div class="col-1">
+            <img src="{{ url_for('static', filename='img/eu_logo.jpg') }}" class="img-fluid mr-auto" alt="Logo" style="height: 100%;">
+        </div>
+        <div class="col-5">
+            <img src="{{ url_for('static', filename='img/ncn_logo.png') }}" class="img-fluid ml-auto" alt="Logo" style="width: 100%;">
+        </div>
+        <div class="col-6 small">
+            This project is funded by NCN Polonez grant no 2016/23/P/NZ2/04251. This project has received funding from the European Union’s Horizon 2020 research and innovation programme under the Marie Skłodowska-Curie grant agreement No 665778.
+        </div>
+    </div>
+
+</footer>
+
 <footer class="footer">
     <div class="container-fluid">
         <small class="text-muted">
