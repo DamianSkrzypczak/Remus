@@ -156,8 +156,6 @@ def decode_genomic_location(field):
     return chrom, start, end, strand
 
 
-
-
 def mean(l):
     return sum(l)/len(l)
 
@@ -166,7 +164,7 @@ def mean(l):
 #### MAIN ####
 
 if __name__ == '__main__':
-    
+
     
     OBO_FILE = sys.argv[1]
     EXPRESSION_TABLE_FILE = sys.argv[2]
@@ -254,4 +252,3 @@ if __name__ == '__main__':
         f.close()
     
     print("Done.")
-    
