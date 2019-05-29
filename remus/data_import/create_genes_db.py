@@ -48,8 +48,7 @@ def filter_alt_chromosomes(df):
     """
     chr_column = 'chrom'
     return df.loc[df[chr_column].isin(CANONICAL_CHROMOSOMES)]
-    
-    
+
 
 def reformat_data_frame(data_frame, filename):
     """
