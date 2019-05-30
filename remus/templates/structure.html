@@ -2,10 +2,18 @@
 {% block content %}
     {{ super() }}
     <div class="container content">
-        <div class="row">
+        <div class="row align-items-center">
             <img src="{{ url_for('static', filename='img/remus_logo.png') }}" class="img-fluid" alt="Logo"
                  style="width:8%; height: 8%;">
-            <h1 class="display-1">Remus</h1>
+            <div class="display-1">&nbsp;Remus</div>
+            <div class="col-4 ml-auto">
+                <a href="http://btm.umed.pl">
+                    <img src="{{ url_for('static', filename='img/btm_logo.png') }}" class="img-fluid" alt="btm_logo" style="width: 30%">
+                </a>
+                <a href="https://en.umed.pl">
+                    <img src="{{ url_for('static', filename='img/umed_logo.png') }}" class="img-fluid float-right" alt="umed_logo" style="width: 50%">
+                </a>
+            </div>
         </div>
         <div id="description-jumbotron" class="jumbotron">
             <br>

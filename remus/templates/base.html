@@ -15,8 +15,8 @@
                 888  T88b 888       888   "   888Y88b. .d88PY88b  d88P
                 888   T88b8888888888888       888 "Y88888P"  "Y8888P"
 
-                created by Damian Skrzypczak © 2018
-                (https://github.com/DamianSkrzypczak)
+                created by Paweł Sztromwasser and Damian Skrzypczak © 2019
+                (https://github.com/seru71 https://github.com/DamianSkrzypczak)
         -->
         <script type=text/javascript>
             $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
@@ -27,6 +27,24 @@
 <body>
 {% block content %}
 {% endblock %}
+
+<footer class="container content">
+    <div class="row align-items-center">
+        <div class="col-1">
+            <img src="{{ url_for('static', filename='img/eu_logo.jpg') }}" class="img-fluid mr-auto" alt="Logo" style="height: 100%;">
+        </div>
+        <div class="col-5">
+            <a href="http://ncn.gov.pl/?language=en">
+                <img src="{{ url_for('static', filename='img/ncn_logo.png') }}" class="img-fluid ml-auto" alt="Logo" style="width: 100%;">
+            </a>
+        </div>
+        <div class="col-6 small">
+            This project is funded by NCN Polonez grant no 2016/23/P/NZ2/04251. This project has received funding from the European Union’s Horizon 2020 research and innovation programme under the Marie Skłodowska-Curie grant agreement No 665778.
+        </div>
+    </div>
+
+</footer>
+
 <footer class="footer">
     <div class="container-fluid">
         <small class="text-muted">
@@ -35,7 +53,7 @@
                target="_blank">Damian Skrzypczak</a> and 
             <a href="https://github.com/seru71"
                target="_blank">Paweł Sztromwasser</a> 
-            © 2018 </small>
+            © 2019 </small>
     </div>
 </footer>
 </body>

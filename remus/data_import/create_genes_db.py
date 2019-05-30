@@ -4,9 +4,9 @@ import sqlite3
 
 import pandas as pd
 
-PYBEDTOOLS_COMPATIBLE_BED_FORMAT_COLUMNS_ORDER = pd.Index([
-    'chrom', 'txStart', 'txEnd', 'strand', 'cdsStart', 'cdsEnd', 'exonCount', 'exonStarts', 'exonEnds', 'name',
-    'geneSymbol'
+BED_FORMAT_COLUMNS_ORDER = pd.Index([
+    'chrom', 'txStart', 'txEnd', 'strand', 'cdsStart', 'cdsEnd', 'exonCount',
+    'exonStarts', 'exonEnds', 'name', 'geneSymbol'
 ])
 SEPARATOR = "\t"
 
@@ -26,7 +26,7 @@ def main(data_path, db_path):
     genomes_frames = [extract_data_frame_from_file(data_path, filename) for filename in source_files]
     frames_files_pairs = zip(genomes_frames, source_files)
     reformatted_data_frames = [reformat_data_frame(data_frame, filename) for data_frame, filename in frames_files_pairs]
-    filtered_frames = [filter_alt_chromosomes(df) for df in reformatted_data_frames]
+    filtered_frames = [filter_transcripts(df) for df in reformatted_data_frames]
     summary_df = pd.concat(filtered_frames, ignore_index=True)
     create_db_from_data_frame(db_path, summary_df)
 
@@ -41,15 +41,37 @@ def extract_data_frame_from_file(data_path, filename):
     return pd.read_csv(file_path, skiprows=0, sep=SEPARATOR)
 
 
-def filter_alt_chromosomes(df):
+def filter_transcripts(df):
+    """
+    :param df: data frame with gene coordinates
+    :return: data frame with filtered gene coordinates
+    """
+    #return prune_noncanonical_transcripts(prune_noncanonical_chromosomes(df))
+    return prune_noncanonical_chromosomes(df)
+
+
+def prune_noncanonical_transcripts(df):
+    """
+    :param df: data frame with gene coordinates
+    :return: data frame with canonical transcripts only - identified by last column being not NA
+    """
+    # select gene symbols with and without canonical transcripts
+    with_canonical = df.loc[df["name"]==df["transcript"]]
+
+    withno_canonical = df.loc[~df["geneSymbol"].isin(with_canonical["geneSymbol"])
+                              & df["transcript"].isna()]
+
+    return with_canonical.append(withno_canonical)
+
+
+def prune_noncanonical_chromosomes(df):
     """
     :param df: data frame with gene coordinates
     :return: data frame with gene coordinates on canonical chromosomes (1-22, chrX, chrY, chrM)
     """
     chr_column = 'chrom'
     return df.loc[df[chr_column].isin(CANONICAL_CHROMOSOMES)]
-    
-    
+
 
 def reformat_data_frame(data_frame, filename):
     """
@@ -58,8 +80,8 @@ def reformat_data_frame(data_frame, filename):
     :return: reformatted dataframe
     """
     reformat_column_names(data_frame)
-    data_frame = sort_columns_for_pybedtools_bed_format_compatibility(data_frame)
-    set_genome_value(filename, data_frame)
+    data_frame = order_columns_for_bed(data_frame)
+    data_frame = set_genome_value(filename, data_frame)
     return data_frame
 
 
@@ -73,24 +95,24 @@ def reformat_column_names(single_genome_data_frame):
     single_genome_data_frame.columns = [col_name.split(".")[-1] for col_name in single_genome_data_frame.columns]
 
 
-def sort_columns_for_pybedtools_bed_format_compatibility(single_genome_data_frame):
+def order_columns_for_bed(single_genome_data_frame):
     """
-    Orders dataframe in order to provide compatibility with PYBEDTOOLS *.bed format
+    Orders dataframe to provide compatibility with BED format
 
     :param single_genome_data_frame: unordered dataframe
     :return: ordered dataframe
     """
-    return single_genome_data_frame[PYBEDTOOLS_COMPATIBLE_BED_FORMAT_COLUMNS_ORDER]
+    return single_genome_data_frame[BED_FORMAT_COLUMNS_ORDER]
 
 
 def set_genome_value(filename, single_genome_data_frame):
     """
     Adding genome information into table.
 
-    :param filename: name of source file (WARNING!!!: FILE SHOULD BE NAMED AFTER GENOME, FOR EXAMPLE "hg37.tsv")
+    :param filename: name of source file (WARNING!!!: FILE SHOULD BE NAMED AFTER GENOME, FOR EXAMPLE "hg38.tsv")
     :param single_genome_data_frame: source dataframe
     """
-    single_genome_data_frame["genome"] = os.path.splitext(filename)[0]
+    return single_genome_data_frame.assign(genome = os.path.splitext(filename)[0])
 
 
 def create_db_from_data_frame(db_path, summary_df):

@@ -2,7 +2,7 @@
 # Dockerfile for building docker container with the app
 #
 
-FROM rastasheep/ubuntu-sshd
+FROM ubuntu:18.04
 
 LABEL authors="Paweł Sztromwasser, Damian Skrzypczak"
 
@@ -41,15 +41,13 @@ WORKDIR /var/www/remus
 RUN pip3 install -r requirements.txt
 
 COPY apache-remus.conf /etc/apache2/sites-available/apache-remus.conf
-RUN a2ensite apache-remus
-RUN a2enmod headers
-
-RUN a2dissite 000-default.conf
-RUN a2ensite apache-remus.conf
+RUN a2enmod headers \
+    && a2dissite 000-default.conf \
+    && a2ensite apache-remus
 
 EXPOSE 80
 
-#RUN bash external_resources/download.sh \
+#RUN cd external_resources && bash download.sh && cd .. \
 # && bash make_data_tree.sh
 
-#CMD  /usr/sbin/apache2ctl -D BACKGROUND
+CMD systemctl reload apache2
