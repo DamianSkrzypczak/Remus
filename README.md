@@ -1,7 +1,12 @@
 
 # ![RemusLogo](remus/static/img/remus_logo_mini.png) Remus  
 
-Remus is a web tool helping in identification of regulatory regions relevant to a given monogenic disease phenotype.  
+
+Publica Remus instance is available at [http://remus.btm.umed.pl](http://remus.btm.umed.pl)
+
+-----
+
+Remus is a web tool helping in identification of regulatory regions relevant to a given monogenic disease phenotype.
 Starting from a small set of genes implicated in the disease, Remus allows iterative building of a tissue-specific set of regions that likely play
 a role in regulating expression of the input genes. 
 After the list is finalized, it can be downloaded as a BED file with genomic coordinates or used directly to filter variants in a VCF file.
