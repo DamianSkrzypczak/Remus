@@ -8,7 +8,7 @@ import pandas as pd
 from remus.bio.bed.beds_loading import BedLoader
 
 
-def convert_genome_build(genome, hg19_expected="hg37", hg38_expected="hg38"):
+def convert_genome_build(genome, hg19_expected="hg19", hg38_expected="hg38"):
     if re.match("(hg37|hg19|b37)", genome, re.IGNORECASE):
         return hg19_expected
     elif re.match("(hg38|grch38|b38)", genome, re.IGNORECASE):
@@ -22,7 +22,7 @@ class GenesDBRegistry:
                      WHERE genome =='{genome}' AND geneSymbol LIKE '{pattern}%' 
                      ORDER BY geneSymbol
                      LIMIT '{limit_to}'"""
-    query_gene_sources = """SELECT DISTINCT * FROM genes 
+    query_gene_location = """SELECT DISTINCT * FROM genes 
                             WHERE genome=='{genome}' AND geneSymbol IN ({genes})
                             ORDER BY chrom,txStart,txEnd"""
 
@@ -52,9 +52,9 @@ class GenesDBRegistry:
 
     def get_bed(self, genome, gene_names):
         genome = convert_genome_build(genome)
-        self.logger.info("Querring genome %s for genes: %s" % (genome, gene_names))
+        self.logger.info("Querying genome %s for genes: %s" % (genome, gene_names))
         genes_list = ','.join(["'"+g+"'" for g in gene_names])
-        query = self.query_gene_sources.format(genome=genome, genes=genes_list)
+        query = self.query_gene_location.format(genome=genome, genes=genes_list)
         genes_df = self._query_db(query)
         sources = self._extract_sources(genes_df)
         self.logger.info("Returned %s records" % len(sources))
@@ -72,9 +72,10 @@ class GenesDBRegistry:
         strings_df = sources_df.apply(lambda x: '\t'.join([str(i) for i in x]), axis=1)
         return strings_df.tolist()
 
-    @staticmethod
-    def _extract_names(genes_df):
-        return genes_df.iloc[:, -1]
+#
+#    @staticmethod
+#    def _extract_names(genes_df):
+#        return genes_df.iloc[:, -1]
 
 
     
