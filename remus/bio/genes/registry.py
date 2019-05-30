@@ -18,11 +18,11 @@ def convert_genome_build(genome, hg19_expected="hg19", hg38_expected="hg38"):
 
 class GenesDBRegistry:
     query_genomes = """SELECT DISTINCT genome FROM genes"""
-    query_genes = """SELECT DISTINCT geneSymbol FROM genes 
+    query_gene_symbols = """SELECT DISTINCT geneSymbol FROM genes 
                      WHERE genome =='{genome}' AND geneSymbol LIKE '{pattern}%' 
                      ORDER BY geneSymbol
                      LIMIT '{limit_to}'"""
-    query_gene_location = """SELECT DISTINCT * FROM genes 
+    query_genes = """SELECT DISTINCT * FROM genes 
                             WHERE genome=='{genome}' AND geneSymbol IN ({genes})
                             ORDER BY chrom,txStart,txEnd"""
 
@@ -46,7 +46,7 @@ class GenesDBRegistry:
 
     def get_matching_genes(self, genome, pattern, limit):
         genome = convert_genome_build(genome)
-        query = self.query_genes.format(genome=genome, pattern=pattern, limit_to=limit)
+        query = self.query_gene_symbols.format(genome=genome, pattern=pattern, limit_to=limit)
         matching_genes_df = self._query_db(query)
         return matching_genes_df["geneSymbol"].tolist()
 
@@ -54,11 +54,11 @@ class GenesDBRegistry:
         genome = convert_genome_build(genome)
         self.logger.info("Querying genome %s for genes: %s" % (genome, gene_names))
         genes_list = ','.join(["'"+g+"'" for g in gene_names])
-        query = self.query_gene_location.format(genome=genome, genes=genes_list)
+        query = self.query_genes.format(genome=genome, genes=genes_list)
         genes_df = self._query_db(query)
-        sources = self._extract_sources(genes_df)
-        self.logger.info("Returned %s records" % len(sources))
-        loader = BedLoader(src="\n".join(sources), from_string=True)
+        coordinates = self._extract_gene_coordinates(genes_df)
+        self.logger.info("Returned %s records" % len(coordinates))
+        loader = BedLoader(src="\n".join(coordinates), from_string=True)
         return loader.bed
 
     def _query_db(self, query):
@@ -67,7 +67,7 @@ class GenesDBRegistry:
             return df
 
     @staticmethod
-    def _extract_sources(genes_df):
+    def _extract_gene_coordinates(genes_df):
         sources_df = genes_df.iloc[:, [1, 2, 3, 10, 7, 4]]
         strings_df = sources_df.apply(lambda x: '\t'.join([str(i) for i in x]), axis=1)
         return strings_df.tolist()
