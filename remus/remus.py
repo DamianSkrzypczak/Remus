@@ -76,9 +76,7 @@ def perform():
     try:
         start_time = time.time()
         params = get_perform_params()
-        collected_beds_map = BedsCollector(params).collect_bed_files(
-            include_gene_body = params["genes-select-include-gene-transcripts"]
-        )
+        collected_beds_map = BedsCollector(params).collect_bed_files()
         collected_beds = [bed for beds_list in collected_beds_map.values() for bed in beds_list]
 
         final_result = BedOperations.union(collected_beds, merge=True).result \

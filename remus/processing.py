@@ -309,11 +309,11 @@ class BedsCollector:
         self._data = data
         self._logger = logging.getLogger(self.__class__.__name__)
 
-    def collect_bed_files(self, include_gene_body):
+    def collect_bed_files(self):
 
         bed_files = OrderedDict([])
 
-        if include_gene_body:
+        if self._data["genes-select-include-gene-transcripts"]:
             bed_files["genes"] = \
                 self._get_bed_files(
                     self.genes_params,
