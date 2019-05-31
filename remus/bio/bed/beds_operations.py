@@ -1,4 +1,3 @@
-from pybedtools import BedTool
 
 from remus.bio.time_measurement import time_it
 
