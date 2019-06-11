@@ -49,7 +49,7 @@ def make_path(directory, name, extension='.bed.gz'):
 #  - fibroblast_of_lung           - contains merged peaks for all life stages
 #
 def get_collapse_beds_script(raw_bed_dir, collapsed_bed_dir, 
-                             bed_groups, tissue_ids, special_life_stages=[], exclude_terms=[], 
+                             bed_groups, tissue_ids, special_life_stages=[],
                              liftover_to=LIFTOVER_BOTH, liftover_chain_files=LIFTOVER_CHAINS, print_echo = True):
     """
     raw_bed_dir:
@@ -57,7 +57,6 @@ def get_collapse_beds_script(raw_bed_dir, collapsed_bed_dir,
     genome_bed_groups: dictionary of bed_groups. top level is tissue, next lifestage, and genome build
     tissue_ids: dictionary mapping term_ids and term_names for tissues/celltypes
     special_life_stages: life stages that should be collapsed and stored separately
-    exclude_terms: tissues/celltypes with the term_id from this list will be skipped
     liftover_to: dict mapping genome build to lift over genome build list
     liftover_chains: a dict mapping pairs of genome builds with liftover chain file to use
     print_echo: should status messages be included in the script
@@ -74,12 +73,7 @@ def get_collapse_beds_script(raw_bed_dir, collapsed_bed_dir,
     for t, tissue in bed_groups.items():
             
         group_name = " ".join([tissue_ids[t], t])
-            
-        # skip excluded tissues
-        if any([t in group_name for t in exclude_terms]):
-            script += "echo Based on exclusion list file for tissue/celltype [%s] was not created.\n\n" % group_name 
-            continue
-        
+
         # iterate over genome builds that this tissue is available in
         tissue_gbs = set()
         for ls in tissue:
@@ -232,11 +226,32 @@ def is_header(line):
     return line.find('File accession\t') == 0
 
 
+def passes_includes_and_excludes(ls, cols, include_dict, exclude_dict):
+    """
+    Checks whether this record (BED)_should be included
+    ls: list of line elements (line.split())
+    cols: map of column names to indices
+    include_dict: dictionaty of colname:[values] of accepted column values
+    return: True if include and exlude dicts are empty or
+            column values specified in the dict match accepted values and don't match unaccepted values
+    """
+    if include_dict:
+        for k in include_dict:
+            if ls[cols[k]] not in include_dict[k]:
+                return False
+
+    if exclude_dict:
+        for k in exclude_dict:
+            if ls[cols[k]] in exclude_dict[k]:
+                return False
+
+    return True
 
 
-def map_raw_bed_files_to_tissues(metadatafile):
+def map_raw_bed_files_to_tissues(metadatafile, include_dict=None, exclude_dict=None):
     """
     metadatafile: a tsv matrix of sample and file metadata. Can be downloaded from ENCODE website
+    include_dict: a dictionary of colname:[value,value,..] specifiing which records should be included
     return: a tuple of:
             (1) dictionary mapping term_ids to term_name. both are used in file name later
             (2) a 3 level dictionary of BED files mapped to life_stage, tissue, and genome build, e.g.:
@@ -253,15 +268,16 @@ def map_raw_bed_files_to_tissues(metadatafile):
         for line in md.readlines():
             ls = line.split('\t')
             if is_header(line):
-                cols['accession'] = ls.index('File accession')
-                cols['tissue'] = ls.index('Biosample term name')
-                cols['tissue_id'] = ls.index('Biosample term id')
-                cols['lifestage'] = ls.index('Biosample life stage')
-                cols['assembly'] = ls.index('Assembly')
-            else:
-                assembly = ls[cols['assembly']]
-                tissue = ls[cols['tissue']]
-                lifestage = ls[cols['lifestage']]
+
+                # map column names to indices
+                for i,name in enumerate(ls):
+                    cols[name] = i
+
+            elif passes_includes_and_excludes(ls, cols, include_dict, exclude_dict):
+
+                assembly = ls[cols['Assembly']]
+                tissue = ls[cols['Biosample term name']]
+                lifestage = ls[cols['Biosample life stage']]
                 
                 if tissue not in bed_groups:
                     bed_groups[tissue] = {}
@@ -271,8 +287,8 @@ def map_raw_bed_files_to_tissues(metadatafile):
                 if assembly not in bed_groups[tissue][lifestage]:
                     bed_groups[tissue][lifestage][assembly] = []
     
-                bed_groups[tissue][lifestage][assembly].append(ls[cols['accession']])
+                bed_groups[tissue][lifestage][assembly].append(ls[cols['File accession']])
     
-                tissue_ids[tissue] = ls[cols['tissue_id']]
+                tissue_ids[tissue] = ls[cols['Biosample term id']]
     
     return tissue_ids, bed_groups

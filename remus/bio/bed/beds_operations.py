@@ -1,4 +1,3 @@
-from pybedtools import BedTool
 
 from remus.bio.time_measurement import time_it
 
@@ -46,7 +45,7 @@ class BedOperations:
         if len(beds) == 0: 
             raise MissingBedsException('Empty BED list for intersect operation')
                         
-        accumulation = beds[0]
+        accumulation = beds[0].merge() if merge else beds[0]
         for bed in beds[1:]:
             accumulation = accumulation.intersect(bed, **kwargs)
             

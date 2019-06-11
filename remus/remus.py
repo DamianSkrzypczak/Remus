@@ -77,14 +77,15 @@ def perform():
         start_time = time.time()
         params = get_perform_params()
         collected_beds_map = BedsCollector(params).collect_bed_files()
-        collected_beds_without_categories = [bed for beds_list in collected_beds_map.values() for bed in beds_list]
-        if len(collected_beds_without_categories) == 1:
-            collected_beds_without_categories += collected_beds_without_categories
-        final_processor = BedOperations.union(collected_beds_without_categories, merge=True)
-        tmp_file_path = save_as_tmp(final_processor.result)
+        collected_beds = [bed for beds_list in collected_beds_map.values() for bed in beds_list]
+
+        final_result = BedOperations.union(collected_beds, merge=True).result \
+            if len(collected_beds) > 1 else collected_beds[0]
+
+        tmp_file_path = save_as_tmp(final_result)
         session["last_result"] = tmp_file_path.name
         end_time = (time.time() - start_time)
-        return return_summary(final_processor, end_time)
+        return return_summary(final_result, end_time)
     except Exception as e:
         app.logger.exception("Error occurred, details:")
         return "Error occurred"
@@ -105,11 +106,11 @@ def download_last():
         return "", 202
 
 
-def return_summary(processor, time_elapsed):
+def return_summary(result, time_elapsed):
     summary_data = [
         ("Time elapsed (s)", round(time_elapsed, 6)),
-        ("No. features", int(len(processor.result))),
-        ("No. base pairs", int(processor.result.total_coverage()))
+        ("No. features", int(len(result))),
+        ("No. base pairs", int(result.total_coverage()))
     ]
     template = """
     <table border="1" class="table-bordered table-striped table-hover">
@@ -135,7 +136,10 @@ def get_single_value_params():
     
     # genome build
     single_value_params =  ["genome"]
-    
+
+    # genes select
+    single_value_params += ["genes-select-include-gene-transcripts"]
+
     # TSS params
     single_value_params += ["transcription-fantom5-used",
                             "transcription-fantom5-combine-mode",

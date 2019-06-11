@@ -5,8 +5,9 @@ from remus.bio.regulatory_regions.registry import RegulatoryRegionsFilesRegistry
 from remus.bio.genes.registry import GenesDBRegistry
 from remus.bio.mirna.registry import MiRNATargetRegistryFactory
 
-from remus.bio.bed.beds_operations import BedOperations, BedOperationResult
-   
+from remus.bio.bed.beds_operations import BedOperations
+
+from pybedtools import BedTool
 
 class BedsProcessor:
 
@@ -309,12 +310,18 @@ class BedsCollector:
         self._logger = logging.getLogger(self.__class__.__name__)
 
     def collect_bed_files(self):
-        bed_files = OrderedDict([
-            ("genes",
-             self._get_bed_files(
-                 self.genes_params,
-                 BedsProcessor.get_genes_bed)
-             ),
+
+        bed_files = OrderedDict([])
+
+        if self._data["genes-select-include-gene-transcripts"]:
+            bed_files["genes"] = \
+                self._get_bed_files(
+                    self.genes_params,
+                    BedsProcessor.get_genes_bed)
+        else:
+            bed_files["genes"] = [BedTool([])]
+
+        bed_files.update([
             ("transcription-fantom5",
              self._get_bed_files(
                  self.tss_fantom5_params,
