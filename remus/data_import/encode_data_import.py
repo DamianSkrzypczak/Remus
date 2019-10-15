@@ -1,5 +1,7 @@
 
-import os
+import os, sys
+
+
 
 SUPPORTED_GENOME_BUILDS = {'hg19':'hg19', 'hg38':'GRCh38'}
 
@@ -133,32 +135,51 @@ def get_collapse_beds_script(raw_bed_dir, collapsed_bed_dir,
 
 
 def get_merge_with_liftover_commands(tissue, group_name, special_life_stages, liftover_to, collapsed_bed_dirs, print_echo):
-    
-    script = "echo Merging original and lifted over data for \"%s\"\n\n" % group_name
 
     tissue_gbs = set()
     for ls in tissue:
         tissue_gbs.update(tissue[ls].keys())    
-    
-    for genome_build in tissue_gbs:
-        
-        if genome_build in liftover_to:
-            
-            for lo_build in liftover_to[genome_build]:
-    
-                beds_to_merge = [make_path(collapsed_bed_dirs[genome_build], group_name), 
-                                 make_path(collapsed_bed_dirs[get_liftover_name(lo_build, genome_build)], group_name, '.liftover.bed.gz')]
-                collapsed_with_liftover_bed_path = make_path(collapsed_bed_dirs[genome_build]+"_with_liftover", group_name)
-                script += format_cmd(get_collapse_beds_command(beds_to_merge, collapsed_with_liftover_bed_path), print_echo)
-            
-            for sls in [s for s in special_life_stages if s in tissue]:
-                
-                for lo_build in liftover_to[genome_build]:
-                    
-                    beds_to_merge = [make_path(collapsed_bed_dirs[genome_build], " ".join([group_name, sls])),
-                                     make_path(collapsed_bed_dirs[get_liftover_name(lo_build, genome_build)], "_".join([group_name, sls]), '.liftover.bed.gz')]
-                    collapsed_with_liftover_bed_path = make_path(collapsed_bed_dirs[genome_build]+"_with_liftover", "_".join([group_name, sls]))
-                    script += format_cmd(get_collapse_beds_command(beds_to_merge, collapsed_with_liftover_bed_path), print_echo)
+
+    script = ""
+
+    for lo_from_gb in liftover_to:
+
+        for lo_to_gb in liftover_to[lo_from_gb]:
+
+            if lo_from_gb in tissue_gbs and lo_to_gb not in tissue_gbs:
+                # simply copy the lifted-over file, because there is no data for lo_to_gb
+                script += f"\necho \"Copying lifted over data for \'{group_name}\'\""
+                lo_bed = make_path(collapsed_bed_dirs[get_liftover_name(lo_from_gb, lo_to_gb)], group_name,
+                               '.liftover.bed.gz')
+                bed_with_lo = make_path(collapsed_bed_dirs[lo_to_gb] + "_with_liftover", group_name)
+                script += f"\ncp \"{lo_bed}\" \"{bed_with_lo}\"\n\n"
+
+            elif lo_from_gb in tissue_gbs and lo_to_gb in tissue_gbs:
+                # merge the original genome data with liftover data
+
+                script += f"\necho \"Merging original and lifted over data for \'{group_name}\' ({lo_to_gb})\""
+
+                beds_to_merge = [make_path(collapsed_bed_dirs[lo_to_gb], group_name),
+                                 make_path(collapsed_bed_dirs[get_liftover_name(lo_from_gb, lo_to_gb)], group_name,
+                                           '.liftover.bed.gz')]
+                collapsed_with_liftover_bed_path = make_path(collapsed_bed_dirs[lo_to_gb] + "_with_liftover",
+                                                             group_name)
+                script += format_cmd(get_collapse_beds_command(beds_to_merge, collapsed_with_liftover_bed_path),
+                                     print_echo)
+
+                for sls in [s for s in special_life_stages if s in tissue]:
+                    beds_to_merge = [make_path(collapsed_bed_dirs[lo_to_gb], " ".join([group_name, sls])),
+                                     make_path(collapsed_bed_dirs[get_liftover_name(lo_from_gb, lo_to_gb)],
+                                               "_".join([group_name, sls]), '.liftover.bed.gz')]
+                    collapsed_with_liftover_bed_path = make_path(collapsed_bed_dirs[lo_to_gb] + "_with_liftover",
+                                                                 "_".join([group_name, sls]))
+                    script += format_cmd(get_collapse_beds_command(beds_to_merge, collapsed_with_liftover_bed_path),
+                                         print_echo)
+
+            else:
+                # if lo_from_gb is not among tissue gb, there was no liftover made - nothing to merge
+                # if none liftover gbs are among tissue gbs - there is nothing to do
+                pass
 
     return script
 
@@ -228,7 +249,7 @@ def is_header(line):
 
 def passes_includes_and_excludes(ls, cols, include_dict, exclude_dict):
     """
-    Checks whether this record (BED)_should be included
+    Checks whether this record (BED) should be included
     ls: list of line elements (line.split())
     cols: map of column names to indices
     include_dict: dictionaty of colname:[values] of accepted column values
@@ -238,11 +259,13 @@ def passes_includes_and_excludes(ls, cols, include_dict, exclude_dict):
     if include_dict:
         for k in include_dict:
             if ls[cols[k]] not in include_dict[k]:
+                sys.stderr.write(f"Dropping dataset because {k} is {ls[cols[k]]}\n")
                 return False
 
     if exclude_dict:
         for k in exclude_dict:
             if ls[cols[k]] in exclude_dict[k]:
+                sys.stderr.write(f"Dropping dataset because {k} is {ls[cols[k]]}\n")
                 return False
 
     return True
@@ -266,6 +289,7 @@ def map_raw_bed_files_to_tissues(metadatafile, include_dict=None, exclude_dict=N
         cols = {}
     
         for line in md.readlines():
+
             ls = line.split('\t')
             if is_header(line):
 
@@ -277,11 +301,10 @@ def map_raw_bed_files_to_tissues(metadatafile, include_dict=None, exclude_dict=N
 
                 assembly = ls[cols['Assembly']]
                 tissue = ls[cols['Biosample term name']]
-                lifestage = ls[cols['Biosample life stage']]
+                lifestage = ls[cols['Biosample life stage']] if 'Biosample life stage' in cols else 'all'
                 
                 if tissue not in bed_groups:
                     bed_groups[tissue] = {}
-    
                 if lifestage not in bed_groups[tissue]:
                     bed_groups[tissue][lifestage] = {}
                 if assembly not in bed_groups[tissue][lifestage]:
@@ -289,6 +312,6 @@ def map_raw_bed_files_to_tissues(metadatafile, include_dict=None, exclude_dict=N
     
                 bed_groups[tissue][lifestage][assembly].append(ls[cols['File accession']])
     
-                tissue_ids[tissue] = ls[cols['Biosample term id']]
+                tissue_ids[tissue] = (ls[cols['Biosample term id']]).replace(':', '_')
     
     return tissue_ids, bed_groups
