@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import os
 import requests
 
@@ -24,6 +26,18 @@ def get_url(endpoint, operation):
     return os.path.join(endpoint, suffix_dict[operation])
 
 
+def query(endpoint, request_args):
+    url = get_url(endpoint,"perform")
+    resp = requests.post(url, request_args)
+    if resp is None or resp.text == "Error occurred" or resp.headers.get('Set-cookie') is None:
+        raise Exception("Erronous response for query to %s, with args: %s" % (url, request_args))
+
+    cookies = {e[0]: e[1] for e in [e.split("=") for e in resp.headers.get("Set-Cookie").split(";")] if len(e) > 1}
+    resp = requests.get(get_url(endpoint, 'download'), cookies=cookies)
+
+    return resp.content
+
+
 def query_default(endpoint, genome, genes, tissues,
                   enh_enc=True, enh_f5=True, chrom=True):
 
@@ -44,15 +58,7 @@ def query_default(endpoint, genome, genes, tissues,
                              "accessible-chromatin-encode-kbs-upstream":   500,
                              "accessible-chromatin-encode-kbs-downstream": 500})
 
-    url = get_url(endpoint,"perform")
-    resp = requests.post(url, request_args)
-    if resp is None or resp.text == "Error occurred" or resp.headers.get('Set-cookie') is None:
-        raise Exception("Erronous response for query to %s, with args: %s" % (url, request_args))
-
-    cookies = {e[0]: e[1] for e in [e.split("=") for e in resp.headers.get("Set-Cookie").split(";")] if len(e) > 1}
-    resp = requests.get(get_url(endpoint, 'download'), cookies=cookies)
-
-    return resp.content
+    return query(endpoint, request_args)
 
 
 def get_all_tissues(endpoint, genome):
@@ -69,13 +75,21 @@ def get_matching_tissues(endpoint, genome, patterns):
     return list(tissues)
 
 
+def get_matching_tissues_strict(endpoint, genome, patterns):
+    """
+    Requires perfect match of the tissue name (dataset information in parenthesis is stripped)
+    """
+    tissues = get_matching_tissues(endpoint, genome, patterns)
+    return [t for t in tissues if (t.split("(")[0]).strip() in patterns]
+
+
 def get_tissues_from_file(f):
     return [l.strip() for l in f.readlines() if l.strip() != ""]
 
 
 if __name__ == '__main__':
 
-    import argparse
+    import sys, argparse
     parser = argparse.ArgumentParser(description="Remus API client")
     parser.add_argument("--genome", choices=['hg19', 'hg38'], default='hg19', help="(Required) Genome build to use. Default [hg19]")
     parser.add_argument("--genes", required=True, metavar="gene1,gene2,...", help="(Required) Comma-separated list of target gene symbols")
@@ -98,8 +112,10 @@ if __name__ == '__main__':
         get_matching_tissues(args.endpoint, args.genome, args.tissue_keywords.split(',')) if args.tissue_keywords else \
         get_tissues_from_file(args.tissue_file)
 
-    if args.verbose:
-        import sys
+    if args.tissue_keywords and tissues == []:
+        sys.stderr.write('\n'.join(['Could not find any tissues matching: '] + args.tissue_keywords.split(',')) + '\n')
+        sys.exit(1)
+    elif args.verbose:
         sys.stderr.write('\n'.join(['Tissues used: '] + sorted(tissues)) + '\n')
 
     print(
