@@ -62,7 +62,7 @@ class RegulatoryRegionsFilesRegistry:
                             genome_build, "" if merge_lifted_over else "not ",
                             str(extensions)))
         
-        pattern = re.compile(r"(\w+:\d+)_(.+?)(|_embryonic)\.")
+        pattern = re.compile(r"(\w+_\d+)_(.+?)(|_embryonic)\.")
         
         sources = defaultdict(dict)
         for path in directories_and_symbols:
@@ -120,7 +120,6 @@ class RegulatoryRegionsFilesRegistry:
     def get_bed(self, tissue, source_symbol):
         return self.get_bed_fragment(tissue, source_symbol, None)
 
-
     def get_bed_fragment(self, tissue, source_symbol, regions):
         """ 
         Get slice of a BED. Filtering on non-tabixed BED files is not supported.
@@ -138,16 +137,19 @@ class RegulatoryRegionsFilesRegistry:
        
         try:
             bed_path = self._available_tissues[tissue][source_symbol]
-            self.logger.info('Found %s' % bed_path)
+            track_name = source_symbol + "(" + tissue.split('(')[0].strip() + ")"
+            self.logger.info('Found %s. Adding name %s' % (bed_path, track_name))
+
             full_bed = BedLoader(bed_path)
-            
+
             if regions is None:
-                return full_bed.bed
+                return BedOperations.add_name(full_bed.bed, track_name)
             else:
                 beds = [ full_bed.filter_by(i) for i in regions ]
                 if any(beds):
-                    return BedOperations.union([e for e in beds if e], merge=False).result
-                    
+                    filtered_bed = BedOperations.union([e for e in beds if e], merge=False).result
+                    return BedOperations.add_name(filtered_bed, track_name)
+
         except KeyError:
             self.logger.info('No tissue [%s] in source [%s]' % (tissue, source_symbol))
 

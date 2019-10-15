@@ -94,7 +94,7 @@ class BedsProcessor:
             joined_f5_enh = BedsProcessor._combine_beds(beds, combine_mode)
             BedsProcessor.log_count("Combined F5 enhancers BED", joined_f5_enh)
             BedsProcessor.log_bed(joined_f5_enh)
-            
+
             result = BedOperations.intersect([joined_f5_enh, flanked_genes], **{"u": True}).result
             BedsProcessor.log_count("F5 enhancers BED intersected with genes' promoters", result)
             BedsProcessor.log_bed(result)
