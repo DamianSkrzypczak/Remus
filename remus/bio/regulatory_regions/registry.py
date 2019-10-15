@@ -31,7 +31,7 @@ class RegulatoryRegionsFilesRegistry:
     DATA_DIRECTORIES_MAP = {
         "enhancers/encode": ENCODE_ENHANCERS_KEY,
         "enhancers/fantom5": FANTOM5_ENHANCERS_KEY,
-        "chromatin": ENCODE_CHROMATIN_KEY,
+        "chromatin/encode": ENCODE_CHROMATIN_KEY,
         "tss/fantom5": FANTOM5_TSS_KEY
     }
     
