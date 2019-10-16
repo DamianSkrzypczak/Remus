@@ -17,7 +17,7 @@ class BedsProcessor:
 
     @staticmethod
     def log_count(msg, bed):
-        BedsProcessor.logger().info(msg +" had [%s] records." % len(bed))
+        BedsProcessor.logger().info(msg + " had [%s] records." % len(bed))
         #BedsProcessor.logger().debug(msg +" had [%s] records." % len(bed))
 
     @staticmethod
@@ -78,7 +78,6 @@ class BedsProcessor:
             BedsProcessor.logger().info("Returning empty promoters list")
             return []
 
-
     @staticmethod
     def to_remove_get_tss_fantom5_bed1(genes, tissues, genome, combine_mode, upstream, downstream, *args):
 
@@ -109,7 +108,6 @@ class BedsProcessor:
             BedsProcessor.logger().info("Returning empty TSS list") 
             return []
 
-
     @staticmethod
     def get_fantom_enhancers_bed(*args):
         return BedsProcessor._generic_get_enhancers_bed(RegulatoryRegionsFilesRegistry.FANTOM5_ENHANCERS_KEY,*args)
@@ -120,7 +118,7 @@ class BedsProcessor:
 
     @staticmethod
     def get_screen_enhancers_bed(*args):
-        return BedsProcessor._generic_get_enhancers_bed(RegulatoryRegionsFilesRegistry.ENCODE_ENHANCERS_KEY,*args)
+        return BedsProcessor._generic_get_enhancers_bed(RegulatoryRegionsFilesRegistry.SCREEN_ENHANCERS_KEY,*args)
 
     @staticmethod
     def _generic_get_enhancers_bed(enh_source, genes, tissues, genome, combine_mode, upstream, downstream, *args):
@@ -186,13 +184,12 @@ class BedsProcessor:
             BedsProcessor.logger().info("Returning empty enhancers list") 
             return []
 
-
     @staticmethod
     def get_encode_chromatin_bed(*args):
-        BedsProcessor._generic_get_chromatin_bed(RegulatoryRegionsFilesRegistry.ENCODE_CHROMATIN_KEY, *args)
+        return BedsProcessor._generic_get_chromatin_bed(RegulatoryRegionsFilesRegistry.ENCODE_CHROMATIN_KEY, *args)
     @staticmethod
     def get_screen_chromatin_bed(*args):
-        BedsProcessor._generic_get_chromatin_bed(RegulatoryRegionsFilesRegistry.SCREEN_CHROMATIN_KEY, *args)
+        return BedsProcessor._generic_get_chromatin_bed(RegulatoryRegionsFilesRegistry.SCREEN_CHROMATIN_KEY, *args)
 
     @staticmethod
     def _generic_get_chromatin_bed(source, genes, tissues, genome, combine_mode, upstream, downstream, *args):
@@ -266,10 +263,12 @@ class BedsProcessor:
     # private methods below
     #
 
+    @staticmethod
     def _get_mirnas_targetting_genes(genes, registry, **args):
         mirs = registry.get_mirnas_targetting_genes(genes, **args)
         return registry.get_mirna_gene_symbols(mirs)
 
+    @staticmethod
     def _get_accessible_mirnas(mirna_symbols, tissues, genome, combine_mode):
         mirna_bed = BedsProcessor.get_genes_bed(mirna_symbols, genome)
         
@@ -287,17 +286,20 @@ class BedsProcessor:
             return accessible_mirna
             
         return None
-        
+
+    @staticmethod
     def _get_gene_promoter_sites(genes, genome, upstream, downstream):
         genes_bed = BedsProcessor.get_genes_bed(genes, genome)[0]
         promoters = BedOperations.get_promoter_region(genes_bed, upstream, downstream)
         return promoters.result
 
+    @staticmethod
     def _get_regulatory_regions_bed(genome, tissues, reg_feature_type, region=None):
         registry = RegulatoryRegionsFilesRegistry.get_registry(genome)
         results = [registry.get_bed_fragment(tissue, reg_feature_type, region) for tissue in tissues]
         return [i for i in results if i]
 
+    @staticmethod
     def _combine_beds(beds, combine_mode, merge=False):
         if combine_mode == "all":
             return BedOperations.intersect(beds, merge=merge).result
@@ -316,10 +318,18 @@ class BedsCollector:
 
     tss_fantom5_params = [
         "genes", "tissues", "genome",
-        "transcription-fantom5-combine-mode",
-        "transcription-fantom5-kbs-upstream",
-        "transcription-fantom5-kbs-downstream",
-        "transcription-fantom5-used"
+        "promoters-fantom5-combine-mode",
+        "promoters-fantom5-kbs-upstream",
+        "promoters-fantom5-kbs-downstream",
+        "promoters-fantom5-used"
+    ]
+
+    promoters_screen_params = [
+        "genes", "tissues", "genome",
+        "promoters-screen-combine-mode",
+        "promoters-screen-kbs-upstream",
+        "promoters-screen-kbs-downstream",
+        "promoters-screen-used"
     ]
 
     enhancers_fantom5_params = [
@@ -338,6 +348,13 @@ class BedsCollector:
         "enhancers-encode-used"
     ]
 
+    enhancers_screen_params = [
+        "genes", "tissues", "genome",
+        "enhancers-screen-combine-mode",
+        "enhancers-screen-kbs-upstream",
+        "enhancers-screen-kbs-downstream",
+        "enhancers-screen-used"
+    ]
     accessible_chromatin_encode_params = [
         "genes", "tissues", "genome",
         "accessible-chromatin-encode-combine-mode",
@@ -345,7 +362,15 @@ class BedsCollector:
         "accessible-chromatin-encode-kbs-downstream",
         "accessible-chromatin-encode-used"
     ]
-    
+
+    accessible_chromatin_screen_params = [
+        "genes", "tissues", "genome",
+        "accessible-chromatin-screen-combine-mode",
+        "accessible-chromatin-screen-kbs-upstream",
+        "accessible-chromatin-screen-kbs-downstream",
+        "accessible-chromatin-screen-used"
+    ]
+
     mirna_target_mirtarbase_params = [
         "genes", "tissues", "genome",
         "mirna-targets-combine-mode", 
@@ -377,11 +402,19 @@ class BedsCollector:
             bed_files["genes"] = [BedTool([])]
 
         bed_files.update([
-            ("transcription-fantom5",
+            ("promoters-fantom5",
              self._get_bed_files(
                  self.tss_fantom5_params,
                  BedsProcessor.get_fantom_promoters_bed)
              ),
+            ("promoters-screen",
+             self._get_bed_files(
+                 self.promoters_screen_params,
+                 BedsProcessor.get_screen_promoters_bed)
+             )
+        ])
+
+        bed_files.update([
             ("enhancers-fantom5",
              self._get_bed_files(
                  self.enhancers_fantom5_params,
@@ -392,11 +425,27 @@ class BedsCollector:
                  self.enhancers_encode_params,
                  BedsProcessor.get_encode_enhancers_bed)
              ),
-            ("accessible-chromatin-fantom5",
+            ("enhancers-screen",
+             self._get_bed_files(
+                 self.enhancers_screen_params,
+                 BedsProcessor.get_screen_enhancers_bed)
+             )
+        ])
+
+        bed_files.update([
+            ("accessible-chromatin-encode",
              self._get_bed_files(
                  self.accessible_chromatin_encode_params,
                  BedsProcessor.get_encode_chromatin_bed)
              ),
+            ("accessible-chromatin-screen",
+             self._get_bed_files(
+                 self.accessible_chromatin_screen_params,
+                 BedsProcessor.get_screen_chromatin_bed)
+             )
+        ])
+
+        bed_files.update([
             ("mirna-targets-mirtarbase",
              self._get_bed_files(
                  self.mirna_target_mirtarbase_params,
@@ -414,6 +463,9 @@ class BedsCollector:
     def _get_bed_files(self, params, getter_method, required_params=None):
         
         params_values = [self._data.get(p) for p in params]
+
+        print("###########\n"+str(params_values))
+
         required_params_values = [self._data.get(p) for p in required_params] if required_params else params_values
         if all(required_params_values):
             self._logger.info("All required values provided: {}. Running {}".format(params_values, getter_method.__name__))

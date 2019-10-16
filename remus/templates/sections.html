@@ -24,7 +24,7 @@
     </a>
     <div id="collapse-genes" class="form-group collapse show">
         <div class="row">
-            <div class="card-body align-self-center col-md-6">
+            <div class="card-body align-self-center col-md-8">
                 <div class="form-group">
                     <h5><label for="select-genes">Select genes:</label></h5>
                     <div>
@@ -42,7 +42,7 @@
                     </a>
                 </div>
             </div>
-            <div id="select-genes-controls" class="text-center align-self-center col-md-6">
+            <div id="select-genes-controls" class="text-center align-self-center col-md-4">
                 <label for="genes-select-include-gene-body-checkbox">
                     <input id="genes-select-include-gene-body-checkbox"
                            name="genes-select-include-gene-transcripts"
@@ -61,7 +61,7 @@
     </a>
     <div id="collapse-tissues" class="form-group collapse show">
         <div class="row">
-            <div class="card-body align-self-center col-md-6">
+            <div class="card-body align-self-center col-md-8">
                 <h5><label for="select-tissues">Select organs/tissues/cell types:<br/>
                 </label></h5>
                 <div>
@@ -74,13 +74,14 @@
                    data-toggle="popover"
                    data-placement="right"
                    data-html="true"
-                   data-content="Because data is still not fully complete, symbols in parentheses are telling which sections are affected by chosen tissue/organ/cell type: <br /><br />
+                   data-content="Symbols in parentheses indicate which datasets are available for a tissue/organ/cell type: <br /><br />
                                     Legend:<br />
-
-                                    TSS - Transcription start sites <br />
-                                    ENH_F5 - Enhancers -> FANTOM5 <br />
-                                    ENH_EN - Enhancers -> ENCODE <br />
-                                    CHRM - Accessible chromatin">
+                                    PR_* - Promoters <br/>
+                                    ENH_* - Enhancers <br/>
+                                    CHR_* - Accessible chromatin <br/>
+                                    *_F - FANTOM5 <br/>
+                                    *_E - ENCODE <br/>
+                                    *_S - SCREEN">
                     [Meaning of symbols in parentheses]
                 </a><br />
                 <a class="ask-btn small text-success"
@@ -98,18 +99,18 @@
     </div>
 {% endblock %}
 
-{% block transcription_start_sites %}
+{% block promoters %}
     <a class="collapsed card-header bg-info card-link text-white" data-toggle="collapse"
-       href="#collapse-transcription-start-sites">
-        Transcription start sites
+       href="#collapse-promoters">
+        Promoters
     </a>
-    <div id="collapse-transcription-start-sites" class="collapse show">
+    <div id="collapse-promoters" class="collapse show">
         <div class="row">
             <div class="card-body col-md-6">
                 <div class="form-group">
-                    <label for="transcription-start-sites-fantom5-checkbox">
-                        <input id="transcription-start-sites-fantom5-checkbox"
-                               name="transcription-fantom5-used"
+                    <label for="promoters-fantom5-checkbox">
+                        <input id="promoters-fantom5-checkbox"
+                               name="promoters-fantom5-used"
                                type="checkbox" value="yes">
                         FANTOM5
                     </label>
@@ -122,31 +123,83 @@
                     {#                       data-content="There will be help here">#}
                     {#                        [?]#}
                     {#                    </a>#}
-                    <div id="transcription-start-sites-fantom5-controls"
+                    <div id="promoters-fantom5-controls"
                          class="collapse hiden-controls">
                         <div class="col-md-12">
                             <div class="form-check">
                                 <input class="form-check-input"
-                                       name="transcription-fantom5-combine-mode" type="radio"
-                                       id="transcription-fantom5-all" value="all" disabled>
-                                <label class="form-check-label" for="transcription-fantom5-all">
+                                       name="promoters-fantom5-combine-mode" type="radio"
+                                       id="promoters-fantom5-all" value="all" disabled>
+                                <label class="form-check-label" for="promoters-fantom5-all">
                                     Active in all selected tissues</label>
                             </div>
 
                             <div class="form-check">
                                 <input class="form-check-input"
-                                       name="transcription-fantom5-combine-mode" type="radio"
-                                       id="transcription-fantom5-any" value="any" checked disabled>
-                                <label class="form-check-label" for="transcription-fantom5-any">
+                                       name="promoters-fantom5-combine-mode" type="radio"
+                                       id="promoters-fantom5-any" value="any" checked disabled>
+                                <label class="form-check-label" for="promoters-fantom5-any">
                                     Active in any of selected tissues</label>
                             </div>
-                            <label for="transcription-fantom5-kbs" class="col-form-label">
+                            <label for="promoters-fantom5-kbs-upstream" class="col-form-label">
                                 bps upstream
-                                <input name="transcription-fantom5-kbs-upstream" class="form-control" type="number"
-                                       min="0" value="3000" id="transcription-fantom5-kbs-upstream" disabled>
+                                <input name="promoters-fantom5-kbs-upstream" class="form-control" type="number"
+                                       min="0" value="3000" id="promoters-fantom5-kbs-upstream" disabled>
+                            </label>
+                            <label for="promoters-fantom5-kbs-downstream" class="col-form-label">
                                 bps downstream
-                                <input name="transcription-fantom5-kbs-downstream" class="form-control" type="number"
-                                       min="0" value="100" id="transcription-fantom5-kbs-downstream" disabled>
+                                <input name="promoters-fantom5-kbs-downstream" class="form-control" type="number"
+                                       min="0" value="100" id="promoters-fantom5-kbs-downstream" disabled>
+
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body col-md-6">
+                <div class="form-group">
+                    <label for="promoters-screen-checkbox">
+                        <input id="promoters-screen-checkbox"
+                               name="promoters-screen-used"
+                               type="checkbox" value="yes">
+                        SCREEN
+                    </label>
+                    {#                    <a class="ask-btn"#}
+                    {#                       tabindex="0"#}
+                    {#                       role="button"#}
+                    {#                       data-trigger="focus"#}
+                    {#                       data-toggle="popover"#}
+                    {#                       data-placement="right"#}
+                    {#                       data-content="There will be help here">#}
+                    {#                        [?]#}
+                    {#                    </a>#}
+                    <div id="promoters-screen-controls"
+                         class="collapse hiden-controls">
+                        <div class="col-md-12">
+                            <div class="form-check">
+                                <input class="form-check-input"
+                                       name="promoters-screen-combine-mode" type="radio"
+                                       id="promoters-screen-all" value="all" disabled>
+                                <label class="form-check-label" for="promoters-screen-all">
+                                    Active in all selected tissues</label>
+                            </div>
+
+                            <div class="form-check">
+                                <input class="form-check-input"
+                                       name="promoters-screen-combine-mode" type="radio"
+                                       id="promoters-screen-any" value="any" checked disabled>
+                                <label class="form-check-label" for="promoters-screen-any">
+                                    Active in any of selected tissues</label>
+                            </div>
+                            <label for="promoters-screen-kbs-upstream" class="col-form-label">
+                                bps upstream
+                                <input name="promoters-screen-kbs-upstream" class="form-control" type="number"
+                                       min="0" value="3000" id="promoters-screen-kbs-upstream" disabled>
+                            </label>
+                            <label for="promoters-screen-kbs-downstream" class="col-form-label">
+                                bps downstream
+                                <input name="promoters-screen-kbs-downstream" class="form-control" type="number"
+                                       min="0" value="100" id="promoters-screen-kbs-downstream" disabled>
 
                             </label>
                         </div>
@@ -164,7 +217,7 @@
     </a>
     <div id="collapse-enhancers" class="collapse show">
         <div class="row">
-            <div class="card-body col-md-6">
+            <div class="card-body col-md-4">
                 <div class="form-group">
                     <label for="enhancers-fantom5-checkbox">
                         <input id="enhancers-fantom5-checkbox"
@@ -190,20 +243,21 @@
                                 <label class="form-check-label" for="enhancers-fantom5-any">
                                     Active in any of selected tissues</label>
                             </div>
-                            <label for="enhancers-fantom5-kbs" class="col-form-label">
+                            <label for="enhancers-fantom5-kbs-upstream" class="col-form-label">
                                 Kb upstream
                                 <input name="enhancers-fantom5-kbs-upstream" class="form-control" type="number"
                                        min="0" value="500" id="enhancers-fantom5-kbs-upstream" disabled>
+                            </label>
+                            <label for="enhancers-fantom5-kbs-downstream" class="col-form-label">
                                 Kb downstream
                                 <input name="enhancers-fantom5-kbs-downstream" class="form-control" type="number"
                                        min="0" value="500" id="enhancers-fantom5-kbs-downstream" disabled>
-
                             </label>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="card-body col-md-6">
+            <div class="card-body col-md-4">
                 <div class="form-group">
                     <label for="enhancers-encode-checkbox">
                         <input id="enhancers-encode-checkbox"
@@ -229,13 +283,56 @@
                                 <label class="form-check-label" for="enhancers-encode-any">
                                     Active in any of selected tissues</label>
                             </div>
-                            <label for="enhancers-encode-kbs" class="col-form-label">
+                            <label for="enhancers-encode-kbs-upstream" class="col-form-label">
                                 Kb upstream
                                 <input name="enhancers-encode-kbs-upstream" class="form-control" type="number"
                                        min="0" value="500" id="enhancers-encode-kbs-upstream" disabled>
+                            </label>
+                            <label for="enhancers-encode-kbs-downstream" class="col-form-label">
                                 Kb downstream
                                 <input name="enhancers-encode-kbs-downstream" class="form-control" type="number"
                                        min="0" value="500" id="enhancers-encode-kbs-downstream" disabled>
+
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body col-md-4">
+                <div class="form-group">
+                    <label for="enhancers-screen-checkbox">
+                        <input id="enhancers-screen-checkbox"
+                               name="enhancers-screen-used"
+                               type="checkbox" value="yes">
+                        SCREEN
+                    </label>
+                    <div id="enhancers-screen-controls"
+                         class="collapse hiden-controls">
+                        <div class="col-md-12">
+                            <div class="form-check">
+                                <input class="form-check-input"
+                                       name="enhancers-screen-combine-mode" type="radio"
+                                       id="enhancers-screen-all" value="all" disabled>
+                                <label class="form-check-label" for="enhancers-screen-all">
+                                    Active in all selected tissues</label>
+                            </div>
+
+                            <div class="form-check">
+                                <input class="form-check-input"
+                                       name="enhancers-screen-combine-mode" type="radio"
+                                       id="enhancers-screen-any" value="any" checked disabled>
+                                <label class="form-check-label" for="enhancers-screen-any">
+                                    Active in any of selected tissues</label>
+                            </div>
+                            <label for="enhancers-screen-kbs-upstream" class="col-form-label">
+                                Kb upstream
+                                <input name="enhancers-screen-kbs-upstream" class="form-control" type="number"
+                                       min="0" value="500" id="enhancers-screen-kbs-upstream" disabled>
+                            </label>
+                            <label for="enhancers-screen-kbs-downstream" class="col-form-label">
+                                Kb downstream
+                                <input name="enhancers-screen-kbs-downstream" class="form-control" type="number"
+                                       min="0" value="500" id="enhancers-screen-kbs-downstream" disabled>
 
                             </label>
                         </div>
@@ -279,16 +376,60 @@
                                 <label class="form-check-label" for="accessible-chromatin-encode-any">
                                     Accessible in any of selected tissues</label>
                             </div>
-                            <label for="accessible-chromatin-encode-kbs" class="col-form-label">
+                            <label for="accessible-chromatin-encode-kbs-upstream" class="col-form-label">
                                 Kb upstream
                                 <input name="accessible-chromatin-encode-kbs-upstream" class="form-control"
                                        type="number" min="0"
                                        value="500" id="accessible-chromatin-encode-kbs-upstream" disabled>
+                            </label>
+                            <label for="accessible-chromatin-encode-kbs-downstream" class="col-form-label">
                                 Kb downstream
                                 <input name="accessible-chromatin-encode-kbs-downstream" class="form-control"
                                        type="number" min="0"
                                        value="500" id="accessible-chromatin-encode-kbs-downstream" disabled>
 
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body col-md-6">
+                <div class="form-group">
+                    <label for="accessible-chromatin-screen-checkbox">
+                        <input id="accessible-chromatin-screen-checkbox"
+                               name="accessible-chromatin-screen-used"
+                               type="checkbox" value="yes">
+                        SCREEN
+                    </label>
+                    <div id="accessible-chromatin-screen-controls"
+                         class="collapse hiden-controls">
+                        <div class="col-md-12">
+                            <div class="form-check">
+                                <input class="form-check-input"
+                                       name="accessible-chromatin-screen-combine-mode" type="radio"
+                                       id="accessible-chromatin-screen-all" value="all" disabled>
+                                <label class="form-check-label" for="accessible-chromatin-screen-all">
+                                    Accessible in all selected tissues</label>
+                            </div>
+
+                            <div class="form-check">
+                                <input class="form-check-input"
+                                       name="accessible-chromatin-screen-combine-mode" type="radio"
+                                       id="accessible-chromatin-screen-any" value="any" checked disabled>
+                                <label class="form-check-label" for="accessible-chromatin-screen-any">
+                                    Accessible in any of selected tissues</label>
+                            </div>
+                            <label for="accessible-chromatin-screen-kbs-upstream" class="col-form-label">
+                                Kb upstream
+                                <input name="accessible-chromatin-screen-kbs-upstream" class="form-control"
+                                       type="number" min="0"
+                                       value="500" id="accessible-chromatin-screen-kbs-upstream" disabled>
+                            </label>
+                            <label for="accessible-chromatin-screen-kbs-downstream" class="col-form-label">
+                                Kb downstream
+                                <input name="accessible-chromatin-screen-kbs-downstream" class="form-control"
+                                       type="number" min="0"
+                                       value="500" id="accessible-chromatin-screen-kbs-downstream" disabled>
                             </label>
                         </div>
                     </div>

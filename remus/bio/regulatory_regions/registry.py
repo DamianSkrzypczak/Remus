@@ -23,15 +23,15 @@ class RegulatoryRegionsFilesRegistry:
     
     instances = None      # dictionary of singleton objects
     
-    FANTOM5_PROMOTERS_KEY = "TSS_F5"
-    FANTOM5_ENHANCERS_KEY = "ENH_F5"
+    FANTOM5_PROMOTERS_KEY = "PR_F"
+    FANTOM5_ENHANCERS_KEY = "ENH_F"
 
-    SCREEN_PROMOTERS_KEY = "SCR_P"
-    SCREEN_ENHANCERS_KEY = "SCR_E"
-    SCREEN_CHROMATIN_KEY = "SCR_C"
+    SCREEN_PROMOTERS_KEY = "PR_S"
+    SCREEN_ENHANCERS_KEY = "ENH_S"
+    SCREEN_CHROMATIN_KEY = "CHR_S"
 
-    ENCODE_ENHANCERS_KEY = "ENH_ENC"
-    ENCODE_CHROMATIN_KEY = "CHRM"
+    ENCODE_ENHANCERS_KEY = "ENH_E"
+    ENCODE_CHROMATIN_KEY = "CHR_E"
 
     DATA_DIRECTORIES_MAP = {
         "enhancers/encode": ENCODE_ENHANCERS_KEY,
@@ -39,8 +39,8 @@ class RegulatoryRegionsFilesRegistry:
         "enhancers/screen": SCREEN_ENHANCERS_KEY,
         "chromatin/encode": ENCODE_CHROMATIN_KEY,
         "chromatin/screen": SCREEN_CHROMATIN_KEY,
-        "tss/fantom5": FANTOM5_PROMOTERS_KEY,
-        "tss/screen": SCREEN_PROMOTERS_KEY
+        "promoters/fantom5": FANTOM5_PROMOTERS_KEY,
+        "promoters/screen": SCREEN_PROMOTERS_KEY
     }
     
     @staticmethod
@@ -162,7 +162,6 @@ class RegulatoryRegionsFilesRegistry:
             self.logger.info('No tissue [%s] in source [%s]' % (tissue, source_symbol))
 
         return None
-       
 
     def get_matching_tissues(self, pattern, limit):
         pattern = pattern if pattern else " "

@@ -44,7 +44,7 @@
                     </div>
                     <br>
                     <div class="card">
-                        {% block transcription_start_sites %}{% endblock %}
+                        {% block promoters %}{% endblock %}
                     </div>
                     <br>
                     <div class="card">
@@ -71,15 +71,26 @@
             $('#select-tissues').empty();
         });
 
-        $("#transcription-start-sites-fantom5-checkbox").bind('click dblclick', function (evt) {
+        $("#promoters-fantom5-checkbox").bind('click dblclick', function (evt) {
             if ($(this).is(":checked")) {
-                $('#transcription-start-sites-fantom5-controls').slideDown();
-                $('#transcription-start-sites-fantom5-controls input').prop('disabled', false);
+                $('#promoters-fantom5-controls').slideDown();
+                $('#promoters-fantom5-controls input').prop('disabled', false);
             } else {
-                $('#transcription-start-sites-fantom5-controls').slideUp();
-                $('#transcription-start-sites-fantom5-controls input').prop('disabled', true);
+                $('#promoters-fantom5-controls').slideUp();
+                $('#promoters-fantom5-controls input').prop('disabled', true);
             }
         });
+
+        $("#promoters-screen-checkbox").bind('click dblclick', function (evt) {
+            if ($(this).is(":checked")) {
+                $('#promoters-screen-controls').slideDown();
+                $('#promoters-screen-controls input').prop('disabled', false);
+            } else {
+                $('#promoters-screen-controls').slideUp();
+                $('#promoters-screen-controls input').prop('disabled', true);
+            }
+        });
+
 
         $("#enhancers-fantom5-checkbox").bind('click dblclick', function (evt) {
             if ($(this).is(":checked")) {
@@ -100,7 +111,17 @@
                 $('#enhancers-encode-controls input').prop('disabled', true);
             }
         });
-        
+
+        $("#enhancers-screen-checkbox").bind('click dblclick', function (evt) {
+            if ($(this).is(":checked")) {
+                $('#enhancers-screen-controls').slideDown();
+                $('#enhancers-screen-controls input').prop('disabled', false);
+            } else {
+                $('#enhancers-screen-controls').slideUp();
+                $('#enhancers-screen-controls input').prop('disabled', true);
+            }
+        });
+
         $("#accessible-chromatin-encode-checkbox").bind('click dblclick', function (evt) {
             if ($(this).is(":checked")) {
                 $('#accessible-chromatin-encode-controls').slideDown();
@@ -110,7 +131,17 @@
                 $('#accessible-chromatin-encode-controls input').prop('disabled', true);
             }
         });
-        
+
+        $("#accessible-chromatin-screen-checkbox").bind('click dblclick', function (evt) {
+            if ($(this).is(":checked")) {
+                $('#accessible-chromatin-screen-controls').slideDown();
+                $('#accessible-chromatin-screen-controls input').prop('disabled', false);
+            } else {
+                $('#accessible-chromatin-screen-controls').slideUp();
+                $('#accessible-chromatin-screen-controls input').prop('disabled', true);
+            }
+        });
+
         $("#mirna-mirtarbase-checkbox").bind('click dblclick', function (evt) {
             if ($(this).is(":checked")) {
                 $('#mirna-mirtarbase-controls').slideDown();
