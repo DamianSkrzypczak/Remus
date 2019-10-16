@@ -23,16 +23,24 @@ class RegulatoryRegionsFilesRegistry:
     
     instances = None      # dictionary of singleton objects
     
-    FANTOM5_TSS_KEY = "TSS_F5"
+    FANTOM5_PROMOTERS_KEY = "TSS_F5"
     FANTOM5_ENHANCERS_KEY = "ENH_F5"
+
+    SCREEN_PROMOTERS_KEY = "SCR_P"
+    SCREEN_ENHANCERS_KEY = "SCR_E"
+    SCREEN_CHROMATIN_KEY = "SCR_C"
+
     ENCODE_ENHANCERS_KEY = "ENH_ENC"
     ENCODE_CHROMATIN_KEY = "CHRM"
-    
+
     DATA_DIRECTORIES_MAP = {
         "enhancers/encode": ENCODE_ENHANCERS_KEY,
         "enhancers/fantom5": FANTOM5_ENHANCERS_KEY,
+        "enhancers/screen": SCREEN_ENHANCERS_KEY,
         "chromatin/encode": ENCODE_CHROMATIN_KEY,
-        "tss/fantom5": FANTOM5_TSS_KEY
+        "chromatin/screen": SCREEN_CHROMATIN_KEY,
+        "tss/fantom5": FANTOM5_PROMOTERS_KEY,
+        "tss/screen": SCREEN_PROMOTERS_KEY
     }
     
     @staticmethod

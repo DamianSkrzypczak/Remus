@@ -43,17 +43,52 @@ class BedsProcessor:
         
         return [ result ]
 
+    @staticmethod
+    def get_fantom_promoters_bed(*args):
+        return BedsProcessor._generic_get_promoters_bed(RegulatoryRegionsFilesRegistry.FANTOM5_PROMOTERS_KEY, *args)
 
     @staticmethod
-    def get_tss_fantom5_bed(genes, tissues, genome, combine_mode, upstream, downstream, *args):
+    def get_screen_promoters_bed(*args):
+        return BedsProcessor._generic_get_promoters_bed(RegulatoryRegionsFilesRegistry.SCREEN_PROMOTERS_KEY, *args)
+
+    @staticmethod
+    def _generic_get_promoters_bed(source, genes, tissues, genome, combine_mode, upstream, downstream, *args):
+
+        BedsProcessor.logger().info(f"Extracting {source} for genes ({genome}): {genes}; tissues: {tissues}; and combine_mode: {combine_mode}")
+
+        flanked_genes = BedsProcessor._get_gene_promoter_sites(genes, genome, upstream, downstream)
+
+        beds = BedsProcessor._get_regulatory_regions_bed(genome, tissues, source, flanked_genes.sort().merge())
+
+        BedsProcessor.log_count("Flanked genes' promoters BED", flanked_genes)
+        BedsProcessor.log_bed(flanked_genes)
+        BedsProcessor.logger().info(f"{source} BEDs list:\n{beds}")
+
+        if beds and flanked_genes:
+            joined_promoters = BedsProcessor._combine_beds(beds, combine_mode)
+            BedsProcessor.log_count(f"Combined {source} BED", joined_promoters)
+            BedsProcessor.log_bed(joined_promoters)
+
+            result = BedOperations.intersect([joined_promoters, flanked_genes], **{"u": True}).result
+            BedsProcessor.log_count(f"{source} BED intersected with genes' promoters", result)
+            BedsProcessor.log_bed(result)
+
+            return [result]
+        else:
+            BedsProcessor.logger().info("Returning empty promoters list")
+            return []
+
+
+    @staticmethod
+    def to_remove_get_tss_fantom5_bed1(genes, tissues, genome, combine_mode, upstream, downstream, *args):
 
         BedsProcessor.logger().info("Extracting F5 TSS for genes (%s): %s; tissues: %s; and combine_mode: %s" % (genome, genes, tissues, combine_mode))
                 
         flanked_genes = BedsProcessor._get_gene_promoter_sites(genes, genome, upstream, downstream)
         
-        beds = BedsProcessor._get_regulatory_regions_bed(genome, 
-                                                         tissues, 
-                                                         RegulatoryRegionsFilesRegistry.FANTOM5_TSS_KEY,
+        beds = BedsProcessor._get_regulatory_regions_bed(genome,
+                                                         tissues,
+                                                         RegulatoryRegionsFilesRegistry.FANTOM5_PROMOTERS_KEY,
                                                          flanked_genes.sort().merge())
         
         BedsProcessor.log_count("Flanked genes' promoters BED", flanked_genes)
@@ -76,9 +111,21 @@ class BedsProcessor:
 
 
     @staticmethod
-    def get_enhancers_fantom5_bed(genes, tissues, genome, combine_mode, upstream, downstream, *args):
+    def get_fantom_enhancers_bed(*args):
+        return BedsProcessor._generic_get_enhancers_bed(RegulatoryRegionsFilesRegistry.FANTOM5_ENHANCERS_KEY,*args)
+
+    @staticmethod
+    def get_encode_enhancers_bed(*args):
+        return BedsProcessor._generic_get_enhancers_bed(RegulatoryRegionsFilesRegistry.ENCODE_ENHANCERS_KEY,*args)
+
+    @staticmethod
+    def get_screen_enhancers_bed(*args):
+        return BedsProcessor._generic_get_enhancers_bed(RegulatoryRegionsFilesRegistry.ENCODE_ENHANCERS_KEY,*args)
+
+    @staticmethod
+    def _generic_get_enhancers_bed(enh_source, genes, tissues, genome, combine_mode, upstream, downstream, *args):
         
-        BedsProcessor.logger().info("Extracting F5 enhancers for genes (%s): %s; tissues: %s; and combine_mode: %s" % (genome, genes, tissues, combine_mode))
+        BedsProcessor.logger().info(f"Extracting {enh_source} enhancers for genes ({genome}): {genes}; tissues: {tissues} and combine_mode: {combine_mode}")
 
         flanked_genes = BedsProcessor._get_gene_promoter_sites(genes, genome,
                                                             int(float(upstream) * 1000),
@@ -86,20 +133,20 @@ class BedsProcessor:
         
         beds = BedsProcessor._get_regulatory_regions_bed(genome, 
                                                         tissues, 
-                                                        RegulatoryRegionsFilesRegistry.FANTOM5_ENHANCERS_KEY,
+                                                        enh_source,
                                                         flanked_genes.sort().merge())
         
         BedsProcessor.log_count("Flanked genes' promoters BED", flanked_genes)
         BedsProcessor.log_bed(flanked_genes)
-        BedsProcessor.logger().info("F5 enhancer BEDs list:\n%s" % str(beds))        
+        BedsProcessor.logger().info(f"{enh_source} BEDs list:\n{beds}")
         
         if beds and flanked_genes:
-            joined_f5_enh = BedsProcessor._combine_beds(beds, combine_mode)
-            BedsProcessor.log_count("Combined F5 enhancers BED", joined_f5_enh)
-            BedsProcessor.log_bed(joined_f5_enh)
+            joined_enh = BedsProcessor._combine_beds(beds, combine_mode)
+            BedsProcessor.log_count(f"Combined {enh_source} BED", joined_enh)
+            BedsProcessor.log_bed(joined_enh)
 
-            result = BedOperations.intersect([joined_f5_enh, flanked_genes], **{"u": True}).result
-            BedsProcessor.log_count("F5 enhancers BED intersected with genes' promoters", result)
+            result = BedOperations.intersect([joined_enh, flanked_genes], **{"u": True}).result
+            BedsProcessor.log_count(f"{enh_source} BED intersected with genes' promoters", result)
             BedsProcessor.log_bed(result)
 
             return [ result ]
@@ -108,7 +155,7 @@ class BedsProcessor:
             return []
 
     @staticmethod
-    def get_enhancers_encode_bed(genes, tissues, genome, combine_mode, upstream, downstream, *args):
+    def to_remove_get_enhancers_encode_bed(genes, tissues, genome, combine_mode, upstream, downstream, *args):
         
         BedsProcessor.logger().info("Extracting ENCODE enhancers for genes (%s): %s; tissues: %s; and combine_mode: %s" % (genome, genes, tissues, combine_mode))
 
@@ -139,23 +186,28 @@ class BedsProcessor:
             BedsProcessor.logger().info("Returning empty enhancers list") 
             return []
 
+
     @staticmethod
-    def get_accessible_chromatin_bed(genes, tissues, genome, combine_mode, upstream, downstream, *args):
+    def get_encode_chromatin_bed(*args):
+        BedsProcessor._generic_get_chromatin_bed(RegulatoryRegionsFilesRegistry.ENCODE_CHROMATIN_KEY, *args)
+    @staticmethod
+    def get_screen_chromatin_bed(*args):
+        BedsProcessor._generic_get_chromatin_bed(RegulatoryRegionsFilesRegistry.SCREEN_CHROMATIN_KEY, *args)
+
+    @staticmethod
+    def _generic_get_chromatin_bed(source, genes, tissues, genome, combine_mode, upstream, downstream, *args):
         
-        BedsProcessor.logger().info("Extracting accessible chromatin for genes (%s): %s; tissues: %s; and combine_mode: %s" % (genome, genes, tissues, combine_mode))
+        BedsProcessor.logger().info(f"Extracting {source} for genes ({genome}): {genes}; tissues: {tissues}; and combine_mode: {combine_mode}")
 
         flanked_genes = BedsProcessor._get_gene_promoter_sites(genes, genome,
                                                             int(float(upstream) * 1000),
                                                             int(float(downstream) * 1000))
                                                             
-        beds = BedsProcessor._get_regulatory_regions_bed(genome, 
-                                                        tissues, 
-                                                        RegulatoryRegionsFilesRegistry.ENCODE_CHROMATIN_KEY, 
-                                                        flanked_genes.sort().merge())
+        beds = BedsProcessor._get_regulatory_regions_bed(genome, tissues, source, flanked_genes.sort().merge())
         
         BedsProcessor.log_count("Flanked genes' promoters BED", flanked_genes)
         BedsProcessor.log_bed(flanked_genes)
-        BedsProcessor.logger().info("Accessible chromatin BEDs list:\n%s" % str(beds))        
+        BedsProcessor.logger().info(f"{source} BEDs list:\n{beds}")
         
         if beds and flanked_genes:
             combined_chromatin = BedsProcessor._combine_beds(beds, combine_mode)
@@ -328,22 +380,22 @@ class BedsCollector:
             ("transcription-fantom5",
              self._get_bed_files(
                  self.tss_fantom5_params,
-                 BedsProcessor.get_tss_fantom5_bed)
+                 BedsProcessor.get_fantom_promoters_bed)
              ),
             ("enhancers-fantom5",
              self._get_bed_files(
                  self.enhancers_fantom5_params,
-                 BedsProcessor.get_enhancers_fantom5_bed)
+                 BedsProcessor.get_fantom_enhancers_bed)
              ),
             ("enhancers-encode",
              self._get_bed_files(
                  self.enhancers_encode_params,
-                 BedsProcessor.get_enhancers_encode_bed)
+                 BedsProcessor.get_encode_enhancers_bed)
              ),
             ("accessible-chromatin-fantom5",
              self._get_bed_files(
                  self.accessible_chromatin_encode_params,
-                 BedsProcessor.get_accessible_chromatin_bed)
+                 BedsProcessor.get_encode_chromatin_bed)
              ),
             ("mirna-targets-mirtarbase",
              self._get_bed_files(
