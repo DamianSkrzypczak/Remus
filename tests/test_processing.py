@@ -27,21 +27,21 @@ class TestRemusProcessing(unittest.TestCase):
         self.hnf4a = 'HNF4A'
         self.unknown_gene = 'unknown gene symbol'
         
-        self.hnf1b_bed = "chr17\t36046433\t36093736\tuc021tvu.1\t6\t-\n"+\
-                         "chr17\t36046433\t36105096\tuc010wdi.2\t9\t-\n"+\
-                         "chr17\t36046433\t36105096\tuc002hok.4\t9\t-\n"+\
-                         "chr17\t36046433\t36105096\tuc021tvv.1\t8\t-\n"+\
-                         "chr17\t36046433\t36105096\tuc021tvw.1\t7\t-\n"+\
-                         "chr17\t36090480\t36093814\tuc010cve.1\t2\t-\n"
+        self.hnf1b_bed = "chr17\t36046433\t36093736\tHNF1B\t6\t-\n"+\
+                         "chr17\t36046433\t36105096\tHNF1B\t9\t-\n"+\
+                         "chr17\t36046433\t36105096\tHNF1B\t9\t-\n"+\
+                         "chr17\t36046433\t36105096\tHNF1B\t8\t-\n"+\
+                         "chr17\t36046433\t36105096\tHNF1B\t7\t-\n"+\
+                         "chr17\t36090480\t36093814\tHNF1B\t2\t-\n"
                          
-        self.hnf4a_bed = "chr20\t42984440\t43036115\tuc010zwo.1\t4\t+\n"+\
-                         "chr20\t42984440\t43053276\tuc002xlt.3\t8\t+\n"+\
-                         "chr20\t42984440\t43061485\tuc002xlu.4\t10\t+\n"+\
-                         "chr20\t42984440\t43061485\tuc002xlv.4\t10\t+\n"+\
-                         "chr20\t43029895\t43053276\tuc002xly.4\t8\t+\n"+\
-                         "chr20\t43029895\t43061485\tuc010ggq.4\t11\t+\n"+\
-                         "chr20\t43029895\t43061485\tuc002xlz.4\t10\t+\n"+\
-                         "chr20\t43029895\t43061485\tuc002xma.4\t10\t+\n"
+        self.hnf4a_bed = "chr20\t42984440\t43036115\tHNF4A\t4\t+\n"+\
+                         "chr20\t42984440\t43053276\tHNF4A\t8\t+\n"+\
+                         "chr20\t42984440\t43061485\tHNF4A\t10\t+\n"+\
+                         "chr20\t42984440\t43061485\tHNF4A\t10\t+\n"+\
+                         "chr20\t43029895\t43053276\tHNF4A\t8\t+\n"+\
+                         "chr20\t43029895\t43061485\tHNF4A\t11\t+\n"+\
+                         "chr20\t43029895\t43061485\tHNF4A\t10\t+\n"+\
+                         "chr20\t43029895\t43061485\tHNF4A\t10\t+\n"
                          
         gene1coord = 'chr1\t100000\t101000\tgene1.1\t0\t+\n'+\
                      'chr1\t100100\t101000\tgene1.2\t0\t+'

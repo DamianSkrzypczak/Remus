@@ -11,13 +11,16 @@ from pybedtools import BedTool
 
 class BedsProcessor:
 
+    @staticmethod
     def logger():
         return logging.getLogger("BedsProcessor")
-    
+
+    @staticmethod
     def log_count(msg, bed):
         BedsProcessor.logger().info(msg +" had [%s] records." % len(bed))
         #BedsProcessor.logger().debug(msg +" had [%s] records." % len(bed))
-        
+
+    @staticmethod
     def log_bed(bed):
         BedsProcessor.logger().debug(":\n%s" % str(bed))
 
@@ -32,10 +35,10 @@ class BedsProcessor:
         
         BedsProcessor.log_count("Result BED file", gene_beds)
         BedsProcessor.log_bed(gene_beds)
-        
+
         result = BedOperations.union(gene_beds).result
         
-        BedsProcessor.log_count("Union of the BED files",result)
+        BedsProcessor.log_count("Union of the BED files", result)
         BedsProcessor.log_bed(result)
         
         return [ result ]
@@ -94,7 +97,7 @@ class BedsProcessor:
             joined_f5_enh = BedsProcessor._combine_beds(beds, combine_mode)
             BedsProcessor.log_count("Combined F5 enhancers BED", joined_f5_enh)
             BedsProcessor.log_bed(joined_f5_enh)
-            
+
             result = BedOperations.intersect([joined_f5_enh, flanked_genes], **{"u": True}).result
             BedsProcessor.log_count("F5 enhancers BED intersected with genes' promoters", result)
             BedsProcessor.log_bed(result)

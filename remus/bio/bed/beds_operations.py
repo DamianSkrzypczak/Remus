@@ -16,10 +16,20 @@ class BedOperationResult:
         return round(self._time, decimal_precision)
 
 
+from pybedtools.featurefuncs import TSS, extend_fields
 
 class BedOperations:
-    
-    
+
+    @staticmethod
+    def set_interval_name(interval, name):
+        interval = extend_fields(interval, 4)
+        interval.name = name
+        return interval
+
+    @staticmethod
+    def add_name(bed, name):
+        return bed.each(BedOperations.set_interval_name, name=name).saveas()
+
     @staticmethod
     def union(beds, merge=False, **kwargs):
         result, time = BedOperations._union(beds, merge, **kwargs)
@@ -65,7 +75,7 @@ class BedOperations:
         if len(beds) == 0: 
             raise MissingBedsException('Empty BED list for union operation')
         
-        accumulation = beds[0].merge() if merge else beds[0]
+        accumulation = beds[0].merge(**kwargs) if merge and len(beds[0]) > 0 else beds[0]
         for bed in beds[1:]:
             accumulation = accumulation.cat(bed, postmerge=merge, **kwargs)
             
@@ -77,7 +87,6 @@ class BedOperations:
     @time_it
     def _get_promoter_region(bed, upstream, downstream):
         """ gets promoter region for each feature in a BED file """
-        from pybedtools.featurefuncs import TSS
         return bed.each(TSS, upstream=int(upstream), downstream=int(downstream)).saveas()
 
 

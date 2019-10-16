@@ -57,7 +57,7 @@ class GenesDBRegistry:
         query = self.query_genes.format(genome=genome, genes=genes_list)
         genes_df = self._query_db(query)
         coordinates = self._extract_gene_coordinates(genes_df)
-        self.logger.info("Returned %s records" % len(coordinates))
+        self.logger.info("Returned %s records" % (len(coordinates)))
         loader = BedLoader(src="\n".join(coordinates), from_string=True)
         return loader.bed
 
@@ -68,7 +68,7 @@ class GenesDBRegistry:
 
     @staticmethod
     def _extract_gene_coordinates(genes_df):
-        sources_df = genes_df.iloc[:, [1, 2, 3, 10, 7, 4]]
+        sources_df = genes_df.iloc[:, [1, 2, 3, 11, 7, 4]]
         strings_df = sources_df.apply(lambda x: '\t'.join([str(i) for i in x]), axis=1)
         return strings_df.tolist()
 
