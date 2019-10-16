@@ -79,7 +79,7 @@ def perform():
         collected_beds_map = BedsCollector(params).collect_bed_files()
         collected_beds = [bed for beds_list in collected_beds_map.values() for bed in beds_list]
 
-        final_result = BedOperations.union(collected_beds, merge=True, **{"c": 4, "o": "collapse"}).result \
+        final_result = BedOperations.union(collected_beds, merge=True, **{"c": 4, "o": "distinct"}).result \
             if len(collected_beds) > 1 else collected_beds[0]
 
         tmp_file_path = save_as_tmp(final_result)

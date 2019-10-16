@@ -75,7 +75,7 @@ class BedOperations:
         if len(beds) == 0: 
             raise MissingBedsException('Empty BED list for union operation')
         
-        accumulation = beds[0].merge() if merge else beds[0]
+        accumulation = beds[0].merge(**kwargs) if merge and len(beds[0]) > 0 else beds[0]
         for bed in beds[1:]:
             accumulation = accumulation.cat(bed, postmerge=merge, **kwargs)
             
