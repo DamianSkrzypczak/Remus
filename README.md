@@ -55,6 +55,42 @@ Currently the VCF file is read in one piece ([to be changed](https://github.com/
 
 ### Installation of local instance of Remus
 
+#### Building and running a Docker container
+
+1. In the Remus repo, build the docker image:
+
+    `docker build -t remus .`
+    
+2. To prepare data for Remus, either: 
+    
+    (__shorter version__)
+    
+    Download the Remus data files from URL, and extract the archive in a REMUS_DATA_DIR directory of your preference.
+
+    or (__longer version__):
+
+    Create a directory for Remus data and run the container interactively with write access to this directory (REMUS_DATA_DIR):
+      
+    `docker run --rm -v REMUS_DATA_DIR:/var/www/remus/data:rw -ti remus`
+
+    After reading `exterenal_resources/README.md`, download liftOver and chains, run:
+      
+    `external_resources/download.sh`
+
+    Next, launch
+      
+    `./make_data_tree.sh`
+      
+    This will download necessary files and create fill REMUS_DATA_DIR with all Remus data.
+    Now you can exit the container.
+
+3. Start docker container with the app available at `http://localhost:LOCAL_PORT` 
+
+    ```docker run -v REMUS_DATA_DIR:/var/www/remus/data -p LOCAL_PORT:80 remus```
+        
+
+#### Native or development install
+
 ##### Installing dependencies:
 
     pip install -r requirements.txt
@@ -80,42 +116,9 @@ In application root run:
 
     python3 app.py
     
-The website is available at `127.0.0.1:5000`
+The application is available at `127.0.0.1:5000`
 
 
-
-### Setup in Docker container
-
-##### Building and running container
-
-    docker build -t remus .
-    docker run -p LOCAL_PORT_1:80 -p LOCAL_PORT_2:22 --name remus remus
-
-##### Configuring container
-
-    ssh root@localhost -p LOCAL_PORT_2
-    # password=root
-    
-Change the password, or better, disable root password login and use key-based login
-
-##### Data preparation
-    
-    cd /var/www/remus
-    
-After reading `exterenal_resources/README.md`, download liftOver and chains, run:
-
-    bash external_resources/download.sh
-
-    # This step can take long time because of large amount of data needed to be downloaded.    
-    bash make_data_tree.sh
-    
-##### Starting Apache
-    
-    /usr/sbin/apache2ctl -D BACKGROUND
-
-##### Accessing Remus website
-
-If whole process of building and configuring the container succeded, exit the container. Remus website should be accessible under `127.0.0.1:LOCAL_PORT_1`
 
 ### Credits
 
