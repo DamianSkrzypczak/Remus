@@ -22,6 +22,7 @@ RUN apt update \
     tabix \
 	vim \
 	git \
+	wget \
     locales \
  && locale-gen en_US.UTF-8 \
  && wget https://github.com/arq5x/bedtools2/releases/download/v2.27.1/bedtools-2.27.1.tar.gz \
