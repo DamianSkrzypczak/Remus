@@ -37,11 +37,10 @@ RUN apt update \
 ENV LANG en_US.UTF-8
 
 WORKDIR /var/www/remus
-COPY data_sources ./data_sources
-COPY remus ./remus
-COPY tests ./tests
-COPY a* LICENSE make_data_tree.sh README.md requirements* ./
-
+#COPY data_sources ./data_sources
+#COPY remus ./remus
+#COPY tests ./tests
+#COPY a* LICENSE make_data_tree.sh README.md requirements* ./
 
 RUN pip3 install -r requirements.txt
 
@@ -58,5 +57,3 @@ EXPOSE 80
 #RUN cd external_resources && bash download.sh && cd .. \
 # && bash make_data_tree.sh
 
-CMD systemctl reload apache2
-CMD apachectl -D FOREGROUND
