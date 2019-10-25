@@ -124,14 +124,20 @@ def split_beds(raw_bed_dir, skip_splitting=False,
 
     return split_bed_dirs
 
+
 def get_remove_empty_beds(dirs):
     paths = ' '.join([f"{dir}/*/*.bed.gz" for dir in dirs])
     return "\n\necho Removing empty BED files\n" + \
             f"for f in {paths}; do \n" + \
             "  if [ `zcat $f | wc -l` == \"0\" ]; then \n" + \
-            "      rm $f \n" + \
+            "      rm $f ${f}.tbi \n" + \
             "  fi \n" + \
             "done \n"
+
+
+def get_remove_empty_dirs(dirs):
+    echo = "\necho Removing empty dirs\n"
+    return echo + '\n'.join([f"rmdir {dir}/GRCh38 {dir}/hg19_with_liftover" for dir in dirs])
 
 
 def move_beds_to_data(bed_dirs, raw_bed_dir):
@@ -141,7 +147,8 @@ def move_beds_to_data(bed_dirs, raw_bed_dir):
     for i in range(0, len(bed_dirs)):
         path = bed_dirs[i]
         new_path = os.path.join(root, names[i], "screen")
-        script += f"mv {path} {new_path}\n"
+        link_path = os.path.join("..", names[i], "screen")
+        script += f"mv {path} {new_path}; ln -s {link_path} {path}\n"
 
     return script
 
@@ -167,6 +174,7 @@ if __name__ == "__main__":
                                       liftover_to={SUPPORTED_GENOME_BUILDS['hg19']: [SUPPORTED_GENOME_BUILDS['hg38']]})
 
     script += get_remove_empty_beds(collapsed_bed_dirs)
+    script += get_remove_empty_dirs(collapsed_bed_dirs)
     script += move_beds_to_data(collapsed_bed_dirs, output_bed_dir)
     print(script)
 

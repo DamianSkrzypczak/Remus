@@ -148,13 +148,6 @@ echo "Done."
 python3 remus/data_import/split_screen_beds.py ${SCREEN_METADATA_TABLE} ${SCREEN_RAW} ${SCREEN} > ${SCREEN}/collapse_and_liftover.sh
 chmod u+x ${SCREEN}/collapse_and_liftover.sh && ${SCREEN}/collapse_and_liftover.sh
 #
-# TODO index litedover files
-#
-# remove unused dirs
-rmdir ${SCREEN}/*/hg19_with_liftover ${SCREEN}/*/GRCh38
-#
-#rm -r ${SCREEN}/*/GRCh38_with_liftover # it contains exact copies of ${SCREEN}/*/GRCh38_loFrom_hg19
-# TODO ln -s */GRCh38_loFrom_hg19 dirs to */GRCh38_with_liftover
 # delete raw BEDs to save space
 # rm -r ${SCREEN_RAW}
 
