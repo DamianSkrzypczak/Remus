@@ -146,36 +146,30 @@ def get_merge_with_liftover_commands(tissue, group_name, special_life_stages, li
 
         for lo_to_gb in liftover_to[lo_from_gb]:
 
-            if lo_from_gb in tissue_gbs and lo_to_gb not in tissue_gbs:
-                # simply copy the lifted-over file, because there is no data for lo_to_gb
-                script += f"\necho \"Copying lifted over data for \'{group_name}\'\""
-                lo_bed = make_path(collapsed_bed_dirs[get_liftover_name(lo_from_gb, lo_to_gb)], group_name,
-                               '.liftover.bed.gz')
-                bed_with_lo = make_path(collapsed_bed_dirs[lo_to_gb] + "_with_liftover", group_name)
-                script += f"\ncp \"{lo_bed}\" \"{bed_with_lo}\"\n\n"
-
-            elif lo_from_gb in tissue_gbs and lo_to_gb in tissue_gbs:
+            if lo_from_gb in tissue_gbs:
                 # merge the original genome data with liftover data
 
                 script += f"\necho \"Merging original and lifted over data for \'{group_name}\' ({lo_to_gb})\""
 
-                beds_to_merge = [make_path(collapsed_bed_dirs[lo_to_gb], group_name),
-                                 make_path(collapsed_bed_dirs[get_liftover_name(lo_from_gb, lo_to_gb)], group_name,
-                                           '.liftover.bed.gz')]
-                collapsed_with_liftover_bed_path = make_path(collapsed_bed_dirs[lo_to_gb] + "_with_liftover",
+                beds_to_merge = [make_path(collapsed_bed_dirs[get_liftover_name(lo_from_gb, lo_to_gb)],
+                                           group_name, '.liftover.bed.gz')]
+                if lo_to_gb in tissue_gbs:
+                    beds_to_merge += [make_path(collapsed_bed_dirs[lo_to_gb], group_name)]
+
+                bed_with_lo = make_path(collapsed_bed_dirs[lo_to_gb] + "_with_liftover",
                                                              group_name)
-                script += format_cmd(get_collapse_beds_command(beds_to_merge, collapsed_with_liftover_bed_path),
+                script += format_cmd(get_collapse_beds_command(beds_to_merge, bed_with_lo),
                                      print_echo)
 
                 for sls in [s for s in special_life_stages if s in tissue]:
-                    beds_to_merge = [make_path(collapsed_bed_dirs[lo_to_gb], " ".join([group_name, sls])),
-                                     make_path(collapsed_bed_dirs[get_liftover_name(lo_from_gb, lo_to_gb)],
+                    beds_to_merge = [make_path(collapsed_bed_dirs[get_liftover_name(lo_from_gb, lo_to_gb)],
                                                "_".join([group_name, sls]), '.liftover.bed.gz')]
-                    collapsed_with_liftover_bed_path = make_path(collapsed_bed_dirs[lo_to_gb] + "_with_liftover",
-                                                                 "_".join([group_name, sls]))
-                    script += format_cmd(get_collapse_beds_command(beds_to_merge, collapsed_with_liftover_bed_path),
-                                         print_echo)
+                    if lo_to_gb in tissue_gbs:
+                        beds_to_merge += [make_path(collapsed_bed_dirs[lo_to_gb], " ".join([group_name, sls]))]
 
+                    bed_with_lo = make_path(collapsed_bed_dirs[lo_to_gb] + "_with_liftover",
+                                                                 "_".join([group_name, sls]))
+                    script += format_cmd(get_collapse_beds_command(beds_to_merge, bed_with_lo), print_echo)
             else:
                 # if lo_from_gb is not among tissue gb, there was no liftover made - nothing to merge
                 # if none liftover gbs are among tissue gbs - there is nothing to do

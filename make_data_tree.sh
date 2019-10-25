@@ -11,8 +11,8 @@ GENES_RAW=${GENES}/raw
 MIRNA=${DATA_ROOT}/mirna
 MIRNA_RAW=${MIRNA}/raw
 
-F5_TSS_HG19=${DATA_ROOT}/tss/fantom5/hg19
-F5_TSS_HG38=${DATA_ROOT}/tss/fantom5/GRCh38
+F5_TSS_HG19=${DATA_ROOT}/promoters/fantom5/hg19
+F5_TSS_HG38=${DATA_ROOT}/promoters/fantom5/GRCh38
 
 F5_ENH=${DATA_ROOT}/enhancers/fantom5
 F5_ENH_HG19=${F5_ENH}/hg19
@@ -147,9 +147,7 @@ echo "Done."
 # extract enhancers, promoters, insulators, and open chromatin from these data
 python3 remus/data_import/split_screen_beds.py ${SCREEN_METADATA_TABLE} ${SCREEN_RAW} ${SCREEN} > ${SCREEN}/collapse_and_liftover.sh
 chmod u+x ${SCREEN}/collapse_and_liftover.sh && ${SCREEN}/collapse_and_liftover.sh
-# remove unused dirs
-rmdir ${SCREEN}/*/hg19_with_liftover ${SCREEN}/*/GRCh38
-rm -r ${SCREEN}/*/GRCh38_with_liftover # it contains exact copies of ${SCREEN}/*/GRCh38_loFrom_hg19
+#
 # delete raw BEDs to save space
 # rm -r ${SCREEN_RAW}
 
