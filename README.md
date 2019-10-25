@@ -65,17 +65,17 @@ Currently the VCF file is read in one piece ([to be changed](https://github.com/
     
     (__shorter version__)
     
-    Download the Remus data files from URL, and extract the archive in a REMUS_DATA_DIR directory of your preference.
+    Download archive with Remus data files from [here](ftp://url.to.the.data), and extract the archive in a REMUS_DATA_DIR directory of your preference.
 
     or (__longer version__):
 
-    Create a directory for Remus data and run the container interactively with write access to this directory (REMUS_DATA_DIR):
+    Start Remus container interactively with write access to the repo directory (REMUS_DIR):
       
-    `docker run --rm -v REMUS_DATA_DIR:/var/www/remus/data:rw -ti remus`
+    `docker run --rm --name remus_databuild -v REMUS_DIR:/var/www/remus:rw -ti remus`
 
-    After reading `exterenal_resources/README.md`, download liftOver and chains, run:
+    After reading `exterenal_resources/README.md`, download liftOver and chains by:
       
-    `external_resources/download.sh`
+    `cd external_resources && ./download.sh && cd ..`
 
     Next, launch
       
@@ -86,7 +86,7 @@ Currently the VCF file is read in one piece ([to be changed](https://github.com/
 
 3. Start docker container with the app available at `http://localhost:LOCAL_PORT` 
 
-    ```docker run -v REMUS_DATA_DIR:/var/www/remus/data -p LOCAL_PORT:80 remus```
+    ```docker run --rm -d --name remus_app -v REMUS_DIR:/var/www/remus -p LOCAL_PORT:80 remus apachectl -D FOREGROUND```
         
 
 #### Native or development install
