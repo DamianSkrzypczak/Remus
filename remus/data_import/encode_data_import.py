@@ -27,7 +27,7 @@ def get_collapsed_bed_dir_map(collapsed_bed_dir_prefix, liftover_to):
             for lo_name in lo_names:
                 collapsed_bed_dirs[lo_name] = os.path.join(collapsed_bed_dir_prefix, lo_name)
 
-    return(collapsed_bed_dirs)
+    return collapsed_bed_dirs
 
 
 def get_liftover_name(from_build, to_build):
@@ -130,7 +130,7 @@ def get_collapse_beds_script(raw_bed_dir, collapsed_bed_dir,
                                                         liftover_to, collapsed_bed_dirs, print_echo)
 
         script += separator
-    
+
     return script
 
 
