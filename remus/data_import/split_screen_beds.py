@@ -159,7 +159,7 @@ if __name__ == "__main__":
     raw_bed_dir = sys.argv[2]
     output_bed_dir = sys.argv[3]
 
-    split_raw_bed_dirs = split_beds(raw_bed_dir, skip_splitting=True)
+    split_raw_bed_dirs = split_beds(raw_bed_dir)
 
     # map names of raw BED files to tissue term_id, life_stage, and genome build
     excludes = {"Biosample term name": []}
