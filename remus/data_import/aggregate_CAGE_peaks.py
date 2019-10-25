@@ -181,8 +181,8 @@ if __name__ == '__main__':
     # Prepare list of output files, one per organ/celltype. 
     # Organ/celltypes missing from the ontology are skipped
     print("Initiating output BED files...")
-    bed_names = {t : os.path.join(OUTPUT_DIR, "_".join([t,f5o.id2name(t).replace(" ","_"),"promoters.bed"])) for t in tsd if len(tsd[t])>0}
-    bed_files = {t : open(bed_names[t], 'wt') for t in bed_names}
+    bed_names = {t: os.path.join(OUTPUT_DIR, t + "_" + f5o.id2name(t).replace(" ", "_") + ".bed") for t in tsd if len(tsd[t]) > 0}
+    bed_files = {t: open(bed_names[t], 'wt') for t in bed_names}
     
     # iterate over expression table, and append single records to organ BED files.
     print("Parsing CAGE expression matrix...")
