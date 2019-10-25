@@ -44,8 +44,8 @@ mkdir -p ${SCREEN} ${SCREEN_RAW} -v
 
 # Create genes.db
 printf "Creating genes db\n"
-PREDEFINED_GENES_DB_SOURCES=predefined_genes_db_sources
-cp ${PREDEFINED_GENES_DB_SOURCES}/*.tsv ${GENES_RAW}/
+cp ${DATA_SRC_DIR}/hg19.tsv ${GENES_RAW}/
+cp ${DATA_SRC_DIR}/hg38.tsv ${GENES_RAW}/
 python3 remus/data_import/create_genes_db.py -i ${GENES_RAW} -o ${GENES}/genes.db
 
 # Create miRNA targets.db
