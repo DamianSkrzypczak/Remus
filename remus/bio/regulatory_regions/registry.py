@@ -104,7 +104,7 @@ class RegulatoryRegionsFilesRegistry:
                     symbol = directories_and_symbols[path]
                     
                     sources[termid, life_stage][symbol] = os.path.join(root, path, genome_build_dir, bed)
-                    sources[termid, life_stage]["name"] = name.replace("_expressed_enhancers", "").replace("_", " ")
+                    sources[termid, life_stage]["name"] = name.replace("_", " ")
         
         self.logger.debug("Sources map:\n%s" % str(sources))
         return sources

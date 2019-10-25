@@ -85,6 +85,8 @@ printf "... extracting celltype data"
 tar -xzf ${F5_ENH_RAW}/facet_expressed_enhancers.tgz -C ${F5_ENH_HG19} --wildcards CL:*
 printf "... extracting organ data"
 tar -xzf ${F5_ENH_RAW}/facet_expressed_enhancers.tgz -C ${F5_ENH_HG19} --wildcards UBERON*
+# remove the _expressed_enhancers suffix
+rename.ul "_expressed_enhancers" "" ${F5_ENH_HG19}/*.bed
 # compress and index BED files
 for b in ${F5_ENH_HG19}/*.bed; do
     bgzip ${b} && tabix -p bed ${b}.gz
