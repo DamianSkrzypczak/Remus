@@ -50,10 +50,9 @@ python3 remus/data_import/create_genes_db.py -i ${GENES_RAW} -o ${GENES}/genes.d
 
 # Create miRNA targets.db
 printf "Creating miRNA targets db\n"
-PREDEFINED_MIRNA_DB_SOURCES=predefined_mirna_db_sources
-cp ${PREDEFINED_MIRNA_DB_SOURCES}/*.tsv.gz ${MIRNA_RAW}/
-wget -O ${PREDEFINED_MIRNA_DB_SOURCES}/hsa_miRWalk_3UTR.7z http://mirwalk.umm.uni-heidelberg.de/download/hsa_miRWalk_3UTR.7z
-7zr x -so ${PREDEFINED_MIRNA_DB_SOURCES}/hsa_miRWalk_3UTR.7z | gzip -c > ${MIRNA_RAW}/mirwalk_3UTR.tsv.gz
+cp ${DATA_SRC_DIR}/mirtarbase.* ${MIRNA_RAW}/
+wget -O ${DATA_SRC_DIR}/hsa_miRWalk_3UTR.7z http://mirwalk.umm.uni-heidelberg.de/download/hsa_miRWalk_3UTR.7z
+7zr x -so ${DATA_SRC_DIR}/hsa_miRWalk_3UTR.7z | gzip -c > ${MIRNA_RAW}/mirwalk_3UTR.tsv.gz
 python3 remus/data_import/create_mirna_target_db.py -i ${MIRNA_RAW} -o ${MIRNA}/targets.db
 
 
