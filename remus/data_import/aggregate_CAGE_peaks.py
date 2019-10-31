@@ -86,7 +86,7 @@ class F5Ontology():
     def name2id(self, names):
         if isinstance(names, list) or isinstance(names, set):
             return [self.name2id(name) for name in names]
-        return self._name2id[name] if name in _name2id else None
+        return self._name2id[names] if names in self._name2id else None
     
     def get_samples_for_terms(self, term_ids):
         """ Returns a dictionary organ_id:[samples] build of organ_ids given as argument,
@@ -106,30 +106,25 @@ class F5Ontology():
                 samples[term_id] = [s for s in samples[term_id] if len(networkx.ancestors(self.slim_g, s))==0]
  
         return samples
-    
-    
+
     def get_organ_for_sample(self, sample_id, allow_missing = False):
         return self._get_term_for_sample(sample_id, F5Ontology.ORGAN_IDS)
     
     def get_celltypes_for_samples(self, sample_id, allow_missing = False):
         return self._get_term_for_sample(sample_id, F5Ontology.CELLTYPE_IDS)
 
-
-    def _get_terms_for_sample(self, sample_id, term_ids, missing = False):
+    def _get_terms_for_sample(self, sample_id, term_ids, allow_missing = False):
         """ Returns a list of term_ids (organs / celltypes). One sample can be part of several terms. """    
         if sample_id not in self.slim_g:
-            if allow_missing: 
+            if allow_missing:
                 descendants = set()
             else:
-                raise Error("Node %s is missing from the ontology.\n Original exception: %s" % (sample_id, str(e)))    
+                raise Exception("Node %s is missing from the ontology." % sample_id)
         else:
             descendants = networkx.descendants(self.slim_g, sample_id)
          
         return list(descendants & term_ids)
-        
-        
-        
-        
+
 
 def get_sample_ids_from_expression_table(file_handle):  
 
@@ -160,17 +155,14 @@ def mean(l):
     return sum(l)/len(l)
 
 
-
 #### MAIN ####
 
 if __name__ == '__main__':
 
-    
     OBO_FILE = sys.argv[1]
     EXPRESSION_TABLE_FILE = sys.argv[2]
     OUTPUT_DIR = sys.argv[3]
-    
-    
+
     EXPRESSION_CUTOFF = 10
     EXPRESSION_AGGREGATE_FUNCTION = mean
     
@@ -181,7 +173,9 @@ if __name__ == '__main__':
     # Prepare list of output files, one per organ/celltype. 
     # Organ/celltypes missing from the ontology are skipped
     print("Initiating output BED files...")
-    bed_names = {t: os.path.join(OUTPUT_DIR, t + "_" + f5o.id2name(t).replace(" ", "_") + ".bed") for t in tsd if len(tsd[t]) > 0}
+    bed_names = {t: os.path.join(OUTPUT_DIR,
+                                 t + "_" + f5o.id2name(t).replace(" ", "_").replace(":", "_") + ".bed"
+                                 ) for t in tsd if len(tsd[t]) > 0}
     bed_files = {t: open(bed_names[t], 'wt') for t in bed_names}
     
     # iterate over expression table, and append single records to organ BED files.
