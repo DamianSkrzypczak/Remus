@@ -62,9 +62,11 @@ wget -O ${DATA_SRC_DIR}/hg19.cage_peak_phase1and2combined_tpm.osc.txt.gz 'http:/
 wget -O ${DATA_SRC_DIR}/ff-phase2-170801.obo.txt http://fantom.gsc.riken.jp/5/datafiles/latest/extra/Ontology/ff-phase2-170801.obo.txt
 # aggregate samples by organs, tissues and cell-types and store location of TSSs in BED files
 python3 remus/data_import/aggregate_CAGE_peaks.py ${DATA_SRC_DIR}/ff-phase2-170801.obo.txt ${DATA_SRC_DIR}/hg19.cage_peak_phase1and2combined_tpm.osc.txt.gz ${F5_TSS_HG19}
-# compress and index BED files
+# trim columns, sort, compress and index BED files
 for b in ${F5_TSS_HG19}/*.bed; do
-    bedtools sort -i ${b} > ${b}.sbed && mv ${b}.sbed ${b} && bgzip ${b} && tabix -p bed ${b}.gz
+    bedtools sort -i ${b} | cut -f1-3 > ${b}.sbed
+    mv ${b}.sbed ${b}
+    bgzip ${b} && tabix -p bed ${b}.gz
 done
 # liftover to hg38
 for b in ${F5_TSS_HG19}/*.bed.gz; do
@@ -74,8 +76,6 @@ for b in ${F5_TSS_HG19}/*.bed.gz; do
     bgzip ${hg38_bed} && tabix -p bed ${hg38_bed}.gz
     echo "Lifted over ${b} to ${hg38_bed}.gz"
 done
-
-
 
 
 # Download FANTOM5 enhancers 
@@ -88,8 +88,9 @@ tar -xzf ${F5_ENH_RAW}/facet_expressed_enhancers.tgz -C ${F5_ENH_HG19} --wildcar
 # remove the _expressed_enhancers suffix and semicolon
 rename.ul "_expressed_enhancers" "" ${F5_ENH_HG19}/*.bed
 rename.ul ":" "_" ${F5_ENH_HG19}/*.bed
-# compress and index BED files
+# trim columns, compress and index BED files
 for b in ${F5_ENH_HG19}/*.bed; do
+    cut -f1-3 ${b} > ${b}.new && mv ${b}.new ${b}
     bgzip ${b} && tabix -p bed ${b}.gz
 done
 # liftover to hg38
