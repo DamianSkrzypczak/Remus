@@ -4,3 +4,4 @@ pybedtools
 flask
 obonet
 networkx
+requests
