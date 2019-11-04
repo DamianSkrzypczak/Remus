@@ -37,10 +37,7 @@ RUN apt update \
 ENV LANG en_US.UTF-8
 
 WORKDIR /var/www/remus
-#COPY data_sources ./data_sources
-#COPY remus ./remus
-#COPY tests ./tests
-#COPY a* LICENSE make_data_tree.sh README.md requirements* ./
+COPY requirements* ./
 
 RUN pip3 install -r requirements.txt
 
@@ -54,6 +51,11 @@ EXPOSE 80
 #
 # Uncomment following lines to build Remus data as part of the image building process (bloats the image)
 #
+#COPY data_sources ./data_sources
+#COPY remus ./remus
+#COPY tests ./tests
+#COPY external_resources ./external_resources
+#COPY a* make_data_tree.sh LICENSE README.md ./
 #RUN cd external_resources && bash download.sh && cd .. \
 # && bash make_data_tree.sh
 
