@@ -145,7 +145,7 @@ class RegulatoryRegionsFilesRegistry:
        
         try:
             bed_path = self._available_tissues[tissue][source_symbol]
-            track_name = source_symbol + "(" + tissue.split('(')[0].strip() + ")"
+            track_name = source_symbol + "(" + tissue.split('(')[0].strip().replace(" ", "_") + ")"
             self.logger.info('Found %s. Adding name %s' % (bed_path, track_name))
 
             full_bed = BedLoader(bed_path)
