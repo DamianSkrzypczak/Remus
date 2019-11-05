@@ -41,7 +41,8 @@ def query(endpoint, request_args):
 def query_default(endpoint, genome, genes, tissues,
                   enh_enc=True, enh_f5=True, chrom=True):
 
-    request_args = {'genes': genes, 'tissues': tissues, 'genome': genome}
+    request_args = {'genes': genes, 'tissues': tissues, 'genome': genome,
+                    "genes-select-include-gene-transcripts": None}
     if enh_enc:
         request_args.update({"enhancers-encode-used":          "yes",
                              "enhancers-encode-combine-mode":  "any",
