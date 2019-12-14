@@ -14,6 +14,7 @@
 import obonet, networkx
 import gzip
 import sys, os
+import pybedtools, pybedtools.featurefuncs
 
 class F5Ontology():
     
@@ -144,11 +145,11 @@ def decode_genomic_location(field):
     s = field.split(":")
     chrom = s[0]
     s = s[1].split("..")
-    start = s[0]
+    start = int(s[0])
     s = s[1].split(",")
-    end = s[0]
+    end = int(s[0])
     strand = s[1]
-    return chrom, start, end, strand
+    return pybedtools.Interval(chrom, start, end, strand=strand)
 
 
 def mean(l):
@@ -179,7 +180,7 @@ if __name__ == '__main__':
     bed_files = {t: open(bed_names[t], 'wt') for t in bed_names}
     
     # iterate over expression table, and append single records to organ BED files.
-    print("Parsing CAGE expression matrix...")
+    print("Parsing CAGE expression matrix... (every 100th record is printed to show progress)")
     with gzip.open(EXPRESSION_TABLE_FILE, 'rt') as f: 
     
         # jump to header and read sample IDs
@@ -204,13 +205,9 @@ if __name__ == '__main__':
         row_cnt=0
         for l in f:
             lsplit = l.split('\t')
-            chrom, start, end, strand = decode_genomic_location(lsplit[0])
-            
-            new_record = '\t'.join([chrom, start, end, strand])
-            
-            if row_cnt%100==0: print(new_record)
-            row_cnt+=1
-            
+            tss_interval = decode_genomic_location(lsplit[0])
+            new_record = pybedtools.featurefuncs.TSS(tss_interval, upstream=200, downstream=len(tss_interval))
+        
             for facet, samples in tsd.items():
                 
                 # skip if there is no samples for term/facet
@@ -237,11 +234,14 @@ if __name__ == '__main__':
                 
                 # calculate aggregated expression/activity of the promoter in the facet
                 # provided that at least one of samples meets the cutoff criteria
+                new_record.score = '%.2f' % EXPRESSION_AGGREGATE_FUNCTION(expr_list)
                 if max(expr_list) >= EXPRESSION_CUTOFF:
-                    #expression = sum(expression_list)/len(expression_list)
-                    score = EXPRESSION_AGGREGATE_FUNCTION(expr_list)
-                    bed_files[facet].write(new_record + ('\t%.2f\n' % score))
-        
+                    bed_files[facet].write(str(new_record))
+
+            if row_cnt % 100 == 0:
+                print(str(new_record).strip())
+            row_cnt += 1
+
     for _,f in bed_files.items():
         f.close()
     
