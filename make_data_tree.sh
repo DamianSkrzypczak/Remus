@@ -64,7 +64,7 @@ wget -O ${DATA_SRC_DIR}/ff-phase2-170801.obo.txt http://fantom.gsc.riken.jp/5/da
 python3 remus/data_import/aggregate_CAGE_peaks.py ${DATA_SRC_DIR}/ff-phase2-170801.obo.txt ${DATA_SRC_DIR}/hg19.cage_peak_phase1and2combined_tpm.osc.txt.gz ${F5_TSS_HG19}
 # trim columns, sort, compress and index BED files
 for b in ${F5_TSS_HG19}/*.bed; do
-    bedtools sort -i ${b} | cut -f1-3 > ${b}.sbed
+    cut -f1-3 ${b} | bedtools sort -i - | bedtools merge -i - > ${b}.sbed
     mv ${b}.sbed ${b}
     bgzip ${b} && tabix -p bed ${b}.gz
 done
@@ -72,7 +72,7 @@ done
 for b in ${F5_TSS_HG19}/*.bed.gz; do
     hg38_bed=${F5_TSS_HG38}/`basename ${b%.gz}`
     ${LIFTOVER_EXEC} ${b} ${LIFTOVER_HG19_HG38_CHAIN} ${hg38_bed} ${hg38_bed}.unmapped
-    bedtools sort -i ${hg38_bed} > ${hg38_bed}.sorted && mv ${hg38_bed}.sorted ${hg38_bed}
+    bedtools sort -i ${hg38_bed} | bedtools merge -i - > ${hg38_bed}.tmp && mv ${hg38_bed}.tmp ${hg38_bed}
     bgzip ${hg38_bed} && tabix -p bed ${hg38_bed}.gz
     echo "Lifted over ${b} to ${hg38_bed}.gz"
 done
@@ -97,7 +97,7 @@ done
 for b in ${F5_ENH_HG19}/*.bed.gz; do
     hg38_bed=${F5_ENH_HG38}/`basename ${b%.gz}`
     ${LIFTOVER_EXEC} ${b} ${LIFTOVER_HG19_HG38_CHAIN} ${hg38_bed} ${hg38_bed}.unmapped
-    bedtools sort -i ${hg38_bed} > ${hg38_bed}.sorted && mv ${hg38_bed}.sorted ${hg38_bed}
+    bedtools sort -i ${hg38_bed} | bedtools merge -i - > ${hg38_bed}.tmp && mv ${hg38_bed}.tmp ${hg38_bed}
     bgzip ${hg38_bed} && tabix -p bed ${hg38_bed}.gz
     echo "Lifted over ${b} to ${hg38_bed}.gz"
 done
