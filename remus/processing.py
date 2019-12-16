@@ -314,7 +314,8 @@ class InvalidCombineOperationException(Exception):
 
 
 class BedsCollector:
-    genes_params = ["genes", "genome"]
+    genes_params = ["genes", "genome", 
+                    "genes-select-include-gene-transcripts"]
 
     tss_fantom5_params = [
         "genes", "tissues", "genome",
@@ -393,7 +394,9 @@ class BedsCollector:
 
         bed_files = OrderedDict([])
 
+        self._logger.info(self._data["genes-select-include-gene-transcripts"])
         if self._data["genes-select-include-gene-transcripts"]:
+            self._logger.info("genes-select-include-gene-transcripts is true")
             bed_files["genes"] = \
                 self._get_bed_files(
                     self.genes_params,
