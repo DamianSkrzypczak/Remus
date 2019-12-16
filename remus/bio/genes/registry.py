@@ -66,16 +66,17 @@ class GenesDBRegistry:
             df = pd.read_sql_query(query, conn)
             return df
 
-    @staticmethod
-    def _extract_gene_coordinates(genes_df):
-        sources_df = genes_df.iloc[:, [1, 2, 3, 11, 7, 4]]
-        strings_df = sources_df.apply(lambda x: '\t'.join([str(i) for i in x]), axis=1)
+    def _extract_gene_coordinates(self, genes_df):
+        #'chrom', 'txStart', 'txEnd', 'strand', 'cdsStart', 'cdsEnd', 'exonCount', 'exonStarts', 'exonEnds', 'name', 'geneSymbol'
+        sources_df = genes_df.iloc[:, [1, 2, 3, 11, 10, 7, 4]]
+        strings_df = sources_df.apply(self.convert_to_bed_record, axis=1)
         return strings_df.tolist()
 
-#
-#    @staticmethod
-#    def _extract_names(genes_df):
-#        return genes_df.iloc[:, -1]
+    @staticmethod
+    def convert_to_bed_record(row):
+        return '\t'.join([str(e) for e in row[:3]] +
+                         [str(row[3]) + "(" + str(row[4]) + ")"] +
+                         [str(e) for e in row[5:]])
 
 
     

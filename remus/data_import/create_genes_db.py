@@ -10,7 +10,7 @@ BED_FORMAT_COLUMNS_ORDER = pd.Index([
 ])
 SEPARATOR = "\t"
 
-EXPECTED_FILE_EXTENSION = ".tsv"
+EXPECTED_FILE_EXTENSION = ".txt"
 
 CANONICAL_CHROMOSOMES = ['chr'+str(i+1) for i in range(22)] + ['chrM', 'chrX', 'chrY']
 
@@ -38,7 +38,7 @@ def extract_data_frame_from_file(data_path, filename):
     :return: pandas dataframe with file content
     """
     file_path = os.path.join(data_path, filename)
-    return pd.read_csv(file_path, skiprows=0, sep=SEPARATOR)
+    return pd.read_csv(file_path, skiprows=1, sep=SEPARATOR)
 
 
 def filter_transcripts(df):
@@ -46,12 +46,12 @@ def filter_transcripts(df):
     :param df: data frame with gene coordinates
     :return: data frame with filtered gene coordinates
     """
-    #return prune_noncanonical_transcripts(prune_noncanonical_chromosomes(df))
     return prune_noncanonical_chromosomes(df)
 
 
 def prune_noncanonical_transcripts(df):
     """
+    NOT USED
     :param df: data frame with gene coordinates
     :return: data frame with canonical transcripts only - identified by last column being not NA
     """
@@ -73,46 +73,16 @@ def prune_noncanonical_chromosomes(df):
     return df.loc[df[chr_column].isin(CANONICAL_CHROMOSOMES)]
 
 
-def reformat_data_frame(data_frame, filename):
+def reformat_data_frame(df, filename):
     """
-    :param data_frame: pandas dataframe
-    :param filename: name of source file (WARNING!!!: FILE SHOULD BE NAMED AFTER GENOME, FOR EXAMPLE "hg37.tsv")
+    :param df: pandas dataframe
+    :param filename: name of source file (WARNING!!!: FILE SHOULD BE NAMED AFTER GENOME, FOR EXAMPLE "hg19.txt")
     :return: reformatted dataframe
     """
-    reformat_column_names(data_frame)
-    data_frame = order_columns_for_bed(data_frame)
-    data_frame = set_genome_value(filename, data_frame)
-    return data_frame
-
-
-def reformat_column_names(single_genome_data_frame):
-    """
-    Function removing prefixes from column names,
-    in this case, prefix is everything from start to last dot of name.
-
-    :param single_genome_data_frame: source dataframe
-    """
-    single_genome_data_frame.columns = [col_name.split(".")[-1] for col_name in single_genome_data_frame.columns]
-
-
-def order_columns_for_bed(single_genome_data_frame):
-    """
-    Orders dataframe to provide compatibility with BED format
-
-    :param single_genome_data_frame: unordered dataframe
-    :return: ordered dataframe
-    """
-    return single_genome_data_frame[BED_FORMAT_COLUMNS_ORDER]
-
-
-def set_genome_value(filename, single_genome_data_frame):
-    """
-    Adding genome information into table.
-
-    :param filename: name of source file (WARNING!!!: FILE SHOULD BE NAMED AFTER GENOME, FOR EXAMPLE "hg38.tsv")
-    :param single_genome_data_frame: source dataframe
-    """
-    return single_genome_data_frame.assign(genome = os.path.splitext(filename)[0])
+    df.columns = ["geneSymbol" if col_name == "name2" else col_name for col_name in df.columns]
+    df = df[BED_FORMAT_COLUMNS_ORDER]
+    df = df.assign(genome = os.path.splitext(filename)[0])
+    return df
 
 
 def create_db_from_data_frame(db_path, summary_df):
