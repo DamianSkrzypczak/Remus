@@ -172,11 +172,23 @@ def get_merge_with_liftover_commands(tissue, group_name, special_life_stages, li
                     script += format_cmd(get_collapse_beds_command(beds_to_merge, bed_with_lo), print_echo)
             else:
                 # if lo_from_gb is not among tissue gb, there was no liftover made - nothing to merge
-                # if none liftover gbs are among tissue gbs - there is nothing to do
-                pass
+                # just copy the lo_to_gb to with_liftover directory
+                bed = make_path(collapsed_bed_dirs[lo_to_gb], group_name)
+                folder = make_path(collapsed_bed_dirs[lo_to_gb] + "_with_liftover", "", extension="")
+                script += format_cmd(get_copy_wildcard_command(bed, folder), print_echo)
+
+                for sls in [s for s in special_life_stages if s in tissue]:
+                    bed = make_path(collapsed_bed_dirs[lo_to_gb], " ".join([group_name, sls]))
+                    folder = make_path(collapsed_bed_dirs[lo_to_gb] + "_with_liftover", "", extension="")
+                    script += format_cmd(get_copy_wildcard_command(bed, folder), print_echo)
 
     return script
 
+
+def get_copy_wildcard_command(fileprefix, directory):
+    cmd = "cp \"{}\"* \"{}\"".format(fileprefix, directory)
+    echo = "echo Copied \"%s\"* to \"%s\"" % (fileprefix, directory)
+    return cmd, echo
 
 
 def get_liftover_command(chain_file, input_bed, output_bed, unmapped_file='/dev/null', liftover_exec=LIFTOVER_EXECUTABLE):
