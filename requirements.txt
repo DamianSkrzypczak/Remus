@@ -1,5 +1,5 @@
 pandas
-pysam
+pysam==0.15.3
 pybedtools
 flask
 obonet
