@@ -79,7 +79,7 @@ def perform():
         collected_beds_map = BedsCollector(params).collect_bed_files()
         collected_beds = [bed for beds_list in collected_beds_map.values() for bed in beds_list]
 
-        final_result = BedOperations.union(collected_beds, merge=True).result \
+        final_result = BedOperations.union(collected_beds, merge=True, **{"c": 4, "o": "distinct"}).result \
             if len(collected_beds) > 1 else collected_beds[0]
 
         tmp_file_path = save_as_tmp(final_result)
@@ -140,12 +140,18 @@ def get_single_value_params():
     # genes select
     single_value_params += ["genes-select-include-gene-transcripts"]
 
-    # TSS params
-    single_value_params += ["transcription-fantom5-used",
-                            "transcription-fantom5-combine-mode",
-                            "transcription-fantom5-kbs-upstream",
-                            "transcription-fantom5-kbs-downstream"]
- 
+    # FANTOM5 promoter params
+    single_value_params += ["promoters-fantom5-used",
+                            "promoters-fantom5-combine-mode",
+                            "promoters-fantom5-kbs-upstream",
+                            "promoters-fantom5-kbs-downstream"]
+
+    # SCREEN promoter params
+    single_value_params += ["promoters-screen-used",
+                            "promoters-screen-combine-mode",
+                            "promoters-screen-kbs-upstream",
+                            "promoters-screen-kbs-downstream"]
+
     # FANTOM5 enhancers
     single_value_params += ["enhancers-fantom5-used",
                            "enhancers-fantom5-combine-mode",
@@ -157,12 +163,24 @@ def get_single_value_params():
                            "enhancers-encode-combine-mode",
                            "enhancers-encode-kbs-upstream",
                            "enhancers-encode-kbs-downstream"]
-    
+
+    # SCREEN enhancers
+    single_value_params += ["enhancers-screen-used",
+                           "enhancers-screen-combine-mode",
+                           "enhancers-screen-kbs-upstream",
+                           "enhancers-screen-kbs-downstream"]
+
     # ENCODE accessible chromatin
     single_value_params += ["accessible-chromatin-encode-used",
                             "accessible-chromatin-encode-combine-mode",                           
                             "accessible-chromatin-encode-kbs-upstream",
                             "accessible-chromatin-encode-kbs-downstream"]
+
+    # SCREEN accessible chromatin
+    single_value_params += ["accessible-chromatin-screen-used",
+                            "accessible-chromatin-screen-combine-mode",
+                            "accessible-chromatin-screen-kbs-upstream",
+                            "accessible-chromatin-screen-kbs-downstream"]
 
     # miRNA target interaction
     single_value_params += ["mirna-mirtarbase-used",

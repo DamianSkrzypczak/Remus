@@ -14,18 +14,20 @@ metadatafile = sys.argv[1]
 raw_bed_dir = sys.argv[2]
 collapsed_bed_dir = sys.argv[3]
 
-SPECIAL_LIFE_STAGES = ['embryonic']
+#SPECIAL_LIFE_STAGES = ['embryonic']
+SPECIAL_LIFE_STAGES = []
 liftover_to = LIFTOVER_BOTH
 
 # map names of raw BED files to tissue term_id, life_stage, and genome build
-includes = {"Output type": ["optimal idr thresholded peaks", "pseudoreplicated idr thresholded peaks"]}
-excludes = {"Biosample term id": ["NTR:0004647", "NTR:0004646"]}
+includes = {"File Status": ["released"],
+            "Output type": ["optimal IDR thresholded peaks", "pseudoreplicated IDR thresholded peaks"]}
+excludes = {"Biosample term id": ["NTR:0001226"]} #parathyroid adenoma
 tissue_ids, bed_groups = map_raw_bed_files_to_tissues(metadatafile, includes, excludes)
 
 if len(sys.argv) > 4:
     genome_build = sys.argv[4]
     if genome_build not in SUPPORTED_GENOME_BUILDS:
-        exit('Last (4th) argument must be empty (include both available genome builds) or one of '+ str(SUPPORTED_GENOMES_NAMES.keys()))
+        exit('Last (4th) argument must be empty (include both available genome builds) or one of '+ str(SUPPORTED_GENOME_BUILDS.keys()))
     
     # limit to selected genome build and drop liftover
     bed_groups = {genome_build: bed_groups[genome_build]}

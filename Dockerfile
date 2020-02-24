@@ -17,12 +17,13 @@ RUN apt update \
 	libbz2-dev \
 	libssl-dev \
 	liblzma-dev \
-        p7zip-full \
+    p7zip-full \
 	samtools \
     tabix \
 	vim \
 	git \
-        locales \
+	wget \
+    locales \
  && locale-gen en_US.UTF-8 \
  && wget https://github.com/arq5x/bedtools2/releases/download/v2.27.1/bedtools-2.27.1.tar.gz \
  && tar -xzf bedtools-2.27.1.tar.gz \
@@ -35,8 +36,8 @@ RUN apt update \
 
 ENV LANG en_US.UTF-8
 
-COPY ./ /var/www/remus
 WORKDIR /var/www/remus
+COPY requirements* ./
 
 RUN pip3 install -r requirements.txt
 
@@ -47,7 +48,14 @@ RUN a2enmod headers \
 
 EXPOSE 80
 
+#
+# Uncomment following lines to build Remus data as part of the image building process (bloats the image)
+#
+#COPY data_sources ./data_sources
+#COPY remus ./remus
+#COPY tests ./tests
+#COPY external_resources ./external_resources
+#COPY a* make_data_tree.sh LICENSE README.md ./
 #RUN cd external_resources && bash download.sh && cd .. \
 # && bash make_data_tree.sh
 
-CMD systemctl reload apache2

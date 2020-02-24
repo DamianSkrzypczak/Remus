@@ -14,6 +14,7 @@
 import obonet, networkx
 import gzip
 import sys, os
+import pybedtools, pybedtools.featurefuncs
 
 class F5Ontology():
     
@@ -86,7 +87,7 @@ class F5Ontology():
     def name2id(self, names):
         if isinstance(names, list) or isinstance(names, set):
             return [self.name2id(name) for name in names]
-        return self._name2id[name] if name in _name2id else None
+        return self._name2id[names] if names in self._name2id else None
     
     def get_samples_for_terms(self, term_ids):
         """ Returns a dictionary organ_id:[samples] build of organ_ids given as argument,
@@ -106,30 +107,25 @@ class F5Ontology():
                 samples[term_id] = [s for s in samples[term_id] if len(networkx.ancestors(self.slim_g, s))==0]
  
         return samples
-    
-    
+
     def get_organ_for_sample(self, sample_id, allow_missing = False):
         return self._get_term_for_sample(sample_id, F5Ontology.ORGAN_IDS)
     
     def get_celltypes_for_samples(self, sample_id, allow_missing = False):
         return self._get_term_for_sample(sample_id, F5Ontology.CELLTYPE_IDS)
 
-
-    def _get_terms_for_sample(self, sample_id, term_ids, missing = False):
+    def _get_terms_for_sample(self, sample_id, term_ids, allow_missing = False):
         """ Returns a list of term_ids (organs / celltypes). One sample can be part of several terms. """    
         if sample_id not in self.slim_g:
-            if allow_missing: 
+            if allow_missing:
                 descendants = set()
             else:
-                raise Error("Node %s is missing from the ontology.\n Original exception: %s" % (sample_id, str(e)))    
+                raise Exception("Node %s is missing from the ontology." % sample_id)
         else:
             descendants = networkx.descendants(self.slim_g, sample_id)
          
         return list(descendants & term_ids)
-        
-        
-        
-        
+
 
 def get_sample_ids_from_expression_table(file_handle):  
 
@@ -149,28 +145,25 @@ def decode_genomic_location(field):
     s = field.split(":")
     chrom = s[0]
     s = s[1].split("..")
-    start = s[0]
+    start = int(s[0])
     s = s[1].split(",")
-    end = s[0]
+    end = int(s[0])
     strand = s[1]
-    return chrom, start, end, strand
+    return pybedtools.Interval(chrom, start, end, strand=strand)
 
 
 def mean(l):
     return sum(l)/len(l)
 
 
-
 #### MAIN ####
 
 if __name__ == '__main__':
 
-    
     OBO_FILE = sys.argv[1]
     EXPRESSION_TABLE_FILE = sys.argv[2]
     OUTPUT_DIR = sys.argv[3]
-    
-    
+
     EXPRESSION_CUTOFF = 10
     EXPRESSION_AGGREGATE_FUNCTION = mean
     
@@ -181,11 +174,13 @@ if __name__ == '__main__':
     # Prepare list of output files, one per organ/celltype. 
     # Organ/celltypes missing from the ontology are skipped
     print("Initiating output BED files...")
-    bed_names = {t : os.path.join(OUTPUT_DIR, "_".join([t,f5o.id2name(t).replace(" ","_"),"promoters.bed"])) for t in tsd if len(tsd[t])>0}
-    bed_files = {t : open(bed_names[t], 'wt') for t in bed_names}
+    bed_names = {t: os.path.join(OUTPUT_DIR,
+                                 t.replace(":", "_") + "_" + f5o.id2name(t).replace(" ", "_") + ".bed"
+                                 ) for t in tsd if len(tsd[t]) > 0}
+    bed_files = {t: open(bed_names[t], 'wt') for t in bed_names}
     
     # iterate over expression table, and append single records to organ BED files.
-    print("Parsing CAGE expression matrix...")
+    print("Parsing CAGE expression matrix... (every 100th record is printed to show progress)")
     with gzip.open(EXPRESSION_TABLE_FILE, 'rt') as f: 
     
         # jump to header and read sample IDs
@@ -210,13 +205,9 @@ if __name__ == '__main__':
         row_cnt=0
         for l in f:
             lsplit = l.split('\t')
-            chrom, start, end, strand = decode_genomic_location(lsplit[0])
-            
-            new_record = '\t'.join([chrom, start, end, strand])
-            
-            if row_cnt%100==0: print(new_record)
-            row_cnt+=1
-            
+            tss_interval = decode_genomic_location(lsplit[0])
+            new_record = pybedtools.featurefuncs.TSS(tss_interval, upstream=200, downstream=len(tss_interval))
+        
             for facet, samples in tsd.items():
                 
                 # skip if there is no samples for term/facet
@@ -243,11 +234,14 @@ if __name__ == '__main__':
                 
                 # calculate aggregated expression/activity of the promoter in the facet
                 # provided that at least one of samples meets the cutoff criteria
+                new_record.score = '%.2f' % EXPRESSION_AGGREGATE_FUNCTION(expr_list)
                 if max(expr_list) >= EXPRESSION_CUTOFF:
-                    #expression = sum(expression_list)/len(expression_list)
-                    score = EXPRESSION_AGGREGATE_FUNCTION(expr_list)
-                    bed_files[facet].write(new_record + ('\t%.2f\n' % score))
-        
+                    bed_files[facet].write(str(new_record))
+
+            if row_cnt % 100 == 0:
+                print(str(new_record).strip())
+            row_cnt += 1
+
     for _,f in bed_files.items():
         f.close()
     
