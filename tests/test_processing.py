@@ -27,21 +27,20 @@ class TestRemusProcessing(unittest.TestCase):
         self.hnf4a = 'HNF4A'
         self.unknown_gene = 'unknown gene symbol'
         
-        self.hnf1b_bed = "chr17\t36046433\t36093736\tHNF1B\t6\t-\n"+\
-                         "chr17\t36046433\t36105096\tHNF1B\t9\t-\n"+\
-                         "chr17\t36046433\t36105096\tHNF1B\t9\t-\n"+\
-                         "chr17\t36046433\t36105096\tHNF1B\t8\t-\n"+\
-                         "chr17\t36046433\t36105096\tHNF1B\t7\t-\n"+\
-                         "chr17\t36090480\t36093814\tHNF1B\t2\t-\n"
-                         
-        self.hnf4a_bed = "chr20\t42984440\t43036115\tHNF4A\t4\t+\n"+\
-                         "chr20\t42984440\t43053276\tHNF4A\t8\t+\n"+\
-                         "chr20\t42984440\t43061485\tHNF4A\t10\t+\n"+\
-                         "chr20\t42984440\t43061485\tHNF4A\t10\t+\n"+\
-                         "chr20\t43029895\t43053276\tHNF4A\t8\t+\n"+\
-                         "chr20\t43029895\t43061485\tHNF4A\t11\t+\n"+\
-                         "chr20\t43029895\t43061485\tHNF4A\t10\t+\n"+\
-                         "chr20\t43029895\t43061485\tHNF4A\t10\t+\n"
+        self.hnf1b_bed = "chr17\t36046433\t36105069\tHNF1B(NM_000458.3)\t9\t-\n"+\
+                         "chr17\t36046433\t36105069\tHNF1B(NM_001165923.3)\t9\t-\n"+\
+                         "chr17\t36046433\t36105069\tHNF1B(NM_001304286.1)\t7\t-\n"
+
+        self.hnf4a_bed = "chr20\t42984440\t43053276\tHNF4A(NM_001030004.2)\t8\t+\n" +\
+                         "chr20\t42984440\t43053276\tHNF4A(NM_001287184.1)\t9\t+\n" +\
+                         "chr20\t42984440\t43061485\tHNF4A(NM_001030003.2)\t10\t+\n" +\
+                         "chr20\t42984440\t43061485\tHNF4A(NM_175914.4)\t10\t+\n" +\
+                         "chr20\t42984440\t43061485\tHNF4A(NM_001287182.1)\t11\t+\n" +\
+                         "chr20\t42984440\t43061485\tHNF4A(NM_001287183.1)\t11\t+\n" +\
+                         "chr20\t43029895\t43053276\tHNF4A(NM_178850.2)\t8\t+\n" +\
+                         "chr20\t43029895\t43061485\tHNF4A(NM_178849.2)\t10\t+\n" +\
+                         "chr20\t43029895\t43061485\tHNF4A(NM_000457.4)\t10\t+\n" +\
+                         "chr20\t43029895\t43061485\tHNF4A(NM_001258355.1)\t11\t+\n"
                          
         gene1coord = 'chr1\t100000\t101000\tgene1.1\t0\t+\n'+\
                      'chr1\t100100\t101000\tgene1.2\t0\t+'
@@ -77,15 +76,13 @@ class TestRemusProcessing(unittest.TestCase):
         warnings.simplefilter("ignore", ResourceWarning)
 
         hnf1b = BedsProcessor.get_genes_bed([self.hnf1b], self.genome)[0]           
-        self.assertEqual(len(hnf1b), 6)
+        self.assertEqual(len(hnf1b), 3)
         self.assertEqual(''.join([str(i) for i in hnf1b]), self.hnf1b_bed)
 
         
         two_genes = BedsProcessor.get_genes_bed([self.hnf1b, self.hnf4a], self.genome)[0]
-        self.assertEqual(len(two_genes), 14)
+        self.assertEqual(len(two_genes), 13)
         self.assertEqual(''.join([str(i) for i in two_genes]), self.hnf1b_bed + self.hnf4a_bed)
-
-
 
                 
            

@@ -51,19 +51,19 @@ class MiRNATargetRegistryTest(unittest.TestCase):
             
     def test_HNF1B_gene_query_mirwalk(self):
         mirnas = self.reg2.get_mirnas_targetting_gene('HNF1B', min_confidence=0.5)
-        self.assertEqual(727, len(mirnas))
+        self.assertEqual(729, len(mirnas))
 
         mirnas = self.reg2.get_mirnas_targetting_gene('HNF1B', min_confidence=1.0)
-        self.assertEqual(225, len(mirnas))
+        self.assertEqual(205, len(mirnas))
         
 
     def test_3genes_query_mirwalk(self):
         genes = ['HNF1B', 'HNF1A', 'PKD1']
         mirnas = self.reg2.get_mirnas_targetting_genes(genes, min_confidence=0.5)
-        self.assertEqual(1440, len(mirnas))
+        self.assertEqual(1420, len(mirnas))
 
         mirnas = self.reg2.get_mirnas_targetting_genes(genes, min_confidence=1.0)
-        self.assertEqual(547, len(mirnas))
+        self.assertEqual(486, len(mirnas))
 
     def tearDown(self):
         pass

@@ -70,7 +70,7 @@ class GenesDBRegistry:
         #'chrom', 'txStart', 'txEnd', 'strand', 'cdsStart', 'cdsEnd', 'exonCount', 'exonStarts', 'exonEnds', 'name', 'geneSymbol'
         sources_df = genes_df.iloc[:, [1, 2, 3, 11, 10, 7, 4]]
         strings_df = sources_df.apply(self.convert_to_bed_record, axis=1)
-        return strings_df.tolist()
+        return strings_df.values.tolist()
 
     @staticmethod
     def convert_to_bed_record(row):
