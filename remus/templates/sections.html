@@ -213,7 +213,7 @@
 {% block enhancers %}
     <a class="collapsed card-header bg-info card-link text-white" data-toggle="collapse"
        href="#collapse-enhancers">
-        Enhancers
+        Enhancers / Transcription factor binding sites (TFBS)
     </a>
     <div id="collapse-enhancers" class="collapse show">
         <div class="row">
@@ -259,11 +259,51 @@
             </div>
             <div class="card-body col-md-4">
                 <div class="form-group">
+                    <label for="enhancers-screen-checkbox">
+                        <input id="enhancers-screen-checkbox"
+                               name="enhancers-screen-used"
+                               type="checkbox" value="yes">
+                        SCREEN
+                    </label>
+                    <div id="enhancers-screen-controls"
+                         class="collapse hiden-controls">
+                        <div class="col-md-12">
+                            <div class="form-check">
+                                <input class="form-check-input"
+                                       name="enhancers-screen-combine-mode" type="radio"
+                                       id="enhancers-screen-all" value="all" disabled>
+                                <label class="form-check-label" for="enhancers-screen-all">
+                                    Active in all selected tissues</label>
+                            </div>
+
+                            <div class="form-check">
+                                <input class="form-check-input"
+                                       name="enhancers-screen-combine-mode" type="radio"
+                                       id="enhancers-screen-any" value="any" checked disabled>
+                                <label class="form-check-label" for="enhancers-screen-any">
+                                    Active in any of selected tissues</label>
+                            </div>
+                            <label for="enhancers-screen-kbs-upstream" class="col-form-label">
+                                Kb upstream
+                                <input name="enhancers-screen-kbs-upstream" class="form-control" type="number"
+                                       min="0" value="500" id="enhancers-screen-kbs-upstream" disabled>
+                            </label>
+                            <label for="enhancers-screen-kbs-downstream" class="col-form-label">
+                                Kb downstream
+                                <input name="enhancers-screen-kbs-downstream" class="form-control" type="number"
+                                       min="0" value="500" id="enhancers-screen-kbs-downstream" disabled>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body col-md-4">
+                <div class="form-group">
                     <label for="enhancers-encode-checkbox">
                         <input id="enhancers-encode-checkbox"
                                name="enhancers-encode-used"
                                type="checkbox" value="yes">
-                        ENCODE
+                        ENCODE TFBS
                     </label>
                     <div id="enhancers-encode-controls"
                          class="collapse hiden-controls">
@@ -298,47 +338,47 @@
                     </div>
                 </div>
             </div>
-            <div class="card-body col-md-4">
+<!--            <div class="card-body col-md-3">
                 <div class="form-group">
-                    <label for="enhancers-screen-checkbox">
-                        <input id="enhancers-screen-checkbox"
-                               name="enhancers-screen-used"
+                    <label for="enhancers-encode-checkbox">
+                        <input id="enhancers-encode-checkbox"
+                               name="enhancers-encode-used"
                                type="checkbox" value="yes">
-                        SCREEN
+                        SCREEN insulators
                     </label>
-                    <div id="enhancers-screen-controls"
+                    <div id="enhancers-encode-controls"
                          class="collapse hiden-controls">
                         <div class="col-md-12">
                             <div class="form-check">
                                 <input class="form-check-input"
-                                       name="enhancers-screen-combine-mode" type="radio"
-                                       id="enhancers-screen-all" value="all" disabled>
-                                <label class="form-check-label" for="enhancers-screen-all">
+                                       name="enhancers-encode-combine-mode" type="radio"
+                                       id="enhancers-encode-all" value="all" disabled>
+                                <label class="form-check-label" for="enhancers-encode-all">
                                     Active in all selected tissues</label>
                             </div>
 
                             <div class="form-check">
                                 <input class="form-check-input"
-                                       name="enhancers-screen-combine-mode" type="radio"
-                                       id="enhancers-screen-any" value="any" checked disabled>
-                                <label class="form-check-label" for="enhancers-screen-any">
+                                       name="enhancers-encode-combine-mode" type="radio"
+                                       id="enhancers-encode-any" value="any" checked disabled>
+                                <label class="form-check-label" for="enhancers-encode-any">
                                     Active in any of selected tissues</label>
                             </div>
-                            <label for="enhancers-screen-kbs-upstream" class="col-form-label">
+                            <label for="enhancers-encode-kbs-upstream" class="col-form-label">
                                 Kb upstream
-                                <input name="enhancers-screen-kbs-upstream" class="form-control" type="number"
-                                       min="0" value="500" id="enhancers-screen-kbs-upstream" disabled>
+                                <input name="enhancers-encode-kbs-upstream" class="form-control" type="number"
+                                       min="0" value="500" id="enhancers-encode-kbs-upstream" disabled>
                             </label>
-                            <label for="enhancers-screen-kbs-downstream" class="col-form-label">
+                            <label for="enhancers-encode-kbs-downstream" class="col-form-label">
                                 Kb downstream
-                                <input name="enhancers-screen-kbs-downstream" class="form-control" type="number"
-                                       min="0" value="500" id="enhancers-screen-kbs-downstream" disabled>
+                                <input name="enhancers-encode-kbs-downstream" class="form-control" type="number"
+                                       min="0" value="500" id="enhancers-encode-kbs-downstream" disabled>
 
                             </label>
                         </div>
                     </div>
                 </div>
-            </div>
+            </div> -->
         </div>
     </div>
 {% endblock %}
