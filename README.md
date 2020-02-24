@@ -70,7 +70,7 @@ Currently the VCF file is read in one piece ([to be changed](https://github.com/
     
     (__shorter version__)
     
-    Download archive with Remus data files from [here](http://remus.btm.umed.pl/data_download/remus_0.5_data.tar), and extract the archive in REMUS_DIR.
+    Download archive with Remus data files from [here](http://remus.btm.umed.pl/static/remus_0.5_data.tar), and extract the archive in REMUS_DIR.
 
     or (__longer version__):
 
