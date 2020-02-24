@@ -133,10 +133,8 @@ Application's UI and initial work on its internals was done by [Damian Skrzypcza
 Since then, it has been extended by [me](https://github.com/seru71).
 
 Code for in-browser filtering of tabixed VCF files was adopted from [js-local-vcf](https://github.com/jsa-aerial/js-local-vcf) written by [Jon Anthony](https://github.com/jsa-aerial).
-
 Liftover of genome coordinates is done using [liftOver](http://hgdownload.cse.ucsc.edu/admin/exe/linux.x86_64/) tool developed by [Jim Kent](http://www.kentinformatics.com/about-us.html). 
-Note that liftOver is [free only for academic use](external_resources/REAMDE.md).
- 
+Note that liftOver is [free only for academic use](https://github.com/seru71/Remus/blob/master/external_resources/README.md).
 Data used in Remus is downloaded from public databases and primary sources attributed in the description on top of the page.
 
 This project is funded by NCN Polonez grant no 2016/23/P/NZ2/04251. This project has received funding from the European Union’s Horizon 2020 research and innovation programme under the Marie Skłodowska-Curie grant agreement No 665778.
