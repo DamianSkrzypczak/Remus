@@ -66,6 +66,49 @@
         </div>
     </div>
     <script>
+        $("#set-example-values-button").bind('click dblclick', function (evt) {
+            var defaultGene = {
+                id: "BLK",
+                text: 'BLK'
+            };
+            if (!$('#select-genes').find("option[value='" + defaultGene.id + "']").length) {
+                var defaultOption = new Option(defaultGene.text, defaultGene.id, false, false);
+                $('#select-genes').append(defaultOption).trigger('change');
+            }
+            $('#select-genes').val(defaultGene.id).trigger('change');
+
+            var defaultTissue = {
+                id: "pancreas (CHR_E, CHR_S, ENH_F, ENH_S, PR_F, PR_S)",
+                text: 'pancreas (CHR_E, CHR_S, ENH_F, ENH_S, PR_F, PR_S)'
+            }
+            if (!$('#select-tissues').find("option[value='" + defaultTissue.id + "']").length) {
+                var defaultOption = new Option(defaultTissue.text, defaultTissue.id, false, false);
+                $('#select-tissues').append(defaultOption).trigger('change');
+            }
+            $('#select-tissues').val(defaultTissue.id).trigger('change');
+
+            checkboxesIDs = [
+                "#promoters-fantom5-checkbox",
+                "#promoters-screen-checkbox",
+                "#enhancers-fantom5-checkbox",
+                "#enhancers-screen-checkbox",
+                "#enhancers-encode-checkbox ",
+                "#accessible-chromatin-encode-checkbox",
+                "#accessible-chromatin-screen-checkbox"
+            ]
+
+            checkboxesIDs.forEach(checkboxID => {
+                if (!$(checkboxID).is(":checked")){
+                    $(checkboxID).click();
+                }
+            });
+
+            $('html, body').animate({ scrollTop: $("#submit-all").offset().top }, 3500);
+            setTimeout(function(){
+                $('#submit-all').popover("show");
+            }, 2500);
+        });
+
         $("#genome-switch-button").bind('click dblclick', function (evt) {
             $('#select-genes').empty();
             $('#select-tissues').empty();
@@ -157,7 +200,7 @@
                 }
             }
         });
-        
+
         $("#mirna-mirwalk-checkbox").bind('click dblclick', function (evt) {
             if ($(this).is(":checked")) {
                 $('#mirna-mirwalk-controls').slideDown();

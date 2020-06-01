@@ -3,8 +3,10 @@
 {% block general_controls %}
     {{ super() }}
     <div class="col">
+        <div class="float-left">
+            <button id="set-example-values-button" type="button" class="btn btn-info">Set example values</button>
+        </div>
         <div class="float-right">
-
             <button class="switch close" id="genome-switch-button"
                     data-trigger="focus"
                     data-toggle="popover"
@@ -572,7 +574,13 @@
         <div class="col-md-4 " style="padding-left: 0">
             <div>
                 <input type="submit" href="#footer" value="Query" id="submit-all" class="btn btn-success btn-lg"
-                    role="button" aria-disabled="true">
+                    role="button" aria-disabled="true"
+                    data-trigger="focus"
+                    data-toggle="popover"
+                    data-placement="right"
+                    data-html="true"
+                    data-content="Click me to run query for example data!"
+                    >
                 <input type="button" id="download-result" class="btn btn-success btn-lg"
                     role="button" aria-disabled="true" value="Download result BED" disabled>
             </div><br>
