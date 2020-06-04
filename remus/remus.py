@@ -101,10 +101,21 @@ def save_as_tmp(result):
 def download_last():
     last_result_path = session.get("last_result", None)
     if last_result_path and os.path.exists(last_result_path):
-        return send_file(last_result_path, mimetype="text/bed", attachment_filename='result.bed', as_attachment=True)
+        return send_file(last_result_path, mimetype="text/bed", attachment_filename='remus_result.bed', as_attachment=True)
     else:
         return "", 202
 
+@app.route("/api/download_last_excel")
+def download_last_excel():
+    last_result_path = session.get("last_result", None)
+    if last_result_path and os.path.exists(last_result_path):
+        df = pd.read_csv(last_result_path, sep='\t', names=['Chr', 'Start', 'End', 'Source'])
+        excel_path = last_result_path+".xlsx"
+        df.to_excel(excel_path, index=False)
+        return send_file(excel_path, mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                         attachment_filename='remus_result.xlsx', as_attachment=True)
+    else:
+        return "", 202
 
 def return_summary(result, time_elapsed):
     summary_data = [
@@ -133,7 +144,7 @@ def get_perform_params():
 
 
 def get_single_value_params():
-    
+
     # genome build
     single_value_params =  ["genome"]
 
@@ -157,7 +168,7 @@ def get_single_value_params():
                            "enhancers-fantom5-combine-mode",
                            "enhancers-fantom5-kbs-upstream",
                            "enhancers-fantom5-kbs-downstream"]
-    
+
     # ENCODE enhancers
     single_value_params += ["enhancers-encode-used",
                            "enhancers-encode-combine-mode",
@@ -172,7 +183,7 @@ def get_single_value_params():
 
     # ENCODE accessible chromatin
     single_value_params += ["accessible-chromatin-encode-used",
-                            "accessible-chromatin-encode-combine-mode",                           
+                            "accessible-chromatin-encode-combine-mode",
                             "accessible-chromatin-encode-kbs-upstream",
                             "accessible-chromatin-encode-kbs-downstream"]
 

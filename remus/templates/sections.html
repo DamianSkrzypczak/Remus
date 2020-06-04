@@ -4,14 +4,14 @@
     {{ super() }}
     <div class="col">
         <div class="float-left">
-            <button id="set-example-values-button" type="button" class="btn btn-success">Set example values</button>
+            <button id="set-example-values-button" type="button" class="btn btn-secondary">Set example values</button>
         </div>
         <div class="float-right">
             <button class="switch close" id="genome-switch-button"
                     data-trigger="focus"
                     data-toggle="popover"
                     data-placement="left"
-                    {# data-content="Select genome build"#} > 
+                    {# data-content="Select genome build"#} >
                 <input id="genome-switch" class="switch" type="checkbox">
                 <label for="genome-switch" id="genome-switch-label" class="">Genome</label>
             </button>
@@ -501,21 +501,21 @@
                     <div id="mirna-mirtarbase-controls"
                          class="collapse hiden-controls">
                         <div class="col-md-12">
-                            
+
                             <label for="mirna-mirtarbase-include-weak-checkbox">
                                 <input id="mirna-mirtarbase-include-weak-checkbox"
                                         name="mirna-mirtarbase-include-weak"
                                         type="checkbox" value="yes">
                                     Include weak interactions
                             </label>
-                                                    
+
                         </div>
                     </div>
                 </div>
             </div>
             <div class="card-body col-md-4">
                 <div class="form-group">
-              
+
                     <label for="mirna-mirwalk-checkbox">
                         <input id="mirna-mirwalk-checkbox"
                                name="mirna-mirwalk-used"
@@ -534,17 +534,17 @@
                             </label>
                         </div>
                     </div>
-                    
+
                 </div>
             </div>
-            
+
             <div class="card-body col-md-4">
                 <div class="form-group">
-                    
+
                     <div id="mirna-targets-controls"
                          class="collapse hiden-controls">
                         <div class="col-md-12">
-                    
+
                             <div class="form-check">
                                 <input class="form-check-input"
                                        name="mirna-targets-combine-mode" type="radio"
@@ -581,23 +581,31 @@
                     data-html="true"
                     data-content="Click me to run query for example data!"
                     >
-                <input type="button" id="download-result" class="btn btn-success btn-lg"
-                    role="button" aria-disabled="true" value="Download result BED" disabled>
             </div><br>
             <div>
-            
+
                 <label id="filter-vcf-label" class="btn btn-success btn-lg disabled" for="filter-vcf">
                     <input type="file" id="filter-vcf" accept=".vcf" disabled hidden>
                     <!--<input type="file" id="filter-vcf" accept=".gz, .tbi, .vcf"  multiple disabled hidden> -->
-                    Filter VCF using result BED 
+                    Filter VCF using result BED
                 </label>
-            
+
             </div>
+            <div>
+                Get results in:<br>
+                <input type="button" id="download-result" class="btn btn-success"
+                    role="button" aria-disabled="true" value="BED" disabled>
+                <input type="button" id="download-excel" class="btn btn-success"
+                    role="button" aria-disabled="true" value="Table" disabled>
+                <input type="button" id="link-genomebrowser" class="btn btn-success"
+                    role="button" aria-disabled="true" value="Genome Browser" disabled>
+            </div>
+
         </div>
         <div class="col-md-8" style="">
             <div id="results-loading" class="text-center" style="border: dashed 1px; display:none">
                 <img src="{{ url_for('static', filename='img/loading.gif') }}" class="w-25"/>
-                <p> Computing...<br>               
+                <p> Computing...<br>
                     (Please don't close page until finished)
                 </p>
             </div>
@@ -613,6 +621,6 @@
             </div>
         </div>
     </div>
-    
-    
+
+
 {% endblock %}

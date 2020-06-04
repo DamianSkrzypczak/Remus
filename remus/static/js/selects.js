@@ -72,6 +72,7 @@ $(document).ready(function () {
         $('#results-table').hide();
         $('#results-loading').show();
         $('#download-result').attr("disabled", true);
+        $('#download-excel').attr("disabled", true);
         $.ajax({
             type: "POST",
             url: $SCRIPT_ROOT + "/api/perform",
@@ -81,6 +82,7 @@ $(document).ready(function () {
                 $('#results-loading').hide();
                 $('#results-table').show();
                 $('#download-result').attr("disabled", false);
+                $('#download-excel').attr("disabled", false);
                 $('#filter-vcf-label').removeClass('disabled');
                 $('#filter-vcf').attr("disabled", false);
                 $('#filter-vcf').val('');
@@ -99,6 +101,11 @@ $(document).ready(function () {
         return false
     }));
 
+    $("#download-excel").bind("click", "doubleclick", (function (e) {
+        e.preventDefault();
+        window.location.href = $SCRIPT_ROOT + "/api/download_last_excel";
+        return false
+    }));
 
     $(function () {
         $('[data-toggle="popover"]').popover()
