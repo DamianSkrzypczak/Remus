@@ -1,6 +1,10 @@
 DELAY = 100;
 $(document).ready(function () {
 
+    $("body").on('click', '.select2-results__group', function() {
+        $(this).siblings().toggle();
+      })
+
     function get_genome() {
         return window.getComputedStyle(document.querySelector('#genome-switch-label'), ':after')
             .getPropertyValue('content').replace(/['"]+/g, '')
@@ -36,6 +40,21 @@ $(document).ready(function () {
         }
     });
 
+    function getClss(){
+        var clss = {};
+        $.ajax({
+            dataType: "json",
+            url: "/api/classes",
+            async: false,
+            success: function(data) {
+                $.each(data, function (i, item) {
+                    clss[item["name"]] = item["class"]
+                })
+            }
+          });
+        return clss
+    }
+
     $('#select-tissues').select2({
         multiple: true,
         width: '100%',
@@ -58,10 +77,40 @@ $(document).ready(function () {
                 }
             },
             processResults: function (data) {
-                var results = [];
+
+
+                var results = [
+                    {
+                        id: 'cells',
+                        text: 'cells',
+                        disabled: true,
+                        children: []
+                    },
+                    {
+                        id: 'tissues',
+                        text: 'tissues',
+                        disabled: true,
+                        children: []
+                    },
+                    {
+                        id: 'organs',
+                        text: 'organs',
+                        disabled: true,
+                        children: []
+                    }
+                ];
+                var clss = getClss()
                 $.each(data, function (i, item) {
-                    results.push({"id": item, "text": item})
+                    var cls = clss[item]
+                    if (cls === "cell"){
+                        results[0].children.push({"id": item, "text": item})
+                    } else if (cls === "tissue") {
+                        results[1].children.push({"id": item, "text": item})
+                    } else if (cls === "organ") {
+                        results[2].children.push({"id": item, "text": item})
+                    }
                 });
+
                 return {results: results};
             }
         }

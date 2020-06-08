@@ -96,6 +96,18 @@ def save_as_tmp(result):
     result.saveas(tmp_file.name)
     return tmp_file
 
+@app.route("/api/last_result_id")
+def last_result_id():
+    last_result_path = session.get("last_result", None)
+    if not last_result_path:
+        return "last result ID can't be found", 403
+    return last_result_path, 202
+
+@app.route("/api/classes")
+def classes():
+    df = pd.read_csv("classes.csv")
+    df.columns = ['name', 'class']
+    return df.to_json(orient='records')
 
 @app.route("/api/download_last")
 def download_last():
