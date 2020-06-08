@@ -92,7 +92,7 @@ def perform():
 
 
 def save_as_tmp(result):
-    tmp_file = NamedTemporaryFile(suffix="bed", delete=False)
+    tmp_file = NamedTemporaryFile(suffix=".bed", delete=False)
     result.saveas(tmp_file.name)
     return tmp_file
 
@@ -116,6 +116,16 @@ def download_last_excel():
                          attachment_filename='remus_result.xlsx', as_attachment=True)
     else:
         return "", 202
+
+@app.route("/api/download_by_id/<file_id>")
+def download_by_id(file_id):
+    path = os.path.join("/tmp",file_id)
+    if os.path.exists(path):
+        return send_file(path, mimetype="text/bed", attachment_filename='remus_result.bed',
+                         as_attachment=True)
+    else:
+        return "", 202
+
 
 def return_summary(result, time_elapsed):
     summary_data = [
