@@ -55,6 +55,13 @@ $(document).ready(function () {
         return clss
     }
 
+    // $(".select2-results__options--nested").ready(function() {
+    //     console.log("LOL");
+    //     $(this).siblings().toggle();
+    //   })
+
+
+    
     $('#select-tissues').select2({
         multiple: true,
         width: '100%',
@@ -79,39 +86,40 @@ $(document).ready(function () {
             processResults: function (data) {
 
 
-                var results = [
-                    {
-                        id: 'cells',
-                        text: 'cells',
-                        disabled: true,
-                        children: []
-                    },
-                    {
-                        id: 'tissues',
-                        text: 'tissues',
-                        disabled: true,
-                        children: []
-                    },
-                    {
-                        id: 'organs',
-                        text: 'organs',
-                        disabled: true,
-                        children: []
-                    }
-                ];
+                var cells = []
+                var tissues = []
+                var organs = []
                 var clss = getClss()
                 $.each(data, function (i, item) {
                     var cls = clss[item]
                     if (cls === "cell"){
-                        results[0].children.push({"id": item, "text": item})
+                        cells.push({"id": item, "text": item})
                     } else if (cls === "tissue") {
-                        results[1].children.push({"id": item, "text": item})
+                        tissues.push({"id": item, "text": item})
                     } else if (cls === "organ") {
-                        results[2].children.push({"id": item, "text": item})
+                        organs.push({"id": item, "text": item})
                     }
                 });
-
-                return {results: results};
+                return {results: results = [
+                    {
+                        id: 'cells',
+                        text: 'cells (' + cells.length + ` results) (click to show/hide)`,
+                        disabled: true,
+                        children: cells
+                    },
+                    {
+                        id: 'tissues',
+                        text: 'tissues (' + tissues.length + ` results) (click to show/hide)`,
+                        disabled: true,
+                        children: tissues
+                    },
+                    {
+                        id: 'organs',
+                        text: 'organs (' + organs.length + ` results) (click to show/hide)`,
+                        disabled: true,
+                        children: organs
+                    }
+                ]};
             }
         }
     });

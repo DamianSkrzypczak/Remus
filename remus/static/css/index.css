@@ -40,3 +40,8 @@ table {
     width: 100%;
     background: rgba(255, 255, 255, .8) url('http://i.stack.imgur.com/FhHRx.gif') 50% 50% no-repeat;
 }
+
+
+ul.select2-results__options.select2-results__options--nested {
+    display: none;
+}
