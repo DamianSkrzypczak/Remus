@@ -122,6 +122,7 @@ $(document).ready(function () {
         $('#results-loading').show();
         $('#download-result').attr("disabled", true);
         $('#download-excel').attr("disabled", true);
+        $('#link-genomebrowser').attr("disabled", true);
         $.ajax({
             type: "POST",
             url: $SCRIPT_ROOT + "/api/perform",
@@ -132,6 +133,7 @@ $(document).ready(function () {
                 $('#results-table').show();
                 $('#download-result').attr("disabled", false);
                 $('#download-excel').attr("disabled", false);
+                $('#link-genomebrowser').attr("disabled", false);
                 $('#filter-vcf-label').removeClass('disabled');
                 $('#filter-vcf').attr("disabled", false);
                 $('#filter-vcf').val('');
@@ -153,6 +155,40 @@ $(document).ready(function () {
     $("#download-excel").bind("click", "doubleclick", (function (e) {
         e.preventDefault();
         window.location.href = $SCRIPT_ROOT + "/api/download_last_excel";
+        return false
+    }));
+
+    function get_last_result_id() {
+        var id = "";
+        $.ajax({
+            dataType: "text",
+            url: "/api/last_result_id",
+            async: false,
+            success: function(data) {
+                id=data
+            }
+          });
+        return id
+    }
+
+    function get_first_gene() {
+       alert(window.getComputedStyle(document.querySelector('#select-genes'), ':after')
+            .getPropertyValue('content'));
+    }
+
+    $("#link-genomebrowser").bind("click", "doubleclick", (function (e) {
+        e.preventDefault();
+        var url = "http://genome.ucsc.edu/cgi-bin/hgTracks?org=human&position=" +
+                               get_first_gene() +
+                               "&hgt.customText=http://remus.btm.umed.pl/api/download_by_id/" +
+                               get_last_result_id();
+        alert(url);
+        var win = window.open(url, '_blank');
+        if (win) { //Browser has allowed it to be opened
+            win.focus();
+        } else {  //Browser has blocked it
+            alert('Please allow popups for this website');
+        }
         return false
     }));
 
