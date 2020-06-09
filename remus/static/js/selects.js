@@ -180,8 +180,7 @@ $(document).ready(function () {
     }
 
     function get_first_gene() {
-       alert(window.getComputedStyle(document.querySelector('#select-genes'), ':after')
-            .getPropertyValue('content'));
+       return $('#select-genes').select2("val")[0];
     }
 
     $("#link-genomebrowser").bind("click", "doubleclick", (function (e) {
@@ -190,7 +189,6 @@ $(document).ready(function () {
                                get_first_gene() +
                                "&hgt.customText=http://remus.btm.umed.pl/api/download_by_id/" +
                                get_last_result_id();
-        alert(url);
         var win = window.open(url, '_blank');
         if (win) { //Browser has allowed it to be opened
             win.focus();
