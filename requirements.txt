@@ -1,4 +1,5 @@
 pandas
+openpyxl
 pysam==0.15.3
 pybedtools
 flask
