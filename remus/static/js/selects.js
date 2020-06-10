@@ -131,6 +131,8 @@ $(document).ready(function () {
         $('#download-result').attr("disabled", true);
         $('#download-excel').attr("disabled", true);
         $('#link-genomebrowser').attr("disabled", true);
+        $('#filter-vcf-label').addClass('disabled');
+        $('#filter-vcf').attr("disabled", false);
         $.ajax({
             type: "POST",
             url: $SCRIPT_ROOT + "/api/perform",
