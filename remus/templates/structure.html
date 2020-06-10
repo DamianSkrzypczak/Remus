@@ -116,6 +116,11 @@
         $("#genome-switch-button").bind('click dblclick', function (evt) {
             $('#select-genes').empty();
             $('#select-tissues').empty();
+            $('#filter-vcf').attr("disabled", true);
+            $('#filter-vcf-label').addClass('disabled');
+            $('#download-result').attr("disabled", true);
+            $('#download-excel').attr("disabled", true);
+            $('#link-genomebrowser').attr("disabled", true);
         });
 
         $("#promoters-fantom5-checkbox").bind('click dblclick', function (evt) {

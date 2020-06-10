@@ -61,7 +61,7 @@ $(document).ready(function () {
     //   })
 
 
-    
+
     $('#select-tissues').select2({
         multiple: true,
         width: '100%',
@@ -185,9 +185,16 @@ $(document).ready(function () {
 
     $("#link-genomebrowser").bind("click", "doubleclick", (function (e) {
         e.preventDefault();
-        var url = "http://genome.ucsc.edu/cgi-bin/hgTracks?org=human&position=" +
-                               get_first_gene() +
-                               "&hgt.customText=http://remus.btm.umed.pl/api/download_by_id/" +
+
+        var gene = get_first_gene()
+        if (gene === void(0)) {
+            gene="chr1"
+        }
+
+        // http://genome.ucsc.edu/cgi-bin/hgTracks?org=human&db=GENOME_BUILD&position=GENE&hgt.customText=http://remus.btm.umed.pl/api/dowload_by_id/ID
+        var url = "http://genome.ucsc.edu/cgi-bin/hgTracks?org=human&db=" + get_genome() +
+                               "&position=" + gene +
+                               "&hgt.customText=http://" + window.location.host + "/api/download_by_id/" +
                                get_last_result_id();
         var win = window.open(url, '_blank');
         if (win) { //Browser has allowed it to be opened
