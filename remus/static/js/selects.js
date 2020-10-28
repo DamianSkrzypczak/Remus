@@ -1,6 +1,10 @@
 DELAY = 100;
 $(document).ready(function () {
 
+    $("body").on('click', '.select2-results__group', function() {
+        $(this).siblings().toggle();
+      })
+
     function get_genome() {
         return window.getComputedStyle(document.querySelector('#genome-switch-label'), ':after')
             .getPropertyValue('content').replace(/['"]+/g, '')
@@ -36,6 +40,28 @@ $(document).ready(function () {
         }
     });
 
+    function getClss(){
+        var clss = {};
+        $.ajax({
+            dataType: "json",
+            url: "/api/classes",
+            async: false,
+            success: function(data) {
+                $.each(data, function (i, item) {
+                    clss[item["name"]] = item["class"]
+                })
+            }
+          });
+        return clss
+    }
+
+    // $(".select2-results__options--nested").ready(function() {
+    //     console.log("LOL");
+    //     $(this).siblings().toggle();
+    //   })
+
+
+
     $('#select-tissues').select2({
         multiple: true,
         width: '100%',
@@ -58,11 +84,42 @@ $(document).ready(function () {
                 }
             },
             processResults: function (data) {
-                var results = [];
+
+
+                var cells = []
+                var tissues = []
+                var organs = []
+                var clss = getClss()
                 $.each(data, function (i, item) {
-                    results.push({"id": item, "text": item})
+                    var cls = clss[item]
+                    if (cls === "cell"){
+                        cells.push({"id": item, "text": item})
+                    } else if (cls === "tissue") {
+                        tissues.push({"id": item, "text": item})
+                    } else if (cls === "organ") {
+                        organs.push({"id": item, "text": item})
+                    }
                 });
-                return {results: results};
+                return {results: results = [
+                    {
+                        id: 'cells',
+                        text: 'cells (' + cells.length + ` results) (click to show/hide)`,
+                        disabled: true,
+                        children: cells
+                    },
+                    {
+                        id: 'tissues',
+                        text: 'tissues (' + tissues.length + ` results) (click to show/hide)`,
+                        disabled: true,
+                        children: tissues
+                    },
+                    {
+                        id: 'organs',
+                        text: 'organs (' + organs.length + ` results) (click to show/hide)`,
+                        disabled: true,
+                        children: organs
+                    }
+                ]};
             }
         }
     });
@@ -73,6 +130,9 @@ $(document).ready(function () {
         $('#results-loading').show();
         $('#download-result').attr("disabled", true);
         $('#download-excel').attr("disabled", true);
+        $('#link-genomebrowser').attr("disabled", true);
+        $('#filter-vcf-label').addClass('disabled');
+        $('#filter-vcf').attr("disabled", false);
         $.ajax({
             type: "POST",
             url: $SCRIPT_ROOT + "/api/perform",
@@ -83,6 +143,7 @@ $(document).ready(function () {
                 $('#results-table').show();
                 $('#download-result').attr("disabled", false);
                 $('#download-excel').attr("disabled", false);
+                $('#link-genomebrowser').attr("disabled", false);
                 $('#filter-vcf-label').removeClass('disabled');
                 $('#filter-vcf').attr("disabled", false);
                 $('#filter-vcf').val('');
@@ -104,6 +165,45 @@ $(document).ready(function () {
     $("#download-excel").bind("click", "doubleclick", (function (e) {
         e.preventDefault();
         window.location.href = $SCRIPT_ROOT + "/api/download_last_excel";
+        return false
+    }));
+
+    function get_last_result_id() {
+        var id = "";
+        $.ajax({
+            dataType: "text",
+            url: "/api/last_result_id",
+            async: false,
+            success: function(data) {
+                id=data
+            }
+          });
+        return id
+    }
+
+    function get_first_gene() {
+       return $('#select-genes').select2("val")[0];
+    }
+
+    $("#link-genomebrowser").bind("click", "doubleclick", (function (e) {
+        e.preventDefault();
+
+        var gene = get_first_gene()
+        if (gene === void(0)) {
+            gene="chr1"
+        }
+
+        // http://genome.ucsc.edu/cgi-bin/hgTracks?org=human&db=GENOME_BUILD&position=GENE&hgt.customText=http://remus.btm.umed.pl/api/dowload_by_id/ID
+        var url = "http://genome.ucsc.edu/cgi-bin/hgTracks?org=human&db=" + get_genome() +
+                               "&position=" + gene +
+                               "&hgt.customText=http://" + window.location.host + "/api/download_by_id/" +
+                               get_last_result_id();
+        var win = window.open(url, '_blank');
+        if (win) { //Browser has allowed it to be opened
+            win.focus();
+        } else {  //Browser has blocked it
+            alert('Please allow popups for this website');
+        }
         return false
     }));
 

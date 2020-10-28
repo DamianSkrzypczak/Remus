@@ -27,6 +27,22 @@
             Customizable search and step-by-step process allows for iterative building of a tissue-specific set of
             regions that likely play a role in regulating expression of the input genes in the tissues affected by the
             disease.
+
+            <a data-toggle="collapse" href="#collapseFlowchart" role="button" aria-expanded="false" aria-controls="collapseFlowchart">
+               Learn more...
+            </a>
+            <br>
+            <div class="collapse" id="collapseFlowchart">
+                <br>
+                <div class="card card-body">
+                    <br>
+                    <img src="{{ url_for('static', filename='img/flowchart.png') }}" class="img-fluid float-right"
+                         alt="flowchart" style="width: 100%">
+                    <a data-toggle="collapse" href="#collapseFlowchart" role="button" aria-expanded="false"
+                       aria-controls="collapseFlowchart"
+                       onclick="$('html,body').animate({scrollTop:0},0)">[x] Close</a>
+                </div>
+            </div>
         </div>
         <div id="content-jumbotron" class="jumbotron">
             <div class="row">
@@ -116,6 +132,11 @@
         $("#genome-switch-button").bind('click dblclick', function (evt) {
             $('#select-genes').empty();
             $('#select-tissues').empty();
+            $('#filter-vcf').attr("disabled", true);
+            $('#filter-vcf-label').addClass('disabled');
+            $('#download-result').attr("disabled", true);
+            $('#download-excel').attr("disabled", true);
+            $('#link-genomebrowser').attr("disabled", true);
         });
 
         $("#promoters-fantom5-checkbox").bind('click dblclick', function (evt) {

@@ -96,6 +96,11 @@ def save_as_tmp(result):
     result.saveas(tmp_file.name)
     return tmp_file
 
+@app.route("/api/classes")
+def classes():
+    df = pd.read_csv("classes.csv")
+    df.columns = ['name', 'class']
+    return df.to_json(orient='records')
 
 @app.route("/api/download_last")
 def download_last():
@@ -119,12 +124,20 @@ def download_last_excel():
 
 @app.route("/api/download_by_id/<file_id>")
 def download_by_id(file_id):
-    path = os.path.join("/tmp",file_id)
+    path = os.path.join("/tmp", os.path.basename(file_id))
     if os.path.exists(path):
         return send_file(path, mimetype="text/bed", attachment_filename='remus_result.bed',
                          as_attachment=True)
     else:
         return "", 202
+
+
+@app.route("/api/last_result_id")
+def last_result_id():
+    last_result_path = session.get("last_result", None)
+    if not last_result_path:
+        return "Last result ID can't be found", 404
+    return os.path.basename(last_result_path)
 
 
 def return_summary(result, time_elapsed):

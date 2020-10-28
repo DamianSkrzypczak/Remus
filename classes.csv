@@ -1,0 +1,312 @@
+"B cell (CHR_E, CHR_S, ENH_S, PR_F, PR_S)",cell
+"CD14-positive monocyte (CHR_E, CHR_S, ENH_E, ENH_S, PR_F, PR_S)",cell
+"CD1c-positive myeloid dendritic cell (CHR_E, CHR_S)",cell
+"CD4-positive helper T cell (CHR_S, ENH_S, PR_S)",cell
+"CD4-positive, CD25-positive, alpha-beta regulatory T cell (ENH_S, PR_S)",cell
+"CD4-positive, alpha-beta T cell (CHR_E, PR_F)",cell
+"CD4-positive, alpha-beta memory T cell (ENH_S, PR_S)",cell
+"CD8-positive, alpha-beta T cell (CHR_E, CHR_S, ENH_S, PR_F, PR_S)",cell
+"CD8-positive, alpha-beta memory T cell (ENH_S, PR_S)",cell
+"Peyer's patch (CHR_E, ENH_E, PR_S)",tissue
+"T-cell (CHR_E, CHR_S, ENH_F, ENH_S, PR_F, PR_S)",cell
+"T-helper 1 cell (CHR_E, CHR_S)",cell
+T-helper 17 cell (CHR_E),cell
+"T-helper 2 cell (CHR_E, CHR_S)",cell
+"acinar cell (ENH_F, PR_F)",cell
+"adipose tissue (ENH_F, PR_F)",tissue
+"adrenal gland (CHR_E, CHR_S, ENH_E, ENH_S, PR_F, PR_S)",organ
+"adrenal gland embryonic (CHR_S, ENH_S, PR_S)",organ
+"amnion (ENH_S, PR_S)",organ
+"amnion embryonic (ENH_S, PR_S)",organ
+"amniotic epithelial cell (CHR_E, CHR_S, ENH_F, PR_F)",cell
+"angular gyrus (ENH_S, PR_S)",organ
+"aorta (ENH_S, PR_S)",organ
+aortic smooth muscle cell (PR_F),cell
+"ascending aorta (CHR_E, ENH_E)",organ
+"astrocyte (CHR_E, CHR_S, ENH_E, ENH_F, ENH_S, PR_F, PR_S)",cell
+"astrocyte of the cerebellum (CHR_E, PR_F, PR_S)",cell
+astrocyte of the hippocampus (CHR_E),cell
+"astrocyte of the spinal cord (CHR_E, ENH_E, PR_S)",cell
+"basophil (ENH_F, PR_F)",cell
+"blood (ENH_F, PR_F)",tissue
+"blood vessel (ENH_F, PR_F)",tissue
+"blood vessel endothelial cell (ENH_F, PR_F)",cell
+"body of pancreas (CHR_E, CHR_S, ENH_E, ENH_S, PR_S)",organ
+"brain (CHR_E, CHR_S, ENH_F, PR_F, PR_S)",organ
+"brain embryonic (CHR_S, PR_S)",organ
+"brain microvascular endothelial cell (CHR_E, PR_S)",cell
+"brain pericyte (CHR_E, CHR_S)",cell
+"breast epithelium (CHR_E, ENH_E, PR_S)",tissue
+"bronchial epithelial cell (CHR_E, CHR_S, PR_F, PR_S)",cell
+"bronchial smooth muscle cell (ENH_F, PR_F)",cell
+"cardiac fibroblast (CHR_E, ENH_E, ENH_F, PR_F, PR_S)",cell
+"cardiac muscle cell (CHR_E, ENH_E, ENH_F, ENH_S, PR_F, PR_S)",cell
+"caudate nucleus (ENH_S, PR_S)",organ
+"cerebellar cortex (CHR_E, CHR_S)",tissue
+"cerebellum (CHR_E, PR_F)",organ
+"chondrocyte (ENH_F, PR_F)",cell
+chorion (CHR_E),organ
+"choroid plexus epithelial cell (CHR_E, ENH_E, PR_S)",cell
+"ciliated epithelial cell (ENH_F, PR_F)",cell
+"cingulate gyrus (ENH_S, PR_S)",organ
+circulating cell (ENH_F),cell
+colon (CHR_E),organ
+"colonic mucosa (ENH_S, PR_S)",tissue
+"common myeloid progenitor, CD34-positive (CHR_E, CHR_S, ENH_S, PR_S)",cell
+"corneal epithelial cell (ENH_F, PR_F)",cell
+"coronary artery (CHR_E, ENH_E, PR_F, PR_S)",organ
+dedifferentiated amniotic fluid mesenchymal stem cell (CHR_S),cell
+dedifferentiated amniotic fluid mesenchymal stem cell embryonic (CHR_S),cell
+"dendritic cell (ENH_F, PR_F)",cell
+"dermis blood vessel endothelial cell (CHR_E, CHR_S)",cell
+"dermis microvascular lymphatic vessel endothelial cell (CHR_E, CHR_S)",cell
+duodenal mucosa (PR_S),tissue
+embryonic facial prominence (CHR_S),organ
+embryonic facial prominence embryonic (CHR_S),organ
+"endocrine pancreas (ENH_S, PR_S)",organ
+endometrium (CHR_E),organ
+"endothelial cell of hepatic sinusoid (ENH_F, PR_F)",cell
+"endothelial cell of lymphatic vessel (ENH_F, PR_F)",cell
+"endothelial cell of umbilical vein (CHR_E, ENH_E, ENH_S, PR_F, PR_S)",cell
+"enteric smooth muscle cell (ENH_F, PR_F)",cell
+epidermal melanocyte (CHR_E),cell
+"epithelial cell of Malassez (ENH_F, PR_F)",cell
+"epithelial cell of esophagus (CHR_E, ENH_F, PR_F, PR_S)",cell
+"epithelial cell of prostate (CHR_E, CHR_S, ENH_E, ENH_F, PR_F)",cell
+"epithelial cell of proximal tubule (CHR_E, ENH_E, PR_F, PR_S)",cell
+erythroblast (ENH_E),cell
+"esophagus (ENH_F, ENH_S, PR_F, PR_S)",organ
+"esophagus muscularis mucosa (ENH_E, PR_S)",tissue
+"esophagus squamous epithelium (CHR_E, ENH_E, PR_S)",tissue
+"eye (CHR_E, CHR_S, ENH_F, PR_F)",organ
+eye embryonic (CHR_S),organ
+"fat cell (ENH_F, PR_F)",cell
+femur (CHR_E),organ
+"fibroblast of choroid plexus (ENH_F, PR_F)",cell
+"fibroblast of dermis (CHR_E, CHR_S, ENH_E, ENH_S, PR_F, PR_S)",cell
+"fibroblast of gingiva (CHR_E, ENH_F, PR_F, PR_S)",cell
+"fibroblast of lung (CHR_E, CHR_S, ENH_E, ENH_S, PR_F, PR_S)",cell
+"fibroblast of lung embryonic (CHR_S, ENH_S, PR_S)",cell
+"fibroblast of lymphatic vessel (ENH_F, PR_F)",cell
+"fibroblast of mammary gland (CHR_E, ENH_E, PR_F, PR_S)",cell
+"fibroblast of peridontal ligament (CHR_E, CHR_S)",cell
+"fibroblast of periodontium (ENH_F, PR_F)",cell
+"fibroblast of pulmonary artery (CHR_E, ENH_F, PR_F, PR_S)",cell
+"fibroblast of skin of abdomen (CHR_E, CHR_S, PR_S)",cell
+fibroblast of skin of abdomen embryonic (CHR_S),cell
+fibroblast of skin of back (CHR_E),cell
+fibroblast of skin of left biceps (CHR_E),cell
+fibroblast of skin of left quadriceps (CHR_E),cell
+fibroblast of skin of right biceps (CHR_E),cell
+fibroblast of skin of right quadriceps (CHR_E),cell
+fibroblast of skin of scalp (CHR_E),cell
+fibroblast of skin of upper back (CHR_E),cell
+"fibroblast of the aortic adventitia (CHR_E, ENH_E, PR_F, PR_S)",cell
+"fibroblast of the conjuctiva (CHR_E, CHR_S, ENH_F, PR_F)",cell
+"fibroblast of tunica adventitia of artery (ENH_F, PR_F)",cell
+"fibroblast of villous mesenchyme (CHR_E, ENH_E, PR_F, PR_S)",cell
+"forelimb muscle (CHR_E, CHR_S)",tissue
+forelimb muscle embryonic (CHR_S),tissue
+"foreskin fibroblast (CHR_E, CHR_S, ENH_E, ENH_S, PR_S)",cell
+"foreskin keratinocyte (CHR_E, CHR_S, ENH_E, ENH_S, PR_S)",cell
+"foreskin melanocyte (CHR_E, CHR_S, ENH_S, PR_S)",cell
+"frontal cortex (CHR_E, PR_F)",tissue
+"gallbladder (ENH_F, PR_F)",organ
+"gastrocnemius medialis (CHR_E, CHR_S, ENH_E, ENH_S, PR_S)",tissue
+"gastroesophageal sphincter (ENH_E, PR_S)",tissue
+germinal matrix (PR_S),tissue
+germinal matrix embryonic (PR_S),tissue
+"gingival epithelial cell (ENH_F, PR_F)",cell
+"globus pallidus (CHR_E, CHR_S, PR_F)",organ
+"glomerular endothelial cell (CHR_E, CHR_S, PR_F)",cell
+glomerular visceral epithelial cell (CHR_S),cell
+"granulocyte (ENH_F, PR_F)",cell
+"hair follicle cell (ENH_F, PR_F)",cell
+"heart (CHR_E, CHR_S, ENH_F, PR_F, PR_S)",organ
+"heart embryonic (CHR_S, PR_S)",organ
+"heart left ventricle (CHR_E, CHR_S, ENH_E, PR_F, PR_S)",organ
+heart left ventricle embryonic (CHR_S),organ
+"heart right ventricle (CHR_E, ENH_S, PR_S)",organ
+"hepatic stellate cell (ENH_F, PR_F)",cell
+"hepatocyte (CHR_E, ENH_F, PR_F)",cell
+"hindlimb muscle (CHR_E, CHR_S, PR_F)",tissue
+hindlimb muscle embryonic (CHR_S),tissue
+inferior parietal cortex (CHR_S),tissue
+"internal male genitalia (ENH_F, PR_F)",organ
+"intestinal epithelial cell (ENH_F, PR_F)",cell
+"iris pigment epithelial cell (CHR_E, ENH_F, PR_F)",cell
+islet of Langerhans (CHR_E),cell
+"keratinocyte (CHR_E, CHR_S, ENH_E, ENH_F, ENH_S, PR_F, PR_S)",cell
+"keratocyte (ENH_F, PR_F)",cell
+"kidney (CHR_E, CHR_S, ENH_F, PR_F, PR_S)",organ
+kidney capillary endothelial cell (CHR_E),cell
+"kidney embryonic (CHR_S, PR_S)",organ
+"kidney epithelial cell (CHR_E, ENH_E, ENH_F, PR_F, PR_S)",cell
+kidney tubule cell (CHR_E),cell
+"large intestine (CHR_E, CHR_S, ENH_F, ENH_S, PR_F, PR_S)",organ
+"large intestine embryonic (CHR_S, ENH_S, PR_S)",organ
+"layer of hippocampus (ENH_S, PR_S)",tissue
+left arm bone (CHR_E),organ
+left cardiac atrium (CHR_E),organ
+"left kidney (CHR_E, CHR_S)",organ
+left kidney embryonic (CHR_S),organ
+left leg bone (CHR_E),organ
+"left lung (CHR_E, CHR_S)",organ
+left lung embryonic (CHR_S),organ
+"left renal cortex interstitium (CHR_E, CHR_S)",tissue
+left renal cortex interstitium embryonic (CHR_S),tissue
+"left renal pelvis (CHR_E, CHR_S)",organ
+left renal pelvis embryonic (CHR_S),organ
+"lens epithelial cell (ENH_F, PR_F)",cell
+limb (CHR_S),organ
+limb embryonic (CHR_S),organ
+"liver (CHR_E, ENH_E, ENH_F, ENH_S, PR_F, PR_S)",organ
+"lower leg skin (CHR_E, ENH_E)",organ
+"lung (CHR_E, CHR_S, ENH_F, ENH_S, PR_F, PR_S)",organ
+"lung embryonic (CHR_S, PR_S)",organ
+lung microvascular endothelial cell (CHR_E),cell
+"lymph node (ENH_F, PR_F)",organ
+"lymphocyte of B lineage (ENH_F, PR_F)",cell
+"macrophage (ENH_F, PR_F)",cell
+"mammary epithelial cell (CHR_E, CHR_S, ENH_E, ENH_F, ENH_S, PR_F, PR_S)",cell
+"mast cell (ENH_F, PR_F)",cell
+medulla oblongata (CHR_S),organ
+"melanocyte (ENH_F, PR_F)",cell
+"meninx (ENH_F, PR_F)",organ
+"mesenchymal cell (ENH_F, PR_F)",cell
+"mesothelial cell (ENH_F, PR_F)",cell
+midbrain (CHR_S),organ
+"middle frontal area 46 (ENH_S, PR_S)",organ
+middle frontal gyrus (CHR_S),organ
+"monocyte (ENH_F, PR_F)",cell
+mononuclear cell (PR_S),cell
+"mucosa of rectum (ENH_S, PR_S)",tissue
+mucosa of stomach (PR_S),tissue
+"muscle layer of duodenum (ENH_S, PR_S)",tissue
+"muscle of arm (CHR_E, CHR_S)",tissue
+muscle of arm embryonic (CHR_S),tissue
+"muscle of back (CHR_E, CHR_S)",tissue
+muscle of back embryonic (CHR_S),tissue
+"muscle of leg (CHR_E, CHR_S, ENH_S, PR_F, PR_S)",tissue
+"muscle of leg embryonic (CHR_S, ENH_S, PR_S)",tissue
+"muscle of trunk (CHR_E, CHR_S, ENH_S, PR_S)",tissue
+"muscle of trunk embryonic (CHR_S, ENH_S, PR_S)",tissue
+"myoblast (ENH_F, PR_F)",cell
+myoepithelial cell of mammary gland (PR_S),cell
+"naive thymus-derived CD4-positive, alpha-beta T cell (CHR_E, CHR_S, PR_F)",cell
+"natural killer cell (CHR_E, CHR_S, ENH_F, ENH_S, PR_F, PR_S)",cell
+"neuron (ENH_F, PR_F)",cell
+"neuronal stem cell (ENH_F, PR_F)",cell
+neurosphere (PR_S),tissue
+neurosphere embryonic (PR_S),tissue
+"neutrophil (ENH_E, ENH_F, ENH_S, PR_F, PR_S)",cell
+"non-pigmented ciliary epithelial cell (CHR_E, CHR_S, PR_F)",cell
+"occipital lobe (CHR_E, CHR_S)",organ
+"olfactory region (ENH_F, PR_F)",tissue
+"omental fat pad (CHR_E, ENH_E)",tissue
+"osteoblast (CHR_E, ENH_F, ENH_S, PR_F, PR_S)",cell
+"ovary (CHR_E, CHR_S, ENH_E, ENH_F, ENH_S, PR_F, PR_S)",organ
+"pancreas (CHR_E, CHR_S, ENH_F, ENH_S, PR_F, PR_S)",organ
+"parotid gland (ENH_F, PR_F)",organ
+"penis (ENH_F, PR_F)",organ
+"pericyte cell (ENH_F, PR_F)",cell
+"peripheral blood mononuclear cell (ENH_S, PR_S)",cell
+"placenta (CHR_E, CHR_S, ENH_F, ENH_S, PR_F, PR_S)",organ
+"placenta embryonic (CHR_S, ENH_S, PR_S)",organ
+"placental epithelial cell (ENH_F, PR_F)",cell
+"pons (CHR_E, CHR_S)",organ
+"preadipocyte (ENH_F, PR_F)",cell
+"prostate gland (CHR_E, CHR_S, ENH_E, ENH_F, PR_F)",organ
+"psoas muscle (CHR_E, ENH_S, PR_S)",tissue
+"pulmonary artery endothelial cell (CHR_E, CHR_S)",cell
+putamen (CHR_E),organ
+"rectal smooth muscle tissue (ENH_S, PR_S)",tissue
+"regulatory T cell (CHR_E, CHR_S, PR_F)",cell
+"renal cortex interstitium (CHR_E, CHR_S)",tissue
+renal cortex interstitium embryonic (CHR_S),tissue
+"renal cortical epithelial cell (CHR_E, CHR_S, PR_F)",cell
+"renal pelvis (CHR_E, CHR_S)",tissue
+renal pelvis embryonic (CHR_S),tissue
+"respiratory epithelial cell (ENH_F, PR_F)",cell
+"reticulocyte (ENH_F, PR_F)",cell
+"retina (CHR_E, CHR_S, PR_F)",organ
+retina embryonic (CHR_S),organ
+"retinal pigment epithelial cell (CHR_E, ENH_E, ENH_F, PR_F, PR_S)",cell
+right arm bone (CHR_E),organ
+"right atrium auricular region (CHR_E, ENH_E)",tissue
+"right cardiac atrium (ENH_S, PR_S)",organ
+"right kidney (CHR_E, CHR_S)",organ
+right kidney embryonic (CHR_S),organ
+right leg bone (CHR_E),organ
+"right lobe of liver (CHR_E, CHR_S, ENH_E, ENH_S, PR_S)",organ
+"right lung (CHR_E, CHR_S, PR_F)",organ
+right lung embryonic (CHR_S),organ
+"right renal cortex interstitium (CHR_E, CHR_S)",tissue
+right renal cortex interstitium embryonic (CHR_S),tissue
+"right renal pelvis (CHR_E, CHR_S)",tissue
+right renal pelvis embryonic (CHR_S),tissue
+"saliva-secreting gland (ENH_F, PR_F)",organ
+"sensory epithelial cell (ENH_F, PR_F)",cell
+"sigmoid colon (CHR_S, ENH_E, ENH_S, PR_S)",organ
+"skeletal muscle cell (CHR_E, ENH_F, PR_F, PR_S)",cell
+"skeletal muscle myoblast (CHR_E, ENH_E, ENH_S, PR_F, PR_S)",cell
+skeletal muscle satellite cell (PR_S),cell
+"skeletal muscle tissue (ENH_F, ENH_S, PR_F, PR_S)",tissue
+"skin fibroblast (CHR_S, ENH_F, PR_F)",cell
+skin fibroblast embryonic (CHR_S),cell
+"skin of body (CHR_S, ENH_F, PR_F)",organ
+skin of body embryonic (CHR_S),organ
+"small intestine (CHR_E, CHR_S, ENH_F, ENH_S, PR_F, PR_S)",organ
+"small intestine embryonic (CHR_S, ENH_S, PR_S)",organ
+"smooth muscle cell of prostate (ENH_F, PR_F)",cell
+"smooth muscle cell of the brain vasculature (CHR_E, CHR_S, PR_F)",cell
+"smooth muscle cell of the esophagus (ENH_F, PR_F)",cell
+"smooth muscle cell of trachea (ENH_F, PR_F)",cell
+"smooth muscle tissue (ENH_F, PR_F)",tissue
+"spinal cord (CHR_E, CHR_S, ENH_F, PR_F)",organ
+spinal cord embryonic (CHR_S),organ
+"spleen (CHR_E, CHR_S, ENH_E, ENH_F, ENH_S, PR_F, PR_S)",organ
+spleen embryonic (CHR_S),organ
+"stomach (CHR_E, CHR_S, ENH_E, ENH_F, ENH_S, PR_F, PR_S)",organ
+"stomach embryonic (CHR_S, ENH_S, PR_S)",organ
+"stomach smooth muscle (ENH_S, PR_S)",tissue
+"stromal cell (ENH_F, PR_F)",cell
+"stromal cell of bone marrow (CHR_E, CHR_S)",cell
+"subcutaneous abdominal adipose tissue (ENH_S, PR_S)",tissue
+"subcutaneous adipose tissue (ENH_E, PR_F)",tissue
+"submandibular gland (ENH_F, PR_F)",organ
+"substantia nigra (ENH_S, PR_S)",organ
+superior temporal gyrus (CHR_S),organ
+suprapubic skin (ENH_E),tissue
+"temporal lobe (ENH_S, PR_S)",organ
+"tendon cell (ENH_F, PR_F)",cell
+"testis (CHR_E, CHR_S, ENH_E, ENH_F, PR_F)",organ
+testis embryonic (CHR_S),organ
+"thoracic aorta (ENH_E, ENH_S, PR_F, PR_S)",organ
+thoracic segment muscle (CHR_S),tissue
+thoracic segment muscle embryonic (CHR_S),tissue
+"throat (ENH_F, PR_F)",organ
+"thymus (CHR_E, CHR_S, ENH_F, ENH_S, PR_F, PR_S)",organ
+"thymus embryonic (CHR_S, ENH_S, PR_S)",organ
+"thyroid gland (CHR_E, CHR_S, ENH_E, ENH_F, ENH_S, PR_F, PR_S)",organ
+"tibial artery (CHR_E, ENH_E)",organ
+"tibial nerve (CHR_E, ENH_E)",organ
+"tongue (CHR_E, CHR_S, ENH_F, PR_F)",organ
+tongue embryonic (CHR_S),organ
+"tonsil (ENH_F, PR_F)",organ
+"trabecular meshwork cell (ENH_F, PR_F)",cell
+tracheal epithelial cell (PR_F),cell
+"transverse colon (CHR_E, CHR_S, ENH_E)",organ
+"trophoblast cell (CHR_E, CHR_S)",cell
+trophoblast cell embryonic (CHR_S),cell
+"umbilical cord (CHR_E, CHR_S, ENH_F, PR_F)",organ
+umbilical cord embryonic (CHR_S),organ
+"upper lobe of left lung (CHR_E, ENH_E)",organ
+"urinary bladder (CHR_E, CHR_S, ENH_F, PR_F)",organ
+urinary bladder embryonic (CHR_S),organ
+"urothelial cell (ENH_F, PR_F)",cell
+"uterine smooth muscle cell (ENH_F, PR_F)",cell
+"uterus (CHR_E, CHR_S, ENH_E, ENH_F, PR_F)",organ
+"vagina (CHR_E, ENH_E, ENH_F, ENH_S, PR_F, PR_S)",organ
+"vascular associated smooth muscle cell (ENH_F, PR_F)",cell
+"Ammon's horn (CHR_E, CHR_S)",tissue

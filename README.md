@@ -29,8 +29,8 @@ In upcoming releases Remus will also enable inclusion of other regulatory featur
    
 2. Type-in symbols of genes relevant for the phenotype.
 
-3. Choose tissues and/or cell-types relevant for the phenotype. 
-   In parenthesis next to name of the tissue/cell-type, symbols for available datatypes are shown, e.g. 
+3. Choose organs, tissues and/or cell-types relevant for the phenotype. 
+   In parenthesis next to name of the organ/tissue/cell-type, symbols for available datatypes are shown, e.g. 
    ENH_E - enhancers from ENCODE, PR_F5 - FANTOM5 promoters, CHR_S - accessible chromatin from SCREEN.
 
 4. Select types of regulatory features to include. 
@@ -40,7 +40,7 @@ In upcoming releases Remus will also enable inclusion of other regulatory featur
    Please note that miRNA-gene interactions are filtered against accessible chromatin regions in selected tissues, i.e.
    only miRNAs encoded in accessible parts of the genome will be included. 
 
-5. Download resulting BED file or filter your variants.
+5. Download the results as a BED file, Excel file, view it in Genome Browser, or filter your own VCF file with variants.
    Note that the VCF file is filtered in your browser - it is NOT sent or uploaded anywhere.
 
 ##### VCF filtering

@@ -28,7 +28,7 @@
         <div class="row">
             <div class="card-body align-self-center col-md-8">
                 <div class="form-group">
-                    <h5><label for="select-genes">Select genes:</label></h5>
+                    <h5><label for="select-genes" id="select-genes-label">Select genes:</label></h5>
                     <div>
                         <select class="form-control" name="genes" id="select-genes" required></select>
                     </div>
@@ -93,7 +93,9 @@
                    data-toggle="popover"
                    data-placement="right"
                    data-html="true"
-                   data-content="Holding [ctrl✲] key will prevent modal dialog from closing after selection">
+                   data-content="Holding [ctrl✲] key will prevent modal dialog from closing after selection <br /><br />
+                                 Clicking on category within select will switch between closed/open view
+                   ">
                     [Tips]
                 </a>
             </div>
@@ -579,20 +581,23 @@
                     data-toggle="popover"
                     data-placement="right"
                     data-html="true"
-                    data-content="Click me to run query for example data!"
+                    data-content="Click me to run query on example input!"
                     >
             </div><br>
             <div>
-
+                <small>Example VCF [
+                    <a href="static/HG001_chr8_hg19.vcf" type="button" class="btn btn-lnk btn-sm">hg19</a>|
+                    <a href="static/HG001_chr8_hg38.vcf" type="button" class="btn btn-lnk btn-sm">hg38</a>
+                    ]
+                </small>
                 <label id="filter-vcf-label" class="btn btn-success btn-lg disabled" for="filter-vcf">
                     <input type="file" id="filter-vcf" accept=".vcf" disabled hidden>
                     <!--<input type="file" id="filter-vcf" accept=".gz, .tbi, .vcf"  multiple disabled hidden> -->
-                    Filter VCF using result BED
+                    Filter VCF using the result
                 </label>
-
-            </div>
+            </div><br>
             <div>
-                Get results in:<br>
+                Get the result in:<br>
                 <input type="button" id="download-result" class="btn btn-success"
                     role="button" aria-disabled="true" value="BED" disabled>
                 <input type="button" id="download-excel" class="btn btn-success"
