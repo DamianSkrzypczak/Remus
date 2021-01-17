@@ -40,14 +40,14 @@ In upcoming releases Remus will also enable inclusion of other regulatory featur
    Please note that miRNA-gene interactions are filtered against accessible chromatin regions in selected tissues, i.e.
    only miRNAs encoded in accessible parts of the genome will be included. 
 
-5. Download the results as a BED file, Excel file, view it in Genome Browser, or filter your own VCF file with variants.
-   Note that the VCF file is filtered in your browser - it is NOT sent or uploaded anywhere.
+5. Download the results as a BED file, Excel file, view it in Genome Browser, or filter your own VCF file with variants (for details, see below).
+   Note that the VCF file is filtered in your browser - it is NOT sent or uploaded anywhere. 
 
 ##### VCF filtering
 
 Remus allows for in-browser filtering of a VCF file using the output BED file with regulatory regions.
 Variants falling into the regions are selected and returned in a plain text VCF file.
-Input must be provided as sorted plain-text VCF, and filtering large files takes only a few seconds (~5s on 500M VCF).
+The input must be provided as sorted plain-text VCF, and filtering large files takes only a few seconds (~5s on 500M VCF).
 Filtering BGZipped & Tabix'ed files was considerably slower in tests, and although implemented, has been disabled for the time being.
 
 In-browser filtering means that the variant file does not leave your computer - great feature if you are working with sensitive data.
@@ -56,6 +56,9 @@ Currently the VCF file is read in one piece ([to be changed](https://github.com/
 
  - plain text VCF in Chrome 68 can be upto 1GB,
  - plain text VCF limit in Firefox 64.0 was ~250MB
+
+Please note, that Remus does not annotate nor filter variants based on population frequency, evolutionary conservation, or pathogenicity scores. 
+This type of filtering is advised before (or after) using Remus, and can be done with the help of tools such as [VEP](https://www.ensembl.org/info/docs/tools/vep/index.html), [SnpEff](https://pcingola.github.io/SnpEff/) or [Annovar](https://doc-openbio.readthedocs.io/projects/annovar/en/latest/).
 
 
 ### Installation of a local instance of Remus
